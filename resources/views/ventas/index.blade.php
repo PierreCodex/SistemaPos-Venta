@@ -1,0 +1,373 @@
+@extends('layouts.master')
+
+@section('title')
+    Gestión de Ventas
+@endsection
+
+@section('css')
+    <link href="{{ URL::asset('build/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css">
+    <style>
+        /* Estilo para el botón púrpura del mockup */
+        .filter-btn-purple {
+            background-color: #903ef5 !important;
+            border-color: #903ef5 !important;
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+        .filter-btn-purple:hover {
+            background-color: #7a32d4 !important;
+            border-color: #7a32d4 !important;
+        }
+
+        /* Estilo para las cajas de resumen */
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            min-height: 100px;
+        }
+
+        [data-layout-mode="dark"] .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-layout-mode="light"] .stat-box {
+            background: #f3f6f9;
+            border: 1px solid #e9ebec;
+        }
+    </style>
+@endsection
+
+@section('content')
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <h4 class="mb-sm-0">Gestión de Ventas</h4>
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Inicio</a></li>
+                        <li class="breadcrumb-item active">Ventas</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row h-100 align-items-stretch">
+        {{-- Bloque de Filtros --}}
+        <div class="col-lg-8">
+            <div class="card card-height-100">
+                <div class="card-body p-4">
+                    <form id="formFiltros" action="javascript:void(0);">
+                        <div class="row g-4 align-items-end">
+                            <div class="col-sm-4">
+                                <label for="fecha_inicio"
+                                    class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha Inicio</label>
+                                <div class="input-group">
+                                    <input type="text" id="fecha_inicio" class="form-control border-light bg-light"
+                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}">
+                                    <span class="input-group-text border-light bg-light"><i
+                                            class="ri-calendar-event-line"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="fecha_fin" class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha
+                                    Fin</label>
+                                <div class="input-group">
+                                    <input type="text" id="fecha_fin" class="form-control border-light bg-light"
+                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}">
+                                    <span class="input-group-text border-light bg-light"><i
+                                            class="ri-calendar-event-line"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" class="btn filter-btn-purple w-100 py-2 fs-14 shadow-none">
+                                    <i class="ri-filter-3-line me-1 align-middle"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Bloque de Resumen --}}
+        <div class="col-lg-4">
+            <div class="card card-height-100">
+                <div class="card-body p-4">
+                    <div class="d-flex gap-3 h-100 align-items-center">
+                        {{-- Emitidas --}}
+                        <div class="stat-box text-center p-3 rounded-3 flex-fill">
+                            <p class="text-success text-uppercase fw-bold mb-2 fs-12">Emitidas</p>
+                            <h3 class="mb-1 fw-bold text-success">
+                                <span class="fs-12 fw-normal text-muted me-1">S/.</span>
+                                <span id="totalEmitidas">{{ number_format($estadisticas['emitidas']['total'], 2) }}</span>
+                            </h3>
+                            <p class="text-muted mb-0 fs-13">
+                                <span id="cantidadEmitidas">{{ $estadisticas['emitidas']['cantidad'] }}</span> ventas
+                            </p>
+                        </div>
+                        {{-- Anuladas --}}
+                        <div class="stat-box text-center p-3 rounded-3 flex-fill">
+                            <p class="text-danger text-uppercase fw-bold mb-2 fs-12">Anuladas</p>
+                            <h3 class="mb-1 fw-bold text-danger">
+                                <span class="fs-12 fw-normal text-muted me-1">S/.</span>
+                                <span id="totalAnuladas">{{ number_format($estadisticas['anuladas']['total'], 2) }}</span>
+                            </h3>
+                            <p class="text-muted mb-0 fs-13">
+                                <span id="cantidadAnuladas">{{ $estadisticas['anuladas']['cantidad'] }}</span> ventas
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <h5 class="card-title mb-0 flex-grow-1">Listado de Comprobantes</h5>
+                    <div class="d-flex flex-shrink-0 gap-2">
+                        <button type="button" id="btnExportarPDF" class="btn btn-soft-danger waves-effect waves-light">
+                            <i class="las la-file-pdf fs-3"></i><span>PDF</span>
+                        </button>
+                        <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
+                            <i class="las la-file-excel fs-3"></i><span>Excel</span>
+                        </button>
+                        @can('ventas.crear')
+                            <a href="{{ route('ventas.create') }}" class="btn btn-primary">
+                                <i class="ri-add-line me-1"></i> Nueva Venta
+                            </a>
+                        @endcan
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <table id="tablaVentas" class="table nowrap align-middle" style="width:100%">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Comprobante</th>
+                                <th>Cliente</th>
+                                <th>Vendedor</th>
+                                <th>Método Pago</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th class="no-exportar" style="width: 150px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($ventas as $venta)
+                                <tr data-id="{{ $venta->id }}">
+                                    <td>
+                                        <span
+                                            class="badge bg-primary-subtle text-primary">{{ $venta->comprobante }}</span><br>
+                                        <small class="text-muted">{{ $venta->serie }}-{{ $venta->numero }}</small>
+                                    </td>
+                                    <td>{{ $venta->nombre_cliente }}</td>
+                                    <td>{{ $venta->vendedor->name ?? '-' }}</td>
+                                    <td>
+                                        <span class="badge bg-info-subtle text-info">{{ $venta->metodo_pago }}</span>
+                                    </td>
+                                    <td>{{ $venta->fecha_emision->format('d/m/Y H:i') }}</td>
+                                    <td><strong>S/ {{ number_format($venta->total, 2) }}</strong></td>
+                                    <td>{!! $venta->badge_estado !!}</td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="btn btn-sm btn-info"
+                                                onclick="verDetalles({{ $venta->id }})" title="Ver detalles">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-secondary"
+                                                onclick="imprimirVenta({{ $venta->id }})" title="Imprimir">
+                                                <i class="ri-printer-line"></i>
+                                            </button>
+                                            @can('ventas.anular')
+                                                @if ($venta->estado !== 'ANULADA')
+                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                        onclick="anularVenta({{ $venta->id }})" title="Anular">
+                                                        <i class="ri-close-circle-line"></i>
+                                                    </button>
+                                                @endif
+                                            @endcan
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="ri-inbox-line fs-1 d-block mb-2"></i>
+                                        No hay ventas registradas hoy
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Ver Detalles --}}
+    <div class="modal fade" id="modalDetalles" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white">
+                        <i class="ri-file-list-3-line me-2"></i>Detalles de Venta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="contenidoDetalles">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('script')
+    <script src="{{ URL::asset('build/libs/flatpickr/flatpickr.min.js') }}"></script>
+    <script>
+        const ROUTES = {
+            show: '{{ route('ventas.show', ':id') }}',
+            destroy: '{{ route('ventas.destroy', ':id') }}',
+            filtrar: '{{ route('ventas.filtrar-fechas') }}'
+        };
+
+        // Ver detalles de una venta
+        function verDetalles(id) {
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
+            modal.show();
+
+            fetch(ROUTES.show.replace(':id', id), {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const v = data.venta;
+                        document.getElementById('contenidoDetalles').innerHTML = `
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Comprobante:</strong> ${v.comprobante}</p>
+                                <p class="mb-1"><strong>Serie-Número:</strong> ${v.serie}-${v.numero}</p>
+                                <p class="mb-1"><strong>Cliente:</strong> ${v.cliente?.nombre || 'Cliente General'}</p>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <p class="mb-1"><strong>Fecha:</strong> ${new Date(v.fecha_emision).toLocaleString()}</p>
+                                <p class="mb-1"><strong>Vendedor:</strong> ${v.vendedor?.name || '-'}</p>
+                                <p class="mb-1"><strong>Método:</strong> ${v.metodo_pago}</p>
+                            </div>
+                        </div>
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">P. Unit.</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${v.detalles.map(d => `
+                                            <tr>
+                                                <td>${d.producto?.nombre || 'Producto'}</td>
+                                                <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
+                                                <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                            </tr>
+                                        `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                    <td class="text-end">S/ ${parseFloat(v.subtotal).toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>IGV (${v.igv_porcentaje}%):</strong></td>
+                                    <td class="text-end">S/ ${parseFloat(v.igv_monto).toFixed(2)}</td>
+                                </tr>
+                                ${v.descuento > 0 ? `
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
+                                            <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
+                                        </tr>` : ''}
+                                <tr class="table-primary">
+                                    <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                    <td class="text-end"><strong>S/ ${parseFloat(v.total).toFixed(2)}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    `;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('contenidoDetalles').innerHTML =
+                        '<p class="text-danger text-center">Error al cargar los detalles</p>';
+                });
+        }
+
+        // Anular venta
+        function anularVenta(id) {
+            Swal.fire({
+                title: '¿Anular esta venta?',
+                text: 'Esta acción devolverá el stock de los productos',
+                icon: 'warning',
+                input: 'textarea',
+                inputLabel: 'Motivo de anulación',
+                inputPlaceholder: 'Ingrese el motivo...',
+                showCancelButton: true,
+                confirmButtonColor: '#f06548',
+                confirmButtonText: 'Sí, anular',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(ROUTES.destroy.replace(':id', id), {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                motivo: result.value || 'Sin motivo especificado'
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Anulada', data.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', data.message, 'error');
+                            }
+                        });
+                }
+            });
+        }
+
+        // Imprimir venta
+        function imprimirVenta(id) {
+            // Por ahora solo abrir en nueva ventana
+            window.open(`/ventas/${id}/print`, '_blank');
+        }
+
+        // Filtrar por fechas
+        document.getElementById('formFiltros').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Recargar la página con los filtros
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            const fechaFin = document.getElementById('fecha_fin').value;
+            window.location.href = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+        });
+    </script>
+    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+@endsection
