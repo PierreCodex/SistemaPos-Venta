@@ -1,11 +1,11 @@
-@extends('layouts.master')
 
-@section('title')
+
+<?php $__env->startSection('title'); ?>
     Gestión de Ventas
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
-    <link href="{{ URL::asset('build/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css">
+<?php $__env->startSection('css'); ?>
+    <link href="<?php echo e(URL::asset('build/libs/flatpickr/flatpickr.min.css')); ?>" rel="stylesheet" type="text/css">
     <style>
         /* Estilo para el botón púrpura del mockup */
         .filter-btn-purple {
@@ -37,16 +37,16 @@
             border: 1px solid #e9ebec;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                 <h4 class="mb-sm-0">Gestión de Ventas</h4>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Inicio</a></li>
                         <li class="breadcrumb-item active">Ventas</li>
                     </ol>
                 </div>
@@ -55,7 +55,7 @@
     </div>
 
     <div class="row h-100 align-items-stretch">
-        {{-- Bloque de Filtros --}}
+        
         <div class="col-lg-8">
             <div class="card card-height-100">
                 <div class="card-body p-4">
@@ -66,7 +66,7 @@
                                     class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha Inicio</label>
                                 <div class="input-group">
                                     <input type="text" id="fecha_inicio" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}">
+                                        data-provider="flatpickr" data-date-format="Y-m-d" value="<?php echo e(date('Y-m-d')); ?>">
                                     <span class="input-group-text border-light bg-light"><i
                                             class="ri-calendar-event-line"></i></span>
                                 </div>
@@ -76,7 +76,7 @@
                                     Fin</label>
                                 <div class="input-group">
                                     <input type="text" id="fecha_fin" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}">
+                                        data-provider="flatpickr" data-date-format="Y-m-d" value="<?php echo e(date('Y-m-d')); ?>">
                                     <span class="input-group-text border-light bg-light"><i
                                             class="ri-calendar-event-line"></i></span>
                                 </div>
@@ -92,31 +92,31 @@
             </div>
         </div>
 
-        {{-- Bloque de Resumen --}}
+        
         <div class="col-lg-4">
             <div class="card card-height-100">
                 <div class="card-body p-4">
                     <div class="d-flex gap-3 h-100 align-items-center">
-                        {{-- Emitidas --}}
+                        
                         <div class="stat-box text-center p-3 rounded-3 flex-fill">
                             <p class="text-success text-uppercase fw-bold mb-2 fs-12">Emitidas</p>
                             <h3 class="mb-1 fw-bold text-success">
                                 <span class="fs-12 fw-normal text-muted me-1">S/.</span>
-                                <span id="totalEmitidas">{{ number_format($estadisticas['emitidas']['total'], 2) }}</span>
+                                <span id="totalEmitidas"><?php echo e(number_format($estadisticas['emitidas']['total'], 2)); ?></span>
                             </h3>
                             <p class="text-muted mb-0 fs-13">
-                                <span id="cantidadEmitidas">{{ $estadisticas['emitidas']['cantidad'] }}</span> ventas
+                                <span id="cantidadEmitidas"><?php echo e($estadisticas['emitidas']['cantidad']); ?></span> ventas
                             </p>
                         </div>
-                        {{-- Anuladas --}}
+                        
                         <div class="stat-box text-center p-3 rounded-3 flex-fill">
                             <p class="text-danger text-uppercase fw-bold mb-2 fs-12">Anuladas</p>
                             <h3 class="mb-1 fw-bold text-danger">
                                 <span class="fs-12 fw-normal text-muted me-1">S/.</span>
-                                <span id="totalAnuladas">{{ number_format($estadisticas['anuladas']['total'], 2) }}</span>
+                                <span id="totalAnuladas"><?php echo e(number_format($estadisticas['anuladas']['total'], 2)); ?></span>
                             </h3>
                             <p class="text-muted mb-0 fs-13">
-                                <span id="cantidadAnuladas">{{ $estadisticas['anuladas']['cantidad'] }}</span> ventas
+                                <span id="cantidadAnuladas"><?php echo e($estadisticas['anuladas']['cantidad']); ?></span> ventas
                             </p>
                         </div>
                     </div>
@@ -137,11 +137,11 @@
                         <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
                             <i class="las la-file-excel fs-3"></i><span>Excel</span>
                         </button>
-                        @can('ventas.crear')
-                            <a href="{{ route('ventas.create') }}" class="btn btn-primary">
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('ventas.crear')): ?>
+                            <a href="<?php echo e(route('ventas.create')); ?>" class="btn btn-primary">
                                 <i class="ri-add-line me-1"></i> Nueva Venta
                             </a>
-                        @endcan
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -160,50 +160,50 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($ventas as $venta)
-                                <tr data-id="{{ $venta->id }}">
+                            <?php $__empty_1 = true; $__currentLoopData = $ventas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $venta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <tr data-id="<?php echo e($venta->id); ?>">
                                     <td>
                                         <span
-                                            class="badge bg-primary-subtle text-primary">{{ $venta->comprobante }}</span><br>
-                                        <small class="text-muted">{{ $venta->serie }}-{{ $venta->numero }}</small>
+                                            class="badge bg-primary-subtle text-primary"><?php echo e($venta->comprobante); ?></span><br>
+                                        <small class="text-muted"><?php echo e($venta->serie); ?>-<?php echo e($venta->numero); ?></small>
                                     </td>
-                                    <td>{{ $venta->nombre_cliente }}</td>
-                                    <td>{{ $venta->vendedor->name ?? '-' }}</td>
+                                    <td><?php echo e($venta->nombre_cliente); ?></td>
+                                    <td><?php echo e($venta->vendedor->name ?? '-'); ?></td>
                                     <td>
-                                        <span class="badge bg-info-subtle text-info">{{ $venta->metodo_pago }}</span>
+                                        <span class="badge bg-info-subtle text-info"><?php echo e($venta->metodo_pago); ?></span>
                                     </td>
-                                    <td>{{ $venta->fecha_emision->format('d/m/Y H:i') }}</td>
-                                    <td><strong>S/ {{ number_format($venta->total, 2) }}</strong></td>
-                                    <td>{!! $venta->badge_estado !!}</td>
+                                    <td><?php echo e($venta->fecha_emision->format('d/m/Y H:i')); ?></td>
+                                    <td><strong>S/ <?php echo e(number_format($venta->total, 2)); ?></strong></td>
+                                    <td><?php echo $venta->badge_estado; ?></td>
                                     <td>
                                         <div class="d-flex gap-1">
                                             <button type="button" class="btn btn-sm btn-info"
-                                                onclick="verDetalles({{ $venta->id }})" title="Ver detalles">
+                                                onclick="verDetalles(<?php echo e($venta->id); ?>)" title="Ver detalles">
                                                 <i class="ri-eye-line"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-secondary"
-                                                onclick="imprimirVenta({{ $venta->id }})" title="Imprimir">
+                                                onclick="imprimirVenta(<?php echo e($venta->id); ?>)" title="Imprimir">
                                                 <i class="ri-printer-line"></i>
                                             </button>
-                                            @can('ventas.anular')
-                                                @if ($venta->estado !== 'ANULADA')
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('ventas.anular')): ?>
+                                                <?php if($venta->estado !== 'ANULADA'): ?>
                                                     <button type="button" class="btn btn-sm btn-danger"
-                                                        onclick="anularVenta({{ $venta->id }})" title="Anular">
+                                                        onclick="anularVenta(<?php echo e($venta->id); ?>)" title="Anular">
                                                         <i class="ri-close-circle-line"></i>
                                                     </button>
-                                                @endif
-                                            @endcan
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
                                     <td colspan="8" class="text-center text-muted py-4">
                                         <i class="ri-inbox-line fs-1 d-block mb-2"></i>
                                         No hay ventas registradas hoy
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -211,7 +211,7 @@
         </div>
     </div>
 
-    {{-- Modal Ver Detalles --}}
+    
     <div class="modal fade" id="modalDetalles" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -232,11 +232,11 @@
         </div>
     </div>
 
-    {{-- Modal Opciones de la Venta (Diseño Integrado Velzon) --}}
+    
     <div class="modal fade" id="modalImpresion" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg overflow-hidden">
-                {{-- Header con Estilo Nativo Velzon --}}
+                
                 <div class="modal-header bg-primary bg-gradient p-3">
                     <div class="d-flex align-items-center">
                         <div class="avatar-xs me-2">
@@ -251,7 +251,7 @@
                 </div>
 
                 <div class="modal-body p-4">
-                    {{-- Información de la Venta en Card Nativa --}}
+                    
                     <div class="card bg-light-subtle border-dashed border-primary-subtle shadow-none mb-4">
                         <div class="card-body p-3">
                             <div class="row align-items-center">
@@ -280,7 +280,7 @@
                         </div>
                     </div>
 
-                    {{-- Acciones Principales --}}
+                    
                     <div id="wrapperAcciones">
                         <div class="row g-3">
                             <div class="col-12">
@@ -322,7 +322,7 @@
                         </div>
                     </div>
 
-                    {{-- Sección WhatsApp Integrada --}}
+                    
                     <div id="seccionWhatsApp" class="d-none animate__animated animate__fadeIn">
                         <div class="p-4 bg-success-subtle rounded text-center border border-success border-opacity-25">
                             <div class="avatar-md mx-auto mb-3">
@@ -359,15 +359,15 @@
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
-    <script src="{{ URL::asset('build/libs/flatpickr/flatpickr.min.js') }}"></script>
+<?php $__env->startSection('script'); ?>
+    <script src="<?php echo e(URL::asset('build/libs/flatpickr/flatpickr.min.js')); ?>"></script>
     <script>
         const ROUTES = {
-            show: '{{ route('ventas.show', ':id') }}',
-            destroy: '{{ route('ventas.destroy', ':id') }}',
-            filtrar: '{{ route('ventas.filtrar-fechas') }}'
+            show: '<?php echo e(route('ventas.show', ':id')); ?>',
+            destroy: '<?php echo e(route('ventas.destroy', ':id')); ?>',
+            filtrar: '<?php echo e(route('ventas.filtrar-fechas')); ?>'
         };
 
         // Ver detalles de una venta
@@ -525,7 +525,7 @@
         // Descargar PDF en formato específico
         function descargarPDFFormato(formato) {
             if (!ventaSeleccionada) return;
-            const url = `{{ url('ventas') }}/${ventaSeleccionada.id}/pdf/${formato}`;
+            const url = `<?php echo e(url('ventas')); ?>/${ventaSeleccionada.id}/pdf/${formato}`;
             window.open(url, '_blank');
         }
 
@@ -580,5 +580,7 @@
             window.location.href = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
         });
     </script>
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
-@endsection
+    <script src="<?php echo e(URL::asset('build/js/app.js')); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/ventas/index.blade.php ENDPATH**/ ?>

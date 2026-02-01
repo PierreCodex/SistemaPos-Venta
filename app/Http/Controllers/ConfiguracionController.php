@@ -34,6 +34,12 @@ class ConfiguracionController extends Controller
             'email' => 'nullable|email|max:100',
             'igv_porcentaje' => 'required|numeric|min:0|max:100',
             'moneda' => 'required|string|max:10',
+            // Nuevos campos SUNAT
+            'sunat_sol_user' => 'nullable|string|max:50',
+            'sunat_sol_pass' => 'nullable|string|max:100',
+            'sunat_client_id' => 'nullable|string|max:200',
+            'sunat_client_secret' => 'nullable|string|max:200',
+            'sunat_produccion' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -44,12 +50,8 @@ class ConfiguracionController extends Controller
             ], 422);
         }
 
-        $empresa = Empresa::first();
+        $empresa = Empresa::first() ?? new Empresa();
         
-        if (!$empresa) {
-            $empresa = new Empresa();
-        }
-
         $empresa->fill($request->only([
             'razon_social',
             'nombre_comercial',
@@ -59,7 +61,14 @@ class ConfiguracionController extends Controller
             'email',
             'igv_porcentaje',
             'moneda',
+            'sunat_sol_user',
+            'sunat_sol_pass',
+            'sunat_client_id',
+            'sunat_client_secret',
         ]));
+
+        // Manejar el checkbox de producción
+        $empresa->sunat_produccion = $request->boolean('sunat_produccion');
 
         $empresa->save();
         
@@ -69,6 +78,52 @@ class ConfiguracionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Configuración actualizada correctamente'
+        ]);
+    }
+
+    /**
+     * Subir el certificado digital (.pem)
+     */
+    public function uploadCertificado(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'certificado' => 'required|file|max:1024' // máx 1MB
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Archivo inválido. Debe subir un archivo de certificado válido.',
+            ], 422);
+        }
+
+        $empresa = Empresa::first() ?? new Empresa();
+
+        // Guardar certificado en storage/app/public/certificados
+        $file = $request->file('certificado');
+        $filename = 'cert_' . $empresa->ruc . '_' . time() . '.' . $file->getClientOriginalExtension();
+        
+        // Crear directorio si no existe
+        if (!Storage::disk('public')->exists('certificados')) {
+            Storage::disk('public')->makeDirectory('certificados');
+        }
+
+        $path = $file->storeAs('certificados', $filename, 'public');
+
+        // Eliminar anterior si existe
+        if ($empresa->sunat_cert_path && Storage::disk('public')->exists('certificados/' . $empresa->sunat_cert_path)) {
+            Storage::disk('public')->delete('certificados/' . $empresa->sunat_cert_path);
+        }
+
+        $empresa->sunat_cert_path = $filename;
+        $empresa->save();
+
+        Cache::forget('empresa_config');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Certificado digital subido correctamente',
+            'filename' => $filename
         ]);
     }
 

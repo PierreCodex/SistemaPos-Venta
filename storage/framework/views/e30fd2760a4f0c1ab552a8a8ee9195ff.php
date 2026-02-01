@@ -1,10 +1,10 @@
-@extends('layouts.master-without-nav')
 
-@section('title')
+
+<?php $__env->startSection('title'); ?>
     Punto de Venta (POS)
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
+<?php $__env->startSection('css'); ?>
     <style>
         /* Contenedores con scroll optimizado */
         .pos-product-grid {
@@ -250,14 +250,14 @@
             font-size: 20px;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <!-- Header POS -->
     <div class="row align-items-center mb-4 pt-3 text-uppercase">
         <div class="col">
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('ventas.index') }}"
+                <a href="<?php echo e(route('ventas.index')); ?>"
                     class="btn btn-primary d-flex align-items-center justify-content-center p-0"
                     style="width: 45px; height: 45px; border-radius: 12px; background-color: #0ab39c; border-color: #0ab39c;">
                     <i class="ri-arrow-left-s-line fs-24"></i>
@@ -303,13 +303,14 @@
                                     data-id="0">
                                     TODAS
                                 </button>
-                                @foreach ($categorias as $cat)
+                                <?php $__currentLoopData = $categorias; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <button
                                         class="btn btn-soft-secondary rounded-pill btn-sm px-3 text-uppercase btn-categoria"
-                                        data-id="{{ $cat->id }}">
-                                        {{ strtoupper($cat->nombre) }}
+                                        data-id="<?php echo e($cat->id); ?>">
+                                        <?php echo e(strtoupper($cat->nombre)); ?>
+
                                     </button>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
                         </div>
                     </div>
@@ -318,38 +319,41 @@
 
             <!-- Grid de Productos -->
             <div class="row g-3 pos-product-grid text-uppercase" id="productosGrid">
-                @foreach ($productos as $prod)
-                    <div class="col-xxl-3 col-xl-4 col-sm-6 producto-card" data-id="{{ $prod->id }}"
-                        data-nombre="{{ $prod->nombre }}" data-precio="{{ $prod->precio_venta }}"
-                        data-stock="{{ $prod->stock }}" data-categoria="{{ $prod->categoria_id }}"
-                        data-permite-decimales="{{ $prod->unidad->permite_decimales ?? 0 }}"
-                        data-unidad-codigo="{{ $prod->unidad->codigo ?? '' }}">
+                <?php $__currentLoopData = $productos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prod): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="col-xxl-3 col-xl-4 col-sm-6 producto-card" data-id="<?php echo e($prod->id); ?>"
+                        data-nombre="<?php echo e($prod->nombre); ?>" data-precio="<?php echo e($prod->precio_venta); ?>"
+                        data-stock="<?php echo e($prod->stock); ?>" data-categoria="<?php echo e($prod->categoria_id); ?>"
+                        data-permite-decimales="<?php echo e($prod->unidad->permite_decimales ?? 0); ?>"
+                        data-unidad-codigo="<?php echo e($prod->unidad->codigo ?? ''); ?>">
                         <div class="card product-item material-shadow h-100 border-0 overflow-hidden text-uppercase"
-                            onclick="validarAgregarProducto({{ $prod->id }}, '{{ addslashes($prod->nombre) }}', {{ $prod->precio_venta }}, {{ $prod->stock }}, {{ $prod->unidad->permite_decimales ?? 0 }}, '{{ $prod->unidad->codigo ?? '' }}')">
+                            onclick="validarAgregarProducto(<?php echo e($prod->id); ?>, '<?php echo e(addslashes($prod->nombre)); ?>', <?php echo e($prod->precio_venta); ?>, <?php echo e($prod->stock); ?>, <?php echo e($prod->unidad->permite_decimales ?? 0); ?>, '<?php echo e($prod->unidad->codigo ?? ''); ?>')">
                             <div class="card-body p-0">
                                 <div class="position-relative bg-light p-4 text-center">
-                                    @if ($prod->imagen)
-                                        <img src="{{ asset('storage/productos/' . $prod->imagen) }}" class="img-fluid"
+                                    <?php if($prod->imagen): ?>
+                                        <img src="<?php echo e(asset('storage/productos/' . $prod->imagen)); ?>" class="img-fluid"
                                             style="max-height: 60px;">
-                                    @else
+                                    <?php else: ?>
                                         <i class="ri-shopping-basket-line fs-1 text-primary-emphasis opacity-50"></i>
-                                    @endif
+                                    <?php endif; ?>
                                     <span
-                                        class="badge {{ $prod->stock <= $prod->stock_minimo ? 'bg-danger' : 'bg-success-subtle text-success' }} position-absolute top-0 start-0 m-2">
+                                        class="badge <?php echo e($prod->stock <= $prod->stock_minimo ? 'bg-danger' : 'bg-success-subtle text-success'); ?> position-absolute top-0 start-0 m-2">
                                         STOCK:
-                                        {{ $prod->unidad->permite_decimales ?? 0 ? number_format($prod->stock, 3) : number_format($prod->stock, 0) }}
-                                        {{ $prod->unidad->codigo ?? '' }}
+                                        <?php echo e($prod->unidad->permite_decimales ?? 0 ? number_format($prod->stock, 3) : number_format($prod->stock, 0)); ?>
+
+                                        <?php echo e($prod->unidad->codigo ?? ''); ?>
+
                                     </span>
                                 </div>
                                 <div class="p-3">
                                     <p class="text-muted text-uppercase mb-1 fs-11 fw-medium text-uppercase">
-                                        {{ $prod->categoria->nombre ?? 'Sin categoría' }}
+                                        <?php echo e($prod->categoria->nombre ?? 'Sin categoría'); ?>
+
                                     </p>
-                                    <h6 class="fs-14 mb-2 text-truncate text-uppercase">{{ $prod->nombre }}</h6>
+                                    <h6 class="fs-14 mb-2 text-truncate text-uppercase"><?php echo e($prod->nombre); ?></h6>
                                     <div class="d-flex align-items-center justify-content-between text-uppercase">
                                         <h5 class="text-primary mb-0 fw-bold">S/
-                                            {{ number_format($prod->precio_venta, 2) }} <small class="fs-10 text-muted">/
-                                                {{ $prod->unidad->codigo ?? '' }}</small></h5>
+                                            <?php echo e(number_format($prod->precio_venta, 2)); ?> <small class="fs-10 text-muted">/
+                                                <?php echo e($prod->unidad->codigo ?? ''); ?></small></h5>
                                         <button class="btn btn-sm btn-soft-primary add-btn btn-icon">
                                             <i class="ri-add-line fs-16"></i>
                                         </button>
@@ -358,7 +362,7 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
 
@@ -506,12 +510,12 @@
 
                         <!-- Botones de Monto Rápido -->
                         <div class="row g-2 mb-4 text-uppercase">
-                            @foreach ([5, 10, 20, 50, 100, 200] as $m)
+                            <?php $__currentLoopData = [5, 10, 20, 50, 100, 200]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="col">
                                     <button class="btn btn-outline-primary w-100 p-2 fs-13 fw-bold btn-monto"
-                                        data-monto="{{ $m }}">{{ $m }}</button>
+                                        data-monto="<?php echo e($m); ?>"><?php echo e($m); ?></button>
                                 </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
 
                         <!-- Vuelto -->
@@ -561,7 +565,7 @@
                             <div class="mb-3 text-uppercase">
                                 <label class="form-label text-muted fs-12 fw-bold">FECHA LÍMITE DE PAGO</label>
                                 <input type="date" id="fechaVencimientoCredito" class="form-control border-light"
-                                    min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                                    min="<?php echo e(date('Y-m-d', strtotime('+1 day'))); ?>">
                             </div>
                         </div>
 
@@ -891,22 +895,22 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script>
         // =====================================================
         // CONFIGURACIÓN Y ESTADO
         // =====================================================
         const ROUTES = {
-            store: '{{ route('ventas.store') }}',
-            buscarProducto: '{{ route('ventas.buscar-producto') }}',
-            buscarCliente: '{{ route('ventas.buscar-cliente') }}',
-            buscarCodigoBarras: '{{ route('ventas.buscar-codigo-barras') }}',
-            productosPorCategoria: '{{ url('ventas/api/productos-categoria') }}'
+            store: '<?php echo e(route('ventas.store')); ?>',
+            buscarProducto: '<?php echo e(route('ventas.buscar-producto')); ?>',
+            buscarCliente: '<?php echo e(route('ventas.buscar-cliente')); ?>',
+            buscarCodigoBarras: '<?php echo e(route('ventas.buscar-codigo-barras')); ?>',
+            productosPorCategoria: '<?php echo e(url('ventas/api/productos-categoria')); ?>'
         };
 
-        const CSRF_TOKEN = '{{ csrf_token() }}';
+        const CSRF_TOKEN = '<?php echo e(csrf_token()); ?>';
 
         // Estado del carrito
         let carrito = [];
@@ -1309,7 +1313,7 @@
 
                 if (result.success) {
                     // Audio de confirmación
-                    const confirmAudio = new Audio('{{ URL::asset('mp3/sfx-menu6.mp3') }}');
+                    const confirmAudio = new Audio('<?php echo e(URL::asset('mp3/sfx-menu6.mp3')); ?>');
                     confirmAudio.play().catch(e => console.log("Audio play blocked by browser"));
 
                     // Mostrar modal de descarga si hay comprobante electrónico
@@ -1410,7 +1414,7 @@
 
             // Audio de confirmación si es éxito
             if (tipo === 'success') {
-                const confirmAudio = new Audio('{{ URL::asset('mp3/sfx-menu6.mp3') }}');
+                const confirmAudio = new Audio('<?php echo e(URL::asset('mp3/sfx-menu6.mp3')); ?>');
                 confirmAudio.play().catch(e => console.log("Audio play blocked by browser"));
             }
 
@@ -2079,5 +2083,7 @@
             }
         })();
     </script>
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
-@endsection
+    <script src="<?php echo e(URL::asset('build/js/app.js')); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/ventas/create.blade.php ENDPATH**/ ?>

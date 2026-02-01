@@ -1,16 +1,16 @@
-@extends('layouts.master')
 
-@section('title')
+
+<?php $__env->startSection('title'); ?>
     Productos
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
+<?php $__env->startSection('css'); ?>
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" rel="stylesheet"
         type="text/css" />
     <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
 
-    {{-- Select2 CSS --}}
+    
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" type="text/css" />
     <style>
         /* Asegurar que el dropdown de Select2 aparezca sobre el modal */
@@ -44,16 +44,16 @@
             border-color: #f06548;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                 <h4 class="mb-sm-0">Productos</h4>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Inicio</a></li>
                         <li class="breadcrumb-item"><a href="javascript:void(0);">Directorio</a></li>
                         <li class="breadcrumb-item active">Productos</li>
                     </ol>
@@ -76,13 +76,13 @@
                             class="btn btn-soft-success waves-effect waves-light shadow-none">
                             <i class="ri-file-excel-line fs-18"></i> <span class="d-none d-sm-inline ms-1">Excel</span>
                         </button>
-                        @can('productos.crear')
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('productos.crear')): ?>
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="limpiarFormulario()">
                                 <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline">Nuevo
                                     Producto</span><span class="d-inline d-md-none">Nuevo</span>
                             </button>
-                        @endcan
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -101,64 +101,66 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($productos as $producto)
-                                <tr data-id="{{ $producto->id }}">
+                            <?php $__currentLoopData = $productos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $producto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <tr data-id="<?php echo e($producto->id); ?>">
                                     <td>
-                                        <span class="badge bg-light text-primary">{{ $producto->codigo }}</span><br>
-                                        <small class="text-muted">{{ $producto->codigo_barras ?? 'Sin barras' }}</small>
+                                        <span class="badge bg-light text-primary"><?php echo e($producto->codigo); ?></span><br>
+                                        <small class="text-muted"><?php echo e($producto->codigo_barras ?? 'Sin barras'); ?></small>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            @if ($producto->imagen)
-                                                <img src="{{ asset('storage/productos/' . $producto->imagen) }}"
+                                            <?php if($producto->imagen): ?>
+                                                <img src="<?php echo e(asset('storage/productos/' . $producto->imagen)); ?>"
                                                     class="avatar-xs rounded me-2">
-                                            @else
+                                            <?php else: ?>
                                                 <div class="avatar-xs me-2"><span
                                                         class="avatar-title rounded bg-soft-warning text-warning">P</span>
                                                 </div>
-                                            @endif
-                                            <strong>{{ $producto->nombre }}</strong>
+                                            <?php endif; ?>
+                                            <strong><?php echo e($producto->nombre); ?></strong>
                                         </div>
                                     </td>
-                                    <td>{{ $producto->categoria->nombre }}</td>
-                                    <td>{{ $producto->marca->nombre }}</td>
+                                    <td><?php echo e($producto->categoria->nombre); ?></td>
+                                    <td><?php echo e($producto->marca->nombre); ?></td>
                                     <td>
                                         <span
-                                            class="badge {{ $producto->stock <= $producto->stock_minimo ? 'bg-danger' : 'bg-success' }}">
-                                            {{ number_format($producto->stock, 2) }} {{ $producto->unidad->codigo }}
+                                            class="badge <?php echo e($producto->stock <= $producto->stock_minimo ? 'bg-danger' : 'bg-success'); ?>">
+                                            <?php echo e(number_format($producto->stock, 2)); ?> <?php echo e($producto->unidad->codigo); ?>
+
                                         </span>
                                     </td>
-                                    <td><strong>{{ $moneda ?? 'S/' }}
-                                            {{ number_format($producto->precio_venta, 2) }}</strong></td>
-                                    <td id="estado-badge-{{ $producto->id }}">
-                                        @if ($producto->estado)
+                                    <td><strong><?php echo e($moneda ?? 'S/'); ?>
+
+                                            <?php echo e(number_format($producto->precio_venta, 2)); ?></strong></td>
+                                    <td id="estado-badge-<?php echo e($producto->id); ?>">
+                                        <?php if($producto->estado): ?>
                                             <span class="badge bg-success">Activo</span>
-                                        @else
+                                        <?php else: ?>
                                             <span class="badge bg-danger">Inactivo</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-info"
-                                            onclick="verProducto({{ $producto->id }})" title="Ver Detalles">
+                                            onclick="verProducto(<?php echo e($producto->id); ?>)" title="Ver Detalles">
                                             <i class="ri-eye-line"></i>
                                         </button>
-                                        @can('productos.editar')
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('productos.editar')): ?>
                                             <button type="button" class="btn btn-sm btn-warning"
-                                                onclick="editarProducto({{ $producto->id }})" title="Editar">
+                                                onclick="editarProducto(<?php echo e($producto->id); ?>)" title="Editar">
                                                 <i class="ri-pencil-line"></i>
                                             </button>
-                                        @endcan
-                                        @can('productos.eliminar')
+                                        <?php endif; ?>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('productos.eliminar')): ?>
                                             <button type="button" class="btn btn-sm btn-danger"
-                                                onclick="eliminarProducto({{ $producto->id }}, '{{ $producto->nombre }}')"
+                                                onclick="eliminarProducto(<?php echo e($producto->id); ?>, '<?php echo e($producto->nombre); ?>')"
                                                 title="Eliminar">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
-                                        @endcan
+                                        <?php endif; ?>
 
                                     </td>
                                 </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
@@ -166,7 +168,7 @@
         </div>
     </div>
 
-    {{-- Modal Crear/Editar - Con Indicadores de Progreso por Pasos --}}
+    
     <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content shadow-lg border-0">
@@ -178,12 +180,12 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="formProducto" method="POST" enctype="multipart/form-data">
-                    @csrf
+                    <?php echo csrf_field(); ?>
                     <div class="modal-body">
-                        {{-- Indicadores de Pasos Visuales --}}
+                        
                         <div class="step-wizard mb-4 py-2">
                             <div class="d-flex justify-content-center align-items-center flex-nowrap overflow-hidden">
-                                {{-- Paso 1 --}}
+                                
                                 <div class="step-item text-center flex-shrink-0" data-step="1">
                                     <div class="step-circle active" id="stepCircle1" onclick="irAPaso(1)">
                                         <span class="step-number">1</span>
@@ -192,7 +194,7 @@
                                     <small class="d-none d-sm-block mt-1 step-label">General</small>
                                 </div>
                                 <div class="step-line flex-grow-1" id="stepLine1"></div>
-                                {{-- Paso 2 --}}
+                                
                                 <div class="step-item text-center flex-shrink-0" data-step="2">
                                     <div class="step-circle" id="stepCircle2" onclick="irAPaso(2)">
                                         <span class="step-number">2</span>
@@ -201,7 +203,7 @@
                                     <small class="d-none d-sm-block mt-1 step-label">Precios</small>
                                 </div>
                                 <div class="step-line flex-grow-1" id="stepLine2"></div>
-                                {{-- Paso 3 --}}
+                                
                                 <div class="step-item text-center flex-shrink-0" data-step="3">
                                     <div class="step-circle" id="stepCircle3" onclick="irAPaso(3)">
                                         <span class="step-number">3</span>
@@ -213,14 +215,14 @@
                         </div>
 
 
-                        {{-- Alerta de campos faltantes --}}
+                        
                         <div class="alert alert-warning d-none mb-3" id="alertaCampos" role="alert">
                             <i class="ri-alert-line me-2"></i>
                             <span id="alertaCamposTexto">Complete los campos obligatorios marcados con (*)</span>
                         </div>
 
                         <div class="tab-content">
-                            {{-- PASO 1: Información General --}}
+                            
                             <div class="tab-pane fade show active" id="tab-general" role="tabpanel">
                                 <h6 class="text-primary mb-3"><i class="ri-information-line me-1"></i>Información General
                                 </h6>
@@ -236,15 +238,23 @@
                                         <label for="categoria_id" class="form-label">Categoría <span
                                                 class="text-danger">*</span></label>
                                         <select
-                                            class="form-select js-example-basic-single @error('categoria_id') is-invalid @enderror"
+                                            class="form-select js-example-basic-single <?php $__errorArgs = ['categoria_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                             id="categoria_id" name="categoria_id" required>
                                             <option value="">-- Seleccionar --</option>
-                                            @foreach ($categorias as $cat)
-                                                <option value="{{ $cat->id }}"
-                                                    {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>
-                                                    {{ $cat->nombre }}
+                                            <?php $__currentLoopData = $categorias; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($cat->id); ?>"
+                                                    <?php echo e(old('categoria_id') == $cat->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($cat->nombre); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
 
                                     </div>
@@ -252,12 +262,19 @@
                                         <label for="marca_id" class="form-label">Marca <span
                                                 class="text-danger">*</span></label>
                                         <select
-                                            class="form-select js-example-basic-single @error('marca_id') is-invalid @enderror"
+                                            class="form-select js-example-basic-single <?php $__errorArgs = ['marca_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                             id="marca_id" name="marca_id" required>
                                             <option value="">-- Seleccionar --</option>
-                                            @foreach ($marcas as $mar)
-                                                <option value="{{ $mar->id }}">{{ $mar->nombre }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $marcas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($mar->id); ?>"><?php echo e($mar->nombre); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -287,7 +304,7 @@
                                 </div>
                             </div>
 
-                            {{-- PASO 2: Precios y Stock --}}
+                            
                             <div class="tab-pane fade" id="tab-precios" role="tabpanel">
                                 <h6 class="text-primary mb-3"><i class="ri-money-dollar-circle-line me-1"></i>Precios y
                                     Stock</h6>
@@ -317,14 +334,22 @@
                                         <label for="unidad_id" class="form-label">Unidad <span
                                                 class="text-danger">*</span></label>
                                         <select
-                                            class="form-select js-example-basic-single @error('unidad_id') is-invalid @enderror"
+                                            class="form-select js-example-basic-single <?php $__errorArgs = ['unidad_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                             id="unidad_id" name="unidad_id" required>
                                             <option value="">-- Seleccionar --</option>
-                                            @foreach ($unidades as $u)
-                                                <option value="{{ $u->id }}">{{ $u->nombre }}
-                                                    ({{ $u->codigo }})
+                                            <?php $__currentLoopData = $unidades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($u->id); ?>"><?php echo e($u->nombre); ?>
+
+                                                    (<?php echo e($u->codigo); ?>)
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
@@ -354,7 +379,7 @@
                                 </div>
                             </div>
 
-                            {{-- PASO 3: Datos Adicionales (Opcionales) --}}
+                            
                             <div class="tab-pane fade" id="tab-adicional" role="tabpanel">
                                 <h6 class="text-primary mb-3"><i class="ri-file-list-3-line me-1"></i>Datos Adicionales
                                     <span class="badge bg-soft-secondary text-secondary">Opcional</span>
@@ -405,7 +430,7 @@
         </div>
     </div>
 
-    {{-- Estilos para el Step Wizard --}}
+    
     <style>
         .step-wizard .step-circle {
             display: inline-flex;
@@ -508,7 +533,7 @@
         }
     </style>
 
-    {{-- Modal Ver - Diseño Nativo Velzon con Tabs --}}
+    
     <div class="modal fade" id="modalVer" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content overflow-hidden">
@@ -522,7 +547,7 @@
                 </div>
 
                 <div class="modal-body p-0">
-                    {{-- Tabs Navigation --}}
+                    
                     <ul class="nav nav-tabs nav-tabs-custom nav-success nav-justified mb-0" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" data-bs-toggle="tab" href="#tab-ver-general" role="tab">
@@ -542,7 +567,7 @@
                     </ul>
 
                     <div class="tab-content p-4">
-                        {{-- Tab 1: General --}}
+                        
                         <div class="tab-pane active" id="tab-ver-general" role="tabpanel">
                             <div class="row g-4">
                                 <div class="col-md-5 text-center border-end-md">
@@ -592,7 +617,7 @@
                             </div>
                         </div>
 
-                        {{-- Tab 2: Inventario --}}
+                        
                         <div class="tab-pane" id="tab-ver-inventario" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -644,7 +669,7 @@
                             </div>
                         </div>
 
-                        {{-- Tab 3: Precios e Impuestos --}}
+                        
                         <div class="tab-pane" id="tab-ver-precios" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-4 text-center">
@@ -688,12 +713,12 @@
                     </button>
                     <button type="button" class="btn btn-ghost-dark waves-effect shadow-none"
                         data-bs-dismiss="modal">Cerrar</button>
-                    @can('productos.editar')
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('productos.editar')): ?>
                         <button type="button" class="btn btn-success waves-effect waves-light shadow-sm px-4"
                             id="btnVerEditar">
                             <i class="ri-edit-line me-1"></i> Editar
                         </button>
-                    @endcan
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -702,7 +727,7 @@
 
 
 
-    {{-- Modal Eliminar --}}
+    
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -719,8 +744,8 @@
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <form id="formEliminar" method="POST">
-                        @csrf
-                        @method('DELETE')
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('DELETE'); ?>
                         <button type="submit" class="btn btn-danger">Eliminar</button>
                     </form>
                 </div>
@@ -728,7 +753,7 @@
         </div>
     </div>
 
-    {{-- Modal Lector de Cámara --}}
+    
     <div class="modal fade" id="modalLectorCamara" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -748,9 +773,9 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
@@ -764,25 +789,27 @@
 
     <script>
         window.PRODUCTOS_CONFIG = {
-            productos: @json($productos),
-            categorias: @json($categorias),
-            marcas: @json($marcas),
-            unidades: @json($unidades),
-            proveedores: @json($proveedores),
+            productos: <?php echo json_encode($productos, 15, 512) ?>,
+            categorias: <?php echo json_encode($categorias, 15, 512) ?>,
+            marcas: <?php echo json_encode($marcas, 15, 512) ?>,
+            unidades: <?php echo json_encode($unidades, 15, 512) ?>,
+            proveedores: <?php echo json_encode($proveedores, 15, 512) ?>,
             routes: {
-                store: "{{ route('productos.store') }}"
+                store: "<?php echo e(route('productos.store')); ?>"
             },
-            csrfToken: "{{ csrf_token() }}"
+            csrfToken: "<?php echo e(csrf_token()); ?>"
         };
     </script>
-    {{-- Select2 JS --}}
+    
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    {{-- Barcode Generator JS --}}
+    
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    {{-- Camera Scanner JS --}}
+    
     <script src="https://unpkg.com/html5-qrcode"></script>
 
 
 
-    <script src="{{ URL::asset('js/modules/productos/index.js') }}"></script>
-@endsection
+    <script src="<?php echo e(URL::asset('js/modules/productos/index.js')); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/productos/index.blade.php ENDPATH**/ ?>

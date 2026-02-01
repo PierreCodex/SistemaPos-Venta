@@ -14,6 +14,9 @@ use App\Http\Controllers\VentaCreditoController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\CompraController;
+use App\Http\Controllers\AjusteInventarioController;
+use App\Http\Controllers\KardexController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -274,7 +277,61 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:configuracion.editar')->group(function () {
         Route::put('configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
         Route::post('configuracion/upload-logo', [ConfiguracionController::class, 'uploadLogo'])->name('configuracion.upload-logo');
+        Route::post('configuracion/upload-cert', [ConfiguracionController::class, 'uploadCertificado'])->name('configuracion.upload-cert');
         Route::delete('configuracion/delete-logo', [ConfiguracionController::class, 'deleteLogo'])->name('configuracion.delete-logo');
+    });
+
+    // =========================================================================
+    // COMPRAS (Ingreso de Mercadería) - Con permisos granulares
+    // =========================================================================
+    Route::middleware('permission:compras.crear')->group(function () {
+        Route::get('compras/create', [CompraController::class, 'create'])->name('compras.create');
+        Route::post('compras', [CompraController::class, 'store'])->name('compras.store');
+    });
+    Route::middleware('permission:compras.ver')->group(function () {
+        Route::get('compras', [CompraController::class, 'index'])->name('compras.index');
+        Route::get('compras/api/buscar-productos', [CompraController::class, 'buscarProductos'])->name('compras.buscar-productos');
+        Route::get('compras/{compra}', [CompraController::class, 'show'])->name('compras.show');
+    });
+    Route::middleware('permission:compras.anular')->group(function () {
+        Route::patch('compras/{compra}/anular', [CompraController::class, 'anular'])->name('compras.anular');
+    });
+
+    // =========================================================================
+    // AJUSTES DE INVENTARIO - Con permisos granulares
+    // =========================================================================
+    Route::middleware('permission:inventario.ajustar')->group(function () {
+        Route::prefix('inventario')->name('inventario.')->group(function () {
+            Route::get('ajustes/create', [AjusteInventarioController::class, 'create'])->name('ajustes.create');
+            Route::post('ajustes', [AjusteInventarioController::class, 'store'])->name('ajustes.store');
+            Route::patch('ajustes/{ajuste}/aplicar', [AjusteInventarioController::class, 'aplicar'])->name('ajustes.aplicar');
+            Route::patch('ajustes/{ajuste}/anular', [AjusteInventarioController::class, 'anular'])->name('ajustes.anular');
+            Route::delete('ajustes/{ajuste}', [AjusteInventarioController::class, 'destroy'])->name('ajustes.destroy');
+        });
+    });
+    Route::middleware('permission:inventario.ver')->group(function () {
+        Route::prefix('inventario')->name('inventario.')->group(function () {
+            // Ajustes - rutas API y estáticas primero
+            Route::get('ajustes', [AjusteInventarioController::class, 'index'])->name('ajustes.index');
+            Route::get('ajustes/api/buscar-productos', [AjusteInventarioController::class, 'buscarProductos'])->name('ajustes.buscar-productos');
+            // Rutas con parámetros al final
+            Route::get('ajustes/{ajuste}', [AjusteInventarioController::class, 'show'])->name('ajustes.show');
+        });
+    });
+
+    // =========================================================================
+    // KARDEX (Historial de Movimientos) - Con permisos granulares
+    // =========================================================================
+    Route::middleware('permission:inventario.ver')->group(function () {
+        Route::prefix('inventario')->name('inventario.')->group(function () {
+            Route::get('kardex', [KardexController::class, 'index'])->name('kardex.index');
+            Route::get('kardex/producto/{producto}', [KardexController::class, 'porProducto'])->name('kardex.producto');
+            Route::get('kardex/api/movimientos', [KardexController::class, 'obtenerMovimientos'])->name('kardex.api.movimientos');
+            Route::get('kardex/api/estadisticas', [KardexController::class, 'estadisticas'])->name('kardex.api.estadisticas');
+            Route::get('kardex/api/resumen-tipo', [KardexController::class, 'resumenPorTipo'])->name('kardex.api.resumen-tipo');
+            Route::get('kardex/api/exportar/{producto}', [KardexController::class, 'exportar'])->name('kardex.api.exportar');
+            Route::get('kardex/api/buscar-productos', [KardexController::class, 'buscarProductos'])->name('kardex.api.buscar-productos');
+        });
     });
 });
 

@@ -305,17 +305,88 @@ function verProducto(id) {
     const prod = productos.find(p => p.id === id);
     if (!prod) return;
 
-    document.getElementById('verID').textContent = prod.id;
-    document.getElementById('verCodigo').textContent = prod.codigo;
-    document.getElementById('verNombre').textContent = prod.nombre;
-    document.getElementById('verCategoria').textContent = prod.categoria ? prod.categoria.nombre : '-';
-    document.getElementById('verMarca').textContent = prod.marca ? prod.marca.nombre : '-';
-    document.getElementById('verPrecioVenta').textContent = `S/ ${parseFloat(prod.precio_venta).toFixed(2)}`;
-    document.getElementById('verStock').innerHTML = `<span class="badge ${parseFloat(prod.stock) <= parseFloat(prod.stock_minimo) ? 'bg-danger' : 'bg-success'}">${prod.stock}</span>`;
-    document.getElementById('verEstado').innerHTML = prod.estado ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
+    // Resetear a la primera pestaña al abrir
+    const firstTabEl = document.querySelector('#modalVer .nav-link[href="#tab-ver-general"]');
+    if (firstTabEl) {
+        bootstrap.Tab.getOrCreateInstance(firstTabEl).show();
+    }
+
+    // 1. Tab General
+    document.getElementById('verNombre').textContent = prod.nombre || '--';
+    document.getElementById('verCodigo').textContent = prod.codigo || '--';
+    document.getElementById('verDescripcion').textContent = prod.descripcion || 'Sin descripción disponible.';
+    document.getElementById('verCategoria').textContent = prod.categoria ? prod.categoria.nombre : 'General';
+    document.getElementById('verMarca').textContent = prod.marca ? prod.marca.nombre : 'Genérico';
+    document.getElementById('verMaterial').textContent = prod.material || 'N/A';
+
+    const estadoBadge = document.getElementById('verEstadoBadge');
+    if (prod.estado) {
+        estadoBadge.innerHTML = '<span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">ACTIVO</span>';
+    } else {
+        estadoBadge.innerHTML = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">INACTIVO</span>';
+    }
+
+    // 2. Tab Inventario
+    const stockVal = parseFloat(prod.stock || 0);
+    const stockMin = parseFloat(prod.stock_minimo || 0);
+    const stockElem = document.getElementById('verStock');
+    stockElem.textContent = stockVal.toFixed(2);
+    stockElem.className = stockVal <= stockMin ? 'text-danger fw-bold mb-1' : 'text-success fw-bold mb-1';
+
+    document.getElementById('verUnidadBadge').textContent = prod.unidad ? prod.unidad.codigo : 'UND';
+    document.getElementById('verStockMinimo').textContent = stockMin.toFixed(2);
+    document.getElementById('verProveedor').textContent = prod.proveedor ? prod.proveedor.nombre : 'Sin proveedor';
+    document.getElementById('verUbicacion').textContent = prod.ubicacion || 'No asignada';
+    document.getElementById('verEsServicio').textContent = prod.es_servicio ? 'SÍ' : 'NO';
+    document.getElementById('verPermiteNegativo').textContent = prod.permite_venta_negativa ? 'SÍ' : 'NO';
+
+    // 3. Tab Precios
+    document.getElementById('verPrecioVenta').textContent = `S/ ${parseFloat(prod.precio_venta || 0).toFixed(2)}`;
+    document.getElementById('verPrecioCompra').textContent = `S/ ${parseFloat(prod.precio_compra || 0).toFixed(2)}`;
+    document.getElementById('verPrecioMayorista').textContent = `S/ ${parseFloat(prod.precio_mayorista || 0).toFixed(2)}`;
+
+    document.getElementById('verAplicaIGV').textContent = prod.aplica_igv ? 'SÍ (18%)' : 'EXONERADO (0%)';
+    document.getElementById('verAplicaIGV').className = prod.aplica_igv ? 'badge bg-primary px-3' : 'badge bg-secondary px-3';
+    document.getElementById('verVencimiento').textContent = prod.fecha_vencimiento || 'No expira';
+
+    // 4. Imagen
+    const imgPrincipal = document.getElementById('verImagenPrincipal');
+    const sinImagen = document.getElementById('verSinImagen');
+    if (prod.imagen) {
+        const baseUrl = window.location.origin;
+        imgPrincipal.src = `${baseUrl}/storage/productos/${prod.imagen}`;
+        imgPrincipal.classList.remove('d-none');
+        sinImagen.classList.add('d-none');
+    } else {
+        imgPrincipal.classList.add('d-none');
+        sinImagen.classList.remove('d-none');
+    }
+
+    // 5. Barcode
+    const barcodeValue = prod.codigo_barras || prod.codigo;
+    if (barcodeValue) {
+        JsBarcode("#verBarcode", barcodeValue, {
+            format: "CODE128",
+            lineColor: "#000",
+            width: 2,
+            height: 40,
+            displayValue: true
+        });
+    }
+
+    // 6. Botón Editar
+    const btnEditar = document.getElementById('btnVerEditar');
+    if (btnEditar) {
+        btnEditar.onclick = () => {
+            bootstrap.Modal.getInstance(document.getElementById('modalVer')).hide();
+            editarProducto(id);
+        };
+    }
 
     new bootstrap.Modal(document.getElementById('modalVer')).show();
 }
+
+
 
 function editarProducto(id) {
     const prod = productos.find(p => p.id === id);
@@ -617,6 +688,12 @@ function generarFilaHTML(prod) {
             </td>
             <td>
                 <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-info" onclick="verProducto(${prod.id})" title="Ver Detalles">
+                        <i class="ri-eye-line"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="mostrarModalCodigoBarras('${prod.codigo_barras || prod.codigo}')" title="Ver/Copiar Código de Barras">
+                        <i class="ri-barcode-line"></i>
+                    </button>
                     <button type="button" class="btn btn-sm btn-warning" onclick="editarProducto(${prod.id})" title="Editar">
                         <i class="ri-pencil-line"></i>
                     </button>
@@ -625,6 +702,7 @@ function generarFilaHTML(prod) {
                     </button>
                 </div>
             </td>
+
         </tr>
     `;
 }
@@ -661,3 +739,151 @@ function mostrarToast(mensaje, tipo = 'success') {
         }
     }
 }
+
+// =============================================
+// UTILS MODAL VER
+// =============================================
+function copiarAlPortapapeles(idElemento) {
+    const elemento = document.getElementById(idElemento);
+    if (!elemento) return;
+    const texto = elemento.textContent;
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast("Copiado al portapapeles", "success");
+    });
+}
+
+function copiarBarcodeValue() {
+    const elemento = document.getElementById('verCodigo');
+    if (!elemento) return;
+    const texto = elemento.textContent;
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast("Código copiado", "success");
+    });
+}
+
+function descargarBarcode() {
+    const svg = document.getElementById('verBarcode');
+    if (!svg) return;
+
+    // Serializar el SVG a una cadena
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+
+    // Obtener dimensiones del SVG
+    const width = svg.getAttribute("width") || 300;
+    const height = svg.getAttribute("height") || 100;
+
+    canvas.width = width * 2; // Alta resolución
+    canvas.height = height * 2;
+
+    const ctx = canvas.getContext("2d");
+    const img = document.createElement("img");
+
+    // Codificar en base64 para cargar en la imagen
+    const svgBase64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+    img.setAttribute("src", svgBase64);
+
+    img.onload = function () {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        try {
+            const pngUrl = canvas.toDataURL("image/png");
+            const downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl;
+            downloadLink.download = `barcode-${document.getElementById('verCodigo').textContent}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } catch (e) {
+            console.error("Error al generar imagen del barcode:", e);
+            mostrarToast("Error al generar imagen", "error");
+        }
+    };
+}
+// =============================================
+// LECTOR DE CÓDIGO DE BARRAS POR CÁMARA
+// =============================================
+let html5QrCode = null;
+
+function inicializarLectorCamara() {
+    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+    // Si ya hay una instancia, limpiarla antes de empezar
+    if (html5QrCode) {
+        html5QrCode.stop().catch(err => console.error("Error al detener scanner:", err));
+    }
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    const onScanSuccess = (decodedText, decodedResult) => {
+        // Sonido de escaneo (opcional)
+        // const audio = new Audio('/sounds/scanner.mp3'); 
+        // audio.play().catch(() => {});
+
+        // Asignar el valor al input de código de barras
+        document.getElementById('codigo_barras').value = decodedText;
+
+        // Cerrar el modal y detener la cámara
+        detenerLectorCamara();
+        bootstrap.Modal.getInstance(document.getElementById('modalLectorCamara')).hide();
+
+        mostrarToast(`Código detectado: ${decodedText}`, 'success');
+    };
+
+    const onScanFailure = (error) => {
+        // Errores de escaneo comunes si no detecta nada, se ignoran para no saturar consola
+    };
+
+    html5QrCode.start(
+        { facingMode: "environment" }, // Prioriza cámara trasera
+        config,
+        onScanSuccess,
+        onScanFailure
+    ).catch(err => {
+        console.error("No se pudo iniciar la cámara:", err);
+        mostrarToast("No se pudo acceder a la cámara. Verifique los permisos.", "error");
+        bootstrap.Modal.getInstance(document.getElementById('modalLectorCamara')).hide();
+    });
+}
+
+function detenerLectorCamara() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+            console.log("Cámara detenida.");
+        }).catch(err => {
+            console.error("Error al detener la cámara:", err);
+        });
+    }
+}
+
+// Event Listeners para el lector de cámara
+document.addEventListener('DOMContentLoaded', function () {
+    const btnEscanear = document.getElementById('btnEscanearCamara');
+    if (btnEscanear) {
+        btnEscanear.addEventListener('click', function () {
+            const modalLector = new bootstrap.Modal(document.getElementById('modalLectorCamara'));
+            modalLector.show();
+            // Esperar a que el modal se muestre para iniciar la cámara
+            document.getElementById('modalLectorCamara').addEventListener('shown.bs.modal', function () {
+                inicializarLectorCamara();
+            }, { once: true });
+        });
+    }
+
+    // Asegurar que la cámara se detenga al cerrar el modal (por botón X o clic fuera)
+    const modalLectorEl = document.getElementById('modalLectorCamara');
+    if (modalLectorEl) {
+        modalLectorEl.addEventListener('hidden.bs.modal', function () {
+            detenerLectorCamara();
+        });
+    }
+
+    const btnCerrarLector = document.getElementById('btnCerrarLector');
+    if (btnCerrarLector) {
+        btnCerrarLector.addEventListener('click', function () {
+            detenerLectorCamara();
+        });
+    }
+});

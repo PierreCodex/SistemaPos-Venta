@@ -1,10 +1,10 @@
-@extends('layouts.master')
 
-@section('title')
+
+<?php $__env->startSection('title'); ?>
     Configuración del Sistema
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
+<?php $__env->startSection('css'); ?>
     <style>
         .config-section {
             background: var(--vz-card-bg);
@@ -89,16 +89,16 @@
             width: 24px;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                 <h4 class="mb-sm-0"><i class="ri-settings-3-line me-2"></i>Configuración del Sistema</h4>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Dashboard</a></li>
                         <li class="breadcrumb-item active">Configuración</li>
                     </ol>
                 </div>
@@ -107,7 +107,7 @@
     </div>
 
     <div class="row">
-        {{-- Menú lateral --}}
+        
         <div class="col-lg-3">
             <div class="card">
                 <div class="card-body">
@@ -125,7 +125,7 @@
                 </div>
             </div>
 
-            {{-- Info de la configuración actual --}}
+            
             <div class="card">
                 <div class="card-header">
                     <h6 class="card-title mb-0">
@@ -135,25 +135,25 @@
                 <div class="card-body">
                     <div class="mb-2">
                         <small class="text-muted">RUC:</small>
-                        <div class="fw-semibold">{{ $empresa->ruc ?? 'No configurado' }}</div>
+                        <div class="fw-semibold"><?php echo e($empresa->ruc ?? 'No configurado'); ?></div>
                     </div>
                     <div class="mb-2">
                         <small class="text-muted">IGV:</small>
-                        <div class="fw-semibold">{{ $empresa->igv_porcentaje ?? 18 }}%</div>
+                        <div class="fw-semibold"><?php echo e($empresa->igv_porcentaje ?? 18); ?>%</div>
                     </div>
                     <div>
                         <small class="text-muted">Moneda:</small>
-                        <div class="fw-semibold">{{ $empresa->moneda ?? 'PEN' }}</div>
+                        <div class="fw-semibold"><?php echo e($empresa->moneda ?? 'PEN'); ?></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Contenido --}}
+        
         <div class="col-lg-9">
             <form id="formConfiguracion">
                 <div class="tab-content">
-                    {{-- Tab: Datos de Empresa --}}
+                    
                     <div class="tab-pane fade show active" id="empresa">
                         <div class="card">
                             <div class="card-header">
@@ -166,24 +166,24 @@
                                     <div class="col-md-4 text-center mb-4">
                                         <label class="form-label fw-semibold">Logo de la Empresa</label>
                                         <div class="logo-preview mx-auto" id="logoPreview">
-                                            @if ($empresa->logo)
-                                                <img src="{{ asset('storage/' . $empresa->logo) }}" alt="Logo">
-                                            @else
+                                            <?php if($empresa->logo): ?>
+                                                <img src="<?php echo e(asset('storage/' . $empresa->logo)); ?>" alt="Logo">
+                                            <?php else: ?>
                                                 <i class="ri-image-line placeholder-icon"></i>
-                                            @endif
+                                            <?php endif; ?>
                                             <div class="logo-actions">
-                                                @can('configuracion.editar')
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('configuracion.editar')): ?>
                                                     <label class="btn btn-sm btn-primary mb-0">
                                                         <i class="ri-upload-line"></i>
                                                         <input type="file" id="inputLogo" accept="image/*" class="d-none">
                                                     </label>
-                                                    @if ($empresa->logo)
+                                                    <?php if($empresa->logo): ?>
                                                         <button type="button" class="btn btn-sm btn-danger"
                                                             onclick="eliminarLogo()">
                                                             <i class="ri-delete-bin-line"></i>
                                                         </button>
-                                                    @endif
-                                                @endcan
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <small class="text-muted mt-2 d-block">Formatos: JPG, PNG, SVG. Máx: 2MB</small>
@@ -194,37 +194,37 @@
                                                 <label class="form-label fw-semibold">Razón Social <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" name="razon_social"
-                                                    value="{{ $empresa->razon_social }}" required
+                                                    value="<?php echo e($empresa->razon_social); ?>" required
                                                     placeholder="Ej: MI EMPRESA S.A.C.">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label fw-semibold">Nombre Comercial</label>
                                                 <input type="text" class="form-control" name="nombre_comercial"
-                                                    value="{{ $empresa->nombre_comercial }}" placeholder="Ej: Mi Tienda">
+                                                    value="<?php echo e($empresa->nombre_comercial); ?>" placeholder="Ej: Mi Tienda">
                                                 <small class="text-muted">Este nombre se mostrará en los tickets</small>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold">RUC</label>
                                                 <input type="text" class="form-control" name="ruc"
-                                                    value="{{ $empresa->ruc }}" maxlength="20"
+                                                    value="<?php echo e($empresa->ruc); ?>" maxlength="20"
                                                     placeholder="Ej: 20123456789">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold">Teléfono</label>
                                                 <input type="text" class="form-control" name="telefono"
-                                                    value="{{ $empresa->telefono }}" maxlength="50"
+                                                    value="<?php echo e($empresa->telefono); ?>" maxlength="50"
                                                     placeholder="Ej: 01-1234567">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label fw-semibold">Email</label>
                                                 <input type="email" class="form-control" name="email"
-                                                    value="{{ $empresa->email }}" maxlength="100"
+                                                    value="<?php echo e($empresa->email); ?>" maxlength="100"
                                                     placeholder="Ej: contacto@miempresa.com">
                                             </div>
                                             <div class="col-12">
                                                 <label class="form-label fw-semibold">Dirección</label>
                                                 <textarea class="form-control" name="direccion" rows="2" maxlength="500"
-                                                    placeholder="Ej: Av. Principal 123, Lima">{{ $empresa->direccion }}</textarea>
+                                                    placeholder="Ej: Av. Principal 123, Lima"><?php echo e($empresa->direccion); ?></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -233,7 +233,7 @@
                         </div>
                     </div>
 
-                    {{-- Tab: Facturación Electrónica (SUNAT) --}}
+                    
                     <div class="tab-pane fade" id="facturacion">
                         <div class="card">
                             <div class="card-header d-flex align-items-center">
@@ -246,7 +246,7 @@
                                             PRODUCCIÓN</label>
                                         <input class="form-check-input code-switcher" type="checkbox"
                                             name="sunat_produccion" id="sunat_produccion" value="1"
-                                            {{ $empresa->sunat_produccion ? 'checked' : '' }}>
+                                            <?php echo e($empresa->sunat_produccion ? 'checked' : ''); ?>>
                                     </div>
                                 </div>
                             </div>
@@ -269,7 +269,7 @@
                                                 <span class="input-group-text"><i
                                                         class="ri-user-settings-line"></i></span>
                                                 <input type="text" class="form-control" name="sunat_sol_user"
-                                                    value="{{ $empresa->sunat_sol_user }}" placeholder="Ej: MODDATOS">
+                                                    value="<?php echo e($empresa->sunat_sol_user); ?>" placeholder="Ej: MODDATOS">
                                             </div>
                                         </div>
                                         <div class="mb-3">
@@ -278,7 +278,7 @@
                                                 <span class="input-group-text"><i
                                                         class="ri-lock-password-line"></i></span>
                                                 <input type="password" class="form-control" name="sunat_sol_pass"
-                                                    value="{{ $empresa->sunat_sol_pass }}" placeholder="********">
+                                                    value="<?php echo e($empresa->sunat_sol_pass); ?>" placeholder="********">
                                             </div>
                                         </div>
                                     </div>
@@ -288,13 +288,13 @@
                                         <div class="mb-3">
                                             <label class="form-label">Client ID</label>
                                             <input type="text" class="form-control" name="sunat_client_id"
-                                                value="{{ $empresa->sunat_client_id }}"
+                                                value="<?php echo e($empresa->sunat_client_id); ?>"
                                                 placeholder="ID de la aplicación SUNAT">
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Client Secret</label>
                                             <input type="password" class="form-control" name="sunat_client_secret"
-                                                value="{{ $empresa->sunat_client_secret }}"
+                                                value="<?php echo e($empresa->sunat_client_secret); ?>"
                                                 placeholder="Secret de la aplicación SUNAT">
                                         </div>
                                     </div>
@@ -308,16 +308,16 @@
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
-                                                @if ($empresa->sunat_cert_path)
+                                                <?php if($empresa->sunat_cert_path): ?>
                                                     <h6 class="mb-1 text-success"><i
                                                             class="ri-checkbox-circle-fill me-1"></i> Certificado Cargado
                                                     </h6>
-                                                    <p class="text-muted mb-0 fs-12">{{ $empresa->sunat_cert_path }}</p>
-                                                @else
+                                                    <p class="text-muted mb-0 fs-12"><?php echo e($empresa->sunat_cert_path); ?></p>
+                                                <?php else: ?>
                                                     <h6 class="mb-1 text-muted">No se ha cargado un certificado</h6>
                                                     <p class="text-muted mb-0 fs-12">Suba su archivo .pem para firmar los
                                                         comprobantes.</p>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                             <div class="flex-shrink-0">
                                                 <label class="btn btn-soft-primary mb-0">
@@ -334,8 +334,8 @@
                     </div>
                 </div>
 
-                {{-- Botón Guardar --}}
-                @can('configuracion.editar')
+                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('configuracion.editar')): ?>
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-end gap-2">
@@ -353,19 +353,19 @@
                             </div>
                         </div>
                     </div>
-                @endcan
+                <?php endif; ?>
             </form>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script>
         const ROUTES = {
-            update: '{{ route('configuracion.update') }}',
-            uploadLogo: '{{ route('configuracion.upload-logo') }}',
-            uploadCert: '{{ route('configuracion.upload-cert') }}',
-            deleteLogo: '{{ route('configuracion.delete-logo') }}'
+            update: '<?php echo e(route('configuracion.update')); ?>',
+            uploadLogo: '<?php echo e(route('configuracion.upload-logo')); ?>',
+            uploadCert: '<?php echo e(route('configuracion.upload-cert')); ?>',
+            deleteLogo: '<?php echo e(route('configuracion.delete-logo')); ?>'
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -413,7 +413,7 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                     },
                     body: JSON.stringify(data)
                 })
@@ -445,7 +445,7 @@
             fetch(ROUTES.uploadLogo, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                     },
                     body: formData
                 })
@@ -485,7 +485,7 @@
             fetch(ROUTES.uploadCert, {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                     },
                     body: formData
                 })
@@ -510,7 +510,7 @@
             fetch(ROUTES.deleteLogo, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                     }
                 })
                 .then(res => res.json())
@@ -556,4 +556,6 @@
             }).showToast();
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/configuracion/index.blade.php ENDPATH**/ ?>

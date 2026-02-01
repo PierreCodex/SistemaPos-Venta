@@ -33,7 +33,13 @@ class Empresa extends Model
         'email',
         'logo',
         'igv_porcentaje',
-        'moneda'
+        'moneda',
+        'sunat_sol_user',
+        'sunat_sol_pass',
+        'sunat_cert_path',
+        'sunat_client_id',
+        'sunat_client_secret',
+        'sunat_produccion'
     ];
 
     protected $casts = [

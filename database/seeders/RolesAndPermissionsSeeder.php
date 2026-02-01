@@ -88,6 +88,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'reportes.productos',
             'reportes.creditos',
             'reportes.caja',
+            
+            // Compras (Ingreso de Mercadería)
+            'compras.ver',
+            'compras.crear',
+            'compras.anular',
+            'compras.exportar',
+            
+            // Inventario (Kardex y Ajustes)
+            'inventario.ver',
+            'inventario.ajustar',
+            'inventario.exportar',
         ];
 
         // Crear todos los permisos
@@ -110,6 +121,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'proveedores.ver', 'proveedores.crear', 'proveedores.editar',
             'ventas.ver', 'ventas.crear', 'ventas.exportar', 'ventas.imprimir',
             'creditos.ver', 'creditos.cobrar', 'creditos.historial',
+            'compras.ver', 'compras.crear', 'compras.exportar',
+            'inventario.ver', 'inventario.ajustar', 'inventario.exportar',
             'usuarios.ver',
             'reportes.ventas', 'reportes.productos', 'reportes.creditos',
         ]);
@@ -132,6 +145,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'marcas.ver',
             'unidades.ver',
             'proveedores.ver',
+            'compras.ver', 'compras.crear',
+            'inventario.ver', 'inventario.ajustar',
         ]);
 
         // Asignar super-admin al primer usuario (si existe)

@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-topbar="light" data-sidebar="dark"
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" data-layout="vertical" data-topbar="light" data-sidebar="dark"
     data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="material"
     data-theme-colors="default" data-layout-style="default" data-layout-width="fluid" data-layout-position="fixed"
     data-sidebar-view="default">
 
 <head>
     <meta charset="utf-8" />
-    <title>@yield('title') | Velzon - Admin & Dashboard Template</title>
+    <title><?php echo $__env->yieldContent('title'); ?> | Velzon - Admin & Dashboard Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="<?php echo e(URL::asset('build/images/favicon.ico')); ?>">
 
     <script>
         // Restaura el tema guardado antes de que cargue el CSS para evitar el parpadeo blanco
@@ -34,35 +34,36 @@
     </script>
 
 
-    @include('layouts.head-css')
+    <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </head>
 
 <body>
     <!-- Begin page -->
     <div id="layout-wrapper">
-        @include('layouts.topbar')
-        @include('layouts.sidebar')
+        <?php echo $__env->make('layouts.topbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+        <?php echo $__env->make('layouts.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         <!-- ============================================================== -->
         <!-- Start right Content here -->
         <!-- ============================================================== -->
         <div class="main-content">
             <div class="page-content">
                 <div class="container-fluid">
-                    @yield('content')
+                    <?php echo $__env->yieldContent('content'); ?>
                 </div>
                 <!-- container-fluid -->
             </div>
             <!-- End Page-content -->
-            @include('layouts.footer')
+            <?php echo $__env->make('layouts.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         </div>
         <!-- end main content-->
     </div>
     <!-- END layout-wrapper -->
 
-    @include('layouts.customizer')
+    <?php echo $__env->make('layouts.customizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <!-- JAVASCRIPT -->
-    @include('layouts.vendor-scripts')
+    <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </body>
 
 </html>
+<?php /**PATH C:\xampp\htdocs\master\resources\views/layouts/master.blade.php ENDPATH**/ ?>
