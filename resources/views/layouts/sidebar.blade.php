@@ -81,32 +81,30 @@
                 <li class="menu-title"><span>MENÚ PRINCIPAL</span></li>
 
                 {{-- Dashboard - Siempre visible para usuarios autenticados --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('dashboard.ver'))
+                @can('dashboard.ver')
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ url('/') }}">
                             <i class="ri-dashboard-2-line"></i> <span>Dashboard</span>
                         </a>
                     </li>
-                @endif
+                @endcan
 
                 {{-- =====================================================
                      CATÁLOGO - Solo si tiene permiso de ver categorías o productos
                 ===================================================== --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) ||
-                        Auth::user()->canAny(['categorias.ver', 'productos.ver', 'marcas.ver', 'unidades.ver', 'proveedores.ver']))
+                @canany(['categorias.ver', 'productos.ver', 'marcas.ver', 'unidades.ver', 'proveedores.ver'])
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>CATÁLOGO</span></li>
 
                     {{-- Submenú Catálogo --}}
-                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) ||
-                            Auth::user()->canAny(['categorias.ver', 'marcas.ver', 'unidades.ver', 'proveedores.ver']))
+                    @canany(['categorias.ver', 'marcas.ver', 'unidades.ver', 'proveedores.ver'])
                         <li class="nav-item">
-                            <a class="nav-link menu-link" href="#sidebarCatalogo" data-bs-toggle="collapse"
-                                role="button" aria-expanded="false" aria-controls="sidebarCatalogo">
+                            <a class="nav-link menu-link" href="#sidebarCatalogo" data-bs-toggle="collapse" role="button"
+                                aria-expanded="false" aria-controls="sidebarCatalogo">
                                 <i class="ri-folder-3-line"></i> <span>Catálogo</span>
                             </a>
                             <div class="collapse menu-dropdown" id="sidebarCatalogo">
                                 <ul class="nav nav-sm flex-column">
-                                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('categorias.ver'))
+                                    @can('categorias.ver')
                                         <li class="nav-item">
                                             <a class="nav-link menu-link {{ request()->routeIs('categorias-globales.*') ? 'active' : '' }}"
                                                 href="{{ route('categorias-globales.index') }}">Categorías Globales</a>
@@ -115,48 +113,48 @@
                                             <a class="nav-link menu-link {{ request()->routeIs('categorias.*') ? 'active' : '' }}"
                                                 href="{{ route('categorias.index') }}">Categorías</a>
                                         </li>
-                                    @endif
+                                    @endcan
 
-                                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('marcas.ver'))
+                                    @can('marcas.ver')
                                         <li class="nav-item">
                                             <a class="nav-link menu-link {{ request()->routeIs('marcas.*') ? 'active' : '' }}"
                                                 href="{{ route('marcas.index') }}">Marcas</a>
                                         </li>
-                                    @endif
+                                    @endcan
 
-                                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('unidades.ver'))
+                                    @can('unidades.ver')
                                         <li class="nav-item">
                                             <a class="nav-link menu-link {{ request()->routeIs('unidades.*') ? 'active' : '' }}"
                                                 href="{{ route('unidades.index') }}">Unidades</a>
                                         </li>
-                                    @endif
+                                    @endcan
 
-                                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('proveedores.ver'))
+                                    @can('proveedores.ver')
                                         <li class="nav-item">
                                             <a class="nav-link menu-link {{ request()->routeIs('proveedores.*') ? 'active' : '' }}"
                                                 href="{{ route('proveedores.index') }}">Proveedores</a>
                                         </li>
-                                    @endif
+                                    @endcan
                                 </ul>
                             </div>
                         </li>
-                    @endif
+                    @endcanany
 
                     {{-- Productos --}}
-                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('productos.ver'))
+                    @can('productos.ver')
                         <li class="nav-item">
                             <a class="nav-link menu-link {{ request()->routeIs('productos.*') ? 'active' : '' }}"
                                 href="{{ route('productos.index') }}">
                                 <i class="ri-shopping-bag-line"></i> <span>Productos</span>
                             </a>
                         </li>
-                    @endif
-                @endif
+                    @endcan
+                @endcanany
 
                 {{-- =====================================================
                      VENTAS - Solo si tiene permisos de ventas o créditos
                 ===================================================== --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->canAny(['ventas.ver', 'creditos.ver']))
+                @canany(['ventas.ver', 'creditos.ver'])
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>VENTAS</span></li>
 
                     {{-- Submenú Ventas --}}
@@ -169,7 +167,7 @@
                             <ul class="nav nav-sm flex-column">
 
                                 {{-- Nueva Venta (POS) --}}
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('ventas.crear'))
+                                @can('ventas.crear')
                                     <li class="nav-item">
                                         <a class="nav-link menu-link {{ request()->routeIs('ventas.create') ? 'active' : '' }}"
                                             href="{{ route('ventas.create') }}">
@@ -177,66 +175,66 @@
                                             <span class="badge bg-danger ms-auto">POS</span>
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
 
                                 {{-- Historial de Ventas --}}
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('ventas.ver'))
+                                @can('ventas.ver')
                                     <li class="nav-item">
                                         <a class="nav-link menu-link {{ request()->routeIs('ventas.index') ? 'active' : '' }}"
                                             href="{{ route('ventas.index') }}">
                                             <i class="ri-file-list-3-line"></i> <span>Historial Ventas</span>
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
 
                                 {{-- Ventas a Crédito --}}
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('creditos.ver'))
+                                @can('creditos.ver')
                                     <li class="nav-item">
                                         <a class="nav-link menu-link {{ request()->routeIs('ventas-credito.index') ? 'active' : '' }}"
                                             href="{{ route('ventas-credito.index') }}">
                                             <i class="ri-hand-coin-line"></i> <span>Ventas a Crédito</span>
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
 
                                 {{-- Historial de Pagos de Crédito --}}
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('creditos.historial'))
+                                @can('creditos.historial')
                                     <li class="nav-item">
                                         <a class="nav-link menu-link {{ request()->routeIs('ventas-credito.historial-general') ? 'active' : '' }}"
                                             href="{{ route('ventas-credito.historial-general') }}">
                                             <i class="ri-history-line"></i> <span>Pagos Créditos</span>
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
 
                             </ul>
                         </div>
                     </li>
-                @endif
+                @endcanany
 
                 {{-- =====================================================
                      COMPRAS - Solo si tiene permisos de compras
                 ===================================================== --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('compras.ver'))
+                @can('compras.ver')
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>COMPRAS</span></li>
 
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarCompras" data-bs-toggle="collapse"
-                            role="button" aria-expanded="false" aria-controls="sidebarCompras">
+                        <a class="nav-link menu-link" href="#sidebarCompras" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarCompras">
                             <i class="ri-shopping-bag-3-line"></i> <span>Compras</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarCompras">
                             <ul class="nav nav-sm flex-column">
 
                                 {{-- Nueva Compra --}}
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('compras.crear'))
+                                @can('compras.crear')
                                     <li class="nav-item">
                                         <a class="nav-link menu-link {{ request()->routeIs('compras.create') ? 'active' : '' }}"
                                             href="{{ route('compras.create') }}">
                                             <i class="ri-add-line"></i> <span>Nueva Compra</span>
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
 
                                 {{-- Historial de Compras --}}
                                 <li class="nav-item">
@@ -249,17 +247,17 @@
                             </ul>
                         </div>
                     </li>
-                @endif
+                @endcan
 
                 {{-- =====================================================
                      INVENTARIO - Solo si tiene permisos de inventario
                 ===================================================== --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('inventario.ver'))
+                @can('inventario.ver')
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>INVENTARIO</span></li>
 
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarInventario" data-bs-toggle="collapse"
-                            role="button" aria-expanded="false" aria-controls="sidebarInventario">
+                        <a class="nav-link menu-link" href="#sidebarInventario" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarInventario">
                             <i class="ri-stack-line"></i> <span>Inventario</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarInventario">
@@ -274,30 +272,29 @@
                                 </li>
 
                                 {{-- Ajustes de Inventario --}}
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('inventario.ajustar'))
+                                @can('inventario.ajustar')
                                     <li class="nav-item">
                                         <a class="nav-link menu-link {{ request()->routeIs('inventario.ajustes.*') ? 'active' : '' }}"
                                             href="{{ route('inventario.ajustes.index') }}">
                                             <i class="ri-settings-4-line"></i> <span>Ajustes de Stock</span>
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
 
                             </ul>
                         </div>
                     </li>
-                @endif
+                @endcan
 
                 {{-- =====================================================
                      REPORTES - Solo si tiene permisos de reportes
                 ===================================================== --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) ||
-                        Auth::user()->canAny(['reportes.ventas', 'reportes.productos', 'reportes.creditos', 'reportes.caja']))
+                @canany(['reportes.ventas', 'reportes.productos', 'reportes.creditos', 'reportes.caja'])
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>REPORTES</span></li>
 
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarReportes" data-bs-toggle="collapse"
-                            role="button" aria-expanded="false" aria-controls="sidebarReportes">
+                        <a class="nav-link menu-link" href="#sidebarReportes" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarReportes">
                             <i class="ri-bar-chart-box-line"></i> <span>Reportes</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarReportes">
@@ -321,51 +318,51 @@
                             </ul>
                         </div>
                     </li>
-                @endif
+                    @endif
 
-                {{-- =====================================================
+                    {{-- =====================================================
                      CONFIGURACIÓN - Solo para administradores
                 ===================================================== --}}
-                @if (Auth::user()->hasRole(['Admin', 'super-admin']) ||
-                        Auth::user()->canAny(['usuarios.ver', 'roles.ver', 'configuracion.ver']))
-                    <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
+                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) ||
+                            Auth::user()->canAny(['usuarios.ver', 'roles.ver', 'configuracion.ver']))
+                        <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
 
-                    {{-- Usuarios --}}
-                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('usuarios.ver'))
-                        <li class="nav-item">
-                            <a class="nav-link menu-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}"
-                                href="{{ route('usuarios.index') }}">
-                                <i class="ri-user-settings-line"></i> <span>Usuarios</span>
-                            </a>
-                        </li>
+                        {{-- Usuarios --}}
+                        @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('usuarios.ver'))
+                            <li class="nav-item">
+                                <a class="nav-link menu-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}"
+                                    href="{{ route('usuarios.index') }}">
+                                    <i class="ri-user-settings-line"></i> <span>Usuarios</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        {{-- Roles y Permisos - --}}
+                        @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('roles.ver'))
+                            <li class="nav-item">
+                                <a class="nav-link menu-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                                    href="{{ route('roles.index') }}">
+                                    <i class="ri-shield-user-line"></i> <span>Roles y Permisos</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        {{-- Configuración General --}}
+                        @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('configuracion.ver'))
+                            <li class="nav-item">
+                                <a class="nav-link menu-link {{ request()->routeIs('configuracion.*') ? 'active' : '' }}"
+                                    href="{{ route('configuracion.index') }}">
+                                    <i class="ri-settings-3-line"></i> <span>Configuración</span>
+                                </a>
+                            </li>
+                        @endif
                     @endif
 
-                    {{-- Roles y Permisos - --}}
-                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('roles.ver'))
-                        <li class="nav-item">
-                            <a class="nav-link menu-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                                href="{{ route('roles.index') }}">
-                                <i class="ri-shield-user-line"></i> <span>Roles y Permisos</span>
-                            </a>
-                        </li>
-                    @endif
-
-                    {{-- Configuración General --}}
-                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('configuracion.ver'))
-                        <li class="nav-item">
-                            <a class="nav-link menu-link {{ request()->routeIs('configuracion.*') ? 'active' : '' }}"
-                                href="{{ route('configuracion.index') }}">
-                                <i class="ri-settings-3-line"></i> <span>Configuración</span>
-                            </a>
-                        </li>
-                    @endif
-                @endif
-
-            </ul>
+                </ul>
+            </div>
         </div>
-    </div>
 
-    <div class="sidebar-background"></div>
-</div>
-<!-- Left Sidebar End -->
-<div class="vertical-overlay"></div>
+        <div class="sidebar-background"></div>
+    </div>
+    <!-- Left Sidebar End -->
+    <div class="vertical-overlay"></div>
