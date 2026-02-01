@@ -39,29 +39,29 @@ Route::get('/repair-admin', function () {
 
 Route::get('/fix-permissions', function () {
     try {
-        // 1. Forzar la creación del Rol si no existe
-        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
+        // 1. Usar el rol 'Admin' que ya tienes en tu base de datos (según tu imagen)
+        $role = \Spatie\Permission\Models\Role::where('name', 'Admin')->first() 
+                ?? \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
         
-        // 2. Crear un permiso básico para que el middleware no explote
-        $permission = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'dashboard.ver', 'guard_name' => 'web']);
-        $role->givePermissionTo($permission);
+        // 2. Ejecutar el seeder para crear todos los permisos faltantes
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
 
-        // 3. Buscar al usuario de la plantilla o al nuevo
+        // 3. Darle TODOS los permisos al rol 'Admin'
+        $allPermissions = \Spatie\Permission\Models\Permission::all();
+        $role->givePermissionTo($allPermissions);
+
+        // 4. Asignar el rol al usuario
         $user = \App\Models\User::where('email', 'admin@themesbrand.com')->first() 
                 ?? \App\Models\User::where('email', 'admin@codex.com')->first();
         
         if ($user) {
             $user->assignRole($role);
-            
-            // 4. Ejecutar el seeder completo en segundo plano para el resto de permisos
-            Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
-            
-            return "✅ ¡SÚPER ÉXITO! El rol 'super-admin' ha sido creado y asignado a " . $user->email . ". <br>Ya deberías ver los menús al refrescar.";
+            return "✅ ¡LISTO! El rol '" . $role->name . "' ahora tiene los " . count($allPermissions) . " permisos del sistema. <br>Usuario: " . $user->email . " actualizado. <br><b>Ya puedes entrar y verás todo el menú.</b>";
         }
         
-        return "❌ Error: No se encontró ningún usuario administrador para asignar el rol.";
+        return "❌ Error: No se encontró al usuario admin@themesbrand.com";
     } catch (\Exception $e) {
-        return "❌ Ocurrió un error técnico: " . $e->getMessage();
+        return "❌ Error técnico: " . $e->getMessage();
     }
 });
 
