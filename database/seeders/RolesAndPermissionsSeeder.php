@@ -149,9 +149,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventario.ver', 'inventario.ajustar',
         ]);
 
-        // Asignar super-admin al primer usuario (si existe)
-        $user = User::first();
-        if ($user) {
+        // Crear usuario administrador por defecto si no existe
+        if (User::count() === 0) {
+            $user = User::create([
+                'name' => 'Pierre Admin',
+                'email' => 'admin@codex.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+                'email_verified_at' => now(),
+            ]);
+            $user->assignRole('super-admin');
+        } else {
+            $user = User::first();
             $user->assignRole('super-admin');
         }
 
