@@ -28,6 +28,31 @@ use App\Http\Controllers\KardexController;
 |
 */
 
+Route::get('/repair-admin', function () {
+    try {
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
+        return "✅ Administrador (admin@codex.com) y Permisos reparados con éxito.";
+    } catch (\Exception $e) {
+        return "❌ Error: " . $e->getMessage();
+    }
+});
+
+Route::get('/fix-permissions', function () {
+    try {
+        // Asegurarse de que los roles existan
+        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
+        
+        $user = \App\Models\User::where('email', 'admin@themesbrand.com')->first();
+        if ($user) {
+            $user->assignRole('super-admin');
+            return "✅ ¡Éxito! El usuario admin@themesbrand.com ahora tiene todos los permisos. Refresca la página.";
+        }
+        return "❌ No se encontró al usuario admin@themesbrand.com";
+    } catch (\Exception $e) {
+        return "❌ Error: " . $e->getMessage();
+    }
+});
+
 Auth::routes();
 //Language Translation
 Route::get('index/{locale}', [HomeController::class, 'lang']);
