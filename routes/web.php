@@ -39,17 +39,29 @@ Route::get('/repair-admin', function () {
 
 Route::get('/fix-permissions', function () {
     try {
-        // Asegurarse de que los roles existan
-        Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
+        // 1. Forzar la creación del Rol si no existe
+        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
         
-        $user = \App\Models\User::where('email', 'admin@themesbrand.com')->first();
+        // 2. Crear un permiso básico para que el middleware no explote
+        $permission = \Spatie\Permission\Models\Permission::firstOrCreate(['name' => 'dashboard.ver', 'guard_name' => 'web']);
+        $role->givePermissionTo($permission);
+
+        // 3. Buscar al usuario de la plantilla o al nuevo
+        $user = \App\Models\User::where('email', 'admin@themesbrand.com')->first() 
+                ?? \App\Models\User::where('email', 'admin@codex.com')->first();
+        
         if ($user) {
-            $user->assignRole('super-admin');
-            return "✅ ¡Éxito! El usuario admin@themesbrand.com ahora tiene todos los permisos. Refresca la página.";
+            $user->assignRole($role);
+            
+            // 4. Ejecutar el seeder completo en segundo plano para el resto de permisos
+            Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
+            
+            return "✅ ¡SÚPER ÉXITO! El rol 'super-admin' ha sido creado y asignado a " . $user->email . ". <br>Ya deberías ver los menús al refrescar.";
         }
-        return "❌ No se encontró al usuario admin@themesbrand.com";
+        
+        return "❌ Error: No se encontró ningún usuario administrador para asignar el rol.";
     } catch (\Exception $e) {
-        return "❌ Error: " . $e->getMessage();
+        return "❌ Ocurrió un error técnico: " . $e->getMessage();
     }
 });
 
