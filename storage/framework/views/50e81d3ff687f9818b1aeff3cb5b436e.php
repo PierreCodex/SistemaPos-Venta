@@ -12,6 +12,26 @@
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="<?php echo e(URL::asset('build/images/favicon.ico')); ?>">
+
+    <script>
+        // Restaura el tema guardado antes de que cargue el CSS para evitar el parpadeo blanco
+        (function() {
+            try {
+                const config = JSON.parse(sessionStorage.getItem('defaultAttribute'));
+                if (config) {
+                    const theme = config['data-bs-theme'] || 'dark';
+                    document.documentElement.setAttribute('data-bs-theme', theme);
+                    document.documentElement.setAttribute('data-layout-mode', theme);
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    document.documentElement.setAttribute('data-layout-mode', 'dark');
+                }
+            } catch (e) {
+                console.error("Error al restaurar el tema:", e);
+            }
+        })();
+    </script>
+
     <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 </head>
 

@@ -59,7 +59,7 @@
     </div>
     <!-- END layout-wrapper -->
 
-    <?php echo $__env->make('layouts.customizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    
 
     <!-- JAVASCRIPT -->
     <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>

@@ -22,7 +22,7 @@
         }
 
         .pos-product-grid::-webkit-scrollbar-thumb {
-            background: #e2e5ec;
+            background: var(--vz-border-color);
             border-radius: 10px;
         }
 
@@ -40,17 +40,24 @@
         /* Efectos de tarjetas de producto */
         .product-item {
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
         }
 
         .product-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+            border-color: var(--vz-primary-subtle) !important;
         }
 
         .product-item:hover .add-btn {
             background-color: var(--vz-primary) !important;
             color: #fff !important;
+            transform: scale(1.1);
+        }
+
+        .add-btn {
+            transition: all 0.2s ease;
         }
 
         /* Categorías Estilo Pill */
@@ -120,17 +127,153 @@
             }
         }
 
-        /* ====== ESCÁNER CON CÁMARA (NUEVO - Estilo Productos) ====== */
+        /* ====== ESCÁNER CON CÁMARA (PREMIUM) ====== */
         #reader {
+            width: 100% !important;
+            height: 350px !important;
+            background: #000 !important;
+            border-radius: 0 !important;
+            border: none !important;
+            position: relative;
+        }
+
+        #reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        /* Ocultar bordes automáticos de la librería */
+        #reader__scan_region {
+            border: none !important;
+        }
+
+        /* Overlay de escaneo personalizado */
+        .scanner-container {
+            position: relative;
             width: 100%;
-            height: 250px;
-            background: #000;
-            border-radius: 8px;
+            height: 350px;
             overflow: hidden;
         }
 
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scanner-target {
+            width: 280px;
+            height: 180px;
+            position: relative;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        /* Esquinas prominentes */
+        .scanner-target::before,
+        .scanner-target::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--vz-primary);
+            border-style: solid;
+            pointer-events: none;
+        }
+
+        /* Top Left */
+        .scanner-target::before {
+            top: 0;
+            left: 0;
+            border-width: 4px 0 0 4px;
+            border-radius: 15px 0 0 0;
+        }
+
+        /* Bottom Right */
+        .scanner-target::after {
+            bottom: 0;
+            right: 0;
+            border-width: 0 4px 4px 0;
+            border-radius: 0 0 15px 0;
+        }
+
+        /* Otros dos corners */
+        .scanner-corner-tr,
+        .scanner-corner-bl {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--vz-primary);
+            border-style: solid;
+            pointer-events: none;
+        }
+
+        .scanner-corner-tr {
+            top: 0;
+            right: 0;
+            border-width: 4px 4px 0 0;
+            border-radius: 0 15px 0 0;
+        }
+
+        .scanner-corner-bl {
+            bottom: 0;
+            left: 0;
+            border-width: 0 0 4px 4px;
+            border-radius: 0 0 0 15px;
+        }
+
+        .scanning-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--vz-primary), transparent);
+            box-shadow: 0 0 15px var(--vz-primary);
+            animation: scan-move 2.5s ease-in-out infinite;
+            z-index: 11;
+        }
+
+        @keyframes scan-move {
+            0% {
+                top: 5%;
+            }
+
+            50% {
+                top: 95%;
+            }
+
+            100% {
+                top: 5%;
+            }
+        }
+
+        .scanner-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            z-index: 12;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
         .btn-camera-scan {
-            background: linear-gradient(135deg, #0ab39c 0%, #099885 100%);
+            background: var(--vz-primary);
             border: none;
             color: #fff;
             border-radius: 8px;
@@ -139,9 +282,9 @@
         }
 
         .btn-camera-scan:hover {
-            background: linear-gradient(135deg, #099885 0%, #087d6f 100%);
+            filter: brightness(0.9);
             transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(10, 179, 156, 0.4);
+            box-shadow: 0 4px 15px rgba(var(--vz-primary-rgb), 0.4);
         }
 
         .btn-camera-scan i {
@@ -162,13 +305,52 @@
                 border-radius: 0;
             }
 
-            #reader {
-                height: 200px;
+            #reader,
+            .scanner-container {
+                height: 300px !important;
             }
 
             .modal-cart-scroll {
-                height: calc(100vh - 450px);
+                height: 200px !important;
                 overflow-y: auto;
+            }
+        }
+
+        .modal-cart-scroll {
+            max-height: 250px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--vz-primary) var(--vz-light);
+        }
+
+        .modal-cart-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-cart-scroll::-webkit-scrollbar-track {
+            background: var(--vz-light);
+        }
+
+        .modal-cart-scroll::-webkit-scrollbar-thumb {
+            background-color: var(--vz-primary);
+            border-radius: 10px;
+        }
+
+        .pulse-badge {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
             }
         }
 
@@ -185,26 +367,45 @@
 @endsection
 
 @section('content')
-    <!-- Header POS -->
-    <div class="row align-items-center mb-4 pt-3 text-uppercase">
+    <div class="row align-items-center mb-4 pt-4 text-uppercase">
         <div class="col">
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-3">
                 <a href="{{ route('ventas.index') }}"
-                    class="btn btn-primary d-flex align-items-center justify-content-center p-0"
-                    style="width: 45px; height: 45px; border-radius: 12px; background-color: #0ab39c; border-color: #0ab39c;">
+                    class="btn btn-primary d-flex align-items-center justify-content-center p-0 shadow material-shadow"
+                    style="width: 48px; height: 48px; border-radius: 16px; background-color: var(--vz-primary); border: none;">
                     <i class="ri-arrow-left-s-line fs-24"></i>
                 </a>
+                <div class="vr mx-1 opacity-25"></div>
                 <button class="btn btn-soft-light d-flex align-items-center justify-content-center p-0"
-                    style="width: 45px; height: 45px; border-radius: 12px;" onclick="toggleFullScreen()">
-                    <i class="ri-fullscreen-line fs-20 text-white"></i>
+                    style="width: 48px; height: 48px; border-radius: 16px;" onclick="toggleFullScreen()"
+                    title="Pantalla Completa">
+                    <i class="ri-fullscreen-line fs-20 text-muted"></i>
                 </button>
             </div>
         </div>
         <div class="col-auto">
-            <button class="btn btn-primary d-flex align-items-center justify-content-center p-0 shadow-none border-0"
-                style="width: 45px; height: 45px; border-radius: 12px; background-color: #0ab39c;">
-                <i class="ri-printer-line fs-20"></i>
-            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-white d-flex align-items-center justify-content-center p-0 shadow-sm border"
+                    style="width: 48px; height: 48px; border-radius: 16px; color: var(--vz-body-color);">
+                    <i class="ri-printer-line fs-20"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-primary d-flex align-items-center gap-2 px-3 material-shadow"
+                        style="height: 48px; border-radius: 16px; background-color: var(--vz-indigo); border: none;"
+                        data-bs-toggle="dropdown">
+                        <i class="ri-user-settings-line fs-18"></i>
+                        <span class="d-none d-md-inline">{{ Auth::user()->name ?? 'Vendedor' }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                        <li><a class="dropdown-item" href="#"><i class="ri-user-line me-2"></i>Mi Perfil</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="#"><i
+                                    class="ri-logout-box-line me-2"></i>Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -341,14 +542,24 @@
                     </div>
 
                     <!-- Footer del Carrito -->
-                    <div class="card-footer bg-light-subtle border-top-dashed p-4 mt-auto text-uppercase">
-                        <div class="d-flex align-items-center justify-content-between mb-4 border-top pt-3 text-uppercase">
-                            <h4 class="mb-0 fw-bold">TOTAL</h4>
-                            <h3 class="text-primary mb-0 fw-extrabold" id="totalCarrito">S/ 0.00</h3>
+                    <div class="card-footer bg-white border-top-dashed p-4 mt-auto text-uppercase">
+                        <div class="d-flex align-items-center justify-content-between mb-4 pt-2 text-uppercase">
+                            <div>
+                                <h6 class="text-muted mb-1 fs-12 fw-bold">TOTAL A PAGAR</h6>
+                                <h2 class="text-primary mb-0 fw-extrabold" id="totalCarrito"
+                                    style="letter-spacing: -1px;">S/ 0.00</h2>
+                            </div>
+                            <div class="text-end d-none d-md-block">
+                                <span
+                                    class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
+                                    <i class="ri-checkbox-circle-line me-1"></i>Venta Segura
+                                </span>
+                            </div>
                         </div>
-                        <button class="btn btn-success w-100 py-3 fw-bold fs-16 shadow-success text-uppercase"
-                            id="btnRealizarCobro" disabled data-bs-toggle="modal" data-bs-target="#modalComprobante">
-                            REALIZAR COBRO <i class="ri-arrow-right-line ms-1 align-middle"></i>
+                        <button class="btn btn-success w-100 py-3 fw-bold fs-16 shadow material-shadow text-uppercase"
+                            id="btnRealizarCobro" disabled data-bs-toggle="modal" data-bs-target="#modalComprobante"
+                            style="border-radius: 16px; background-color: var(--vz-success); border: none;">
+                            REALIZAR COBRO <i class="ri-arrow-right-line ms-1 align-middle fs-20"></i>
                         </button>
                     </div>
                 </div>
@@ -764,20 +975,31 @@
     <div class="modal fade" id="modalLectorCamara" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-dark text-white p-3">
+                <div class="modal-header bg-primary p-3">
                     <h5 class="modal-title text-white fw-bold"><i class="ri-camera-line me-2"></i>AGREGAR PRODUCTOS</h5>
                     <button type="button" class="btn-close btn-close-white" id="btnCerrarLector"
                         data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0 bg-light">
-                    <!-- Sección de Cámara -->
-                    <div id="reader" style="width: 100%; background: #000; overflow: hidden;"></div>
+                    <!-- Sección de Cámara con Overlay -->
+                    <div class="scanner-container">
+                        <div id="reader"></div>
+                        <div class="scanner-overlay">
+                            <div class="scanner-target">
+                                <div class="scanner-corner-tr"></div>
+                                <div class="scanner-corner-bl"></div>
+                                <div class="scanning-line"></div>
+                            </div>
+                            <div class="scanner-hint">Enfoque el código de barras aquí</div>
+                        </div>
+                    </div>
 
                     <!-- Sección de Lista de Productos Scaneados -->
                     <div class="p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <h6 class="text-uppercase fw-bold mb-0">Productos Agregados</h6>
-                            <span class="badge bg-primary-subtle text-primary" id="modalScanCount">0 Items</span>
+                            <span class="badge bg-primary-subtle text-primary pulse-badge" id="modalScanCount">0
+                                Items</span>
                         </div>
 
                         <div id="modalCartList" class="modal-cart-scroll bg-white rounded border p-2">
@@ -1696,11 +1918,12 @@
 
         function inicializarLectorCamara() {
             const config = {
-                fps: 10,
+                fps: 20,
                 qrbox: {
-                    width: 250,
-                    height: 150
-                }
+                    width: 280,
+                    height: 180
+                },
+                aspectRatio: 1.777778 // 16:9 para mejor compatibilidad con móviles
             };
 
             // Si ya hay una instancia, limpiarla antes de empezar
@@ -1720,10 +1943,19 @@
                 // Buscar el producto
                 buscarPorCodigoBarras(decodedText);
 
-                // Feedback visual de escaneo exitoso (breve destello)
-                const reader = document.getElementById('reader');
-                reader.style.opacity = '0.5';
-                setTimeout(() => reader.style.opacity = '1', 100);
+                // Feedback visual de escaneo exitoso (Línea verde)
+                const scanLine = document.querySelector('.scanning-line');
+                const scannerTarget = document.querySelector('.scanner-target');
+                if (scanLine) {
+                    scanLine.style.background = '#0ab39c';
+                    scanLine.style.boxShadow = '0 0 20px #0ab39c';
+                    if (scannerTarget) scannerTarget.style.borderColor = '#0ab39c';
+                    setTimeout(() => {
+                        scanLine.style.background = '';
+                        scanLine.style.boxShadow = '';
+                        if (scannerTarget) scannerTarget.style.borderColor = '';
+                    }, 500);
+                }
             };
 
 
