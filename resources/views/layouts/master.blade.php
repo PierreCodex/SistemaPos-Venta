@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-topbar="light" data-sidebar="dark"
-    data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="material"
+    data-sidebar-size="sm" data-sidebar-image="none" data-preloader="disable" data-theme="material"
     data-theme-colors="default" data-layout-style="default" data-layout-width="fluid" data-layout-position="fixed"
     data-sidebar-view="default">
 
