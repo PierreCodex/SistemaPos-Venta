@@ -80,7 +80,7 @@
 </script>
 
 {{-- Script principal de Velzon (maneja sidebar, dark mode, etc.) --}}
-@vite('resources/js/app.js')
+<script src="{{ URL::asset('build/js/app.js') }}"></script>
 
 @yield('script')
 @yield('script-bottom')
