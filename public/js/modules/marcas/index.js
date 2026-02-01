@@ -355,8 +355,8 @@ function generarFilaHTML(marca) {
             <td id="estado-badge-${marca.id}">
                 ${marca.estado ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'}
             </td>
-            <td>
-                <div class="d-flex gap-1">
+            <td class="no-exportar">
+                <div class="d-flex gap-1 text-center justify-content-center">
                     <button type="button" class="btn btn-sm btn-info" onclick="verMarca(${marca.id})" title="Ver">
                         <i class="ri-eye-line"></i>
                     </button>
@@ -368,12 +368,13 @@ function generarFilaHTML(marca) {
                     </button>
                 </div>
             </td>
-            <td>
+            <td class="no-exportar">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="toggle-estado-${marca.id}"
                         ${marca.estado ? 'checked' : ''} onchange="toggleEstado(${marca.id})">
                 </div>
             </td>
+
         </tr>
     `;
 }

@@ -120,117 +120,15 @@
             }
         }
 
-        /* ====== ESCÁNER CON CÁMARA ====== */
-        #scanner-container {
-            position: relative;
+        /* ====== ESCÁNER CON CÁMARA (NUEVO - Estilo Productos) ====== */
+        #reader {
             width: 100%;
-            height: 300px;
+            height: 250px;
             background: #000;
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
         }
 
-        #scanner-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        #scanner-container canvas {
-            display: none;
-        }
-
-        /* Recuadro de enfoque */
-        .scanner-target {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 120px;
-            border: 3px solid rgba(10, 179, 156, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-            pointer-events: none;
-        }
-
-        .scanner-target::before,
-        .scanner-target::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #0ab39c, transparent);
-            animation: scanLine 2s ease-in-out infinite;
-        }
-
-        .scanner-target::before {
-            top: 10px;
-        }
-
-        .scanner-target::after {
-            bottom: 10px;
-        }
-
-        @keyframes scanLine {
-
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        /* Línea de escaneo animada */
-        .scan-line {
-            position: absolute;
-            left: 10%;
-            width: 80%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #0ab39c, #0ab39c, transparent);
-            animation: moveScanLine 1.5s ease-in-out infinite;
-            top: calc(50% - 60px);
-        }
-
-        @keyframes moveScanLine {
-
-            0%,
-            100% {
-                top: calc(50% - 50px);
-            }
-
-            50% {
-                top: calc(50% + 50px);
-            }
-        }
-
-        .scanner-status {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .scanner-status .spinner-border {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Botón de cámara en la barra de búsqueda */
         .btn-camera-scan {
             background: linear-gradient(135deg, #0ab39c 0%, #099885 100%);
             border: none;
@@ -248,6 +146,40 @@
 
         .btn-camera-scan i {
             font-size: 20px;
+        }
+
+        /* Modal Escáner Fullscreen en Móvil */
+        @media (max-width: 767.98px) {
+            #modalLectorCamara .modal-dialog {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                max-width: none;
+            }
+
+            #modalLectorCamara .modal-content {
+                height: 100%;
+                border-radius: 0;
+            }
+
+            #reader {
+                height: 200px;
+            }
+
+            .modal-cart-scroll {
+                height: calc(100vh - 450px);
+                overflow-y: auto;
+            }
+        }
+
+        /* Estilo lista carrito en modal */
+        .modal-cart-item {
+            border-bottom: 1px solid var(--vz-border-color);
+            padding: 10px 0;
+        }
+
+        .modal-cart-item:last-child {
+            border-bottom: none;
         }
     </style>
 @endsection
@@ -292,9 +224,10 @@
                                     <i class="ri-search-line search-icon text-muted"></i>
                                 </div>
                                 <button type="button" class="btn btn-camera-scan" id="btnAbrirCamara"
-                                    data-bs-toggle="modal" data-bs-target="#modalEscaner" title="Escanear con cámara">
+                                    title="Escanear con cámara">
                                     <i class="ri-camera-line"></i>
                                 </button>
+
                             </div>
                         </div>
                         <div class="col-md-7 text-uppercase">
@@ -827,65 +760,42 @@
         </div>
     </div>
 
-    <!-- MODAL ESCÁNER CON CÁMARA -->
-    <div class="modal fade" id="modalEscaner" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg overflow-hidden">
-                <div class="modal-header bg-primary p-3">
-                    <h5 class="modal-title text-white fw-bold text-uppercase">
-                        <i class="ri-camera-line me-2"></i>ESCANEAR CÓDIGO DE BARRAS
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+    <!-- MODAL ESCÁNER CON CÁMARA (Responsive + Lista) -->
+    <div class="modal fade" id="modalLectorCamara" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white p-3">
+                    <h5 class="modal-title text-white fw-bold"><i class="ri-camera-line me-2"></i>AGREGAR PRODUCTOS</h5>
+                    <button type="button" class="btn-close btn-close-white" id="btnCerrarLector"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4 bg-light">
-                    <!-- Container del escáner -->
-                    <div id="scanner-container">
-                        <video id="scanner-video" autoplay playsinline></video>
-                        <canvas id="scanner-canvas"></canvas>
-                        <!-- Recuadro de enfoque -->
-                        <div class="scanner-target"></div>
-                        <!-- Línea de escaneo animada -->
-                        <div class="scan-line"></div>
-                        <!-- Estado del escáner -->
-                        <div class="scanner-status" id="scanner-status">
-                            <span class="spinner-border spinner-border-sm text-light"></span>
-                            <span id="scanner-status-text">Iniciando cámara...</span>
-                        </div>
-                    </div>
+                <div class="modal-body p-0 bg-light">
+                    <!-- Sección de Cámara -->
+                    <div id="reader" style="width: 100%; background: #000; overflow: hidden;"></div>
 
-                    <!-- Código detectado -->
-                    <div class="mt-3">
-                        <label class="form-label fw-bold text-muted fs-12 text-uppercase mb-2">CÓDIGO DETECTADO</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-success text-white">
-                                <i class="ri-barcode-line"></i>
-                            </span>
-                            <input type="text" id="codigoDetectado"
-                                class="form-control form-control-lg fw-bold text-center"
-                                placeholder="Apunte al código de barras..." readonly>
+                    <!-- Sección de Lista de Productos Scaneados -->
+                    <div class="p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="text-uppercase fw-bold mb-0">Productos Agregados</h6>
+                            <span class="badge bg-primary-subtle text-primary" id="modalScanCount">0 Items</span>
                         </div>
-                    </div>
 
-                    <!-- Instrucciones -->
-                    <div class="alert alert-info border-0 mt-3 mb-0 d-flex align-items-start gap-2">
-                        <i class="ri-information-line fs-18 mt-1"></i>
-                        <div class="fs-13">
-                            <p class="mb-1 fw-semibold">Instrucciones:</p>
-                            <ul class="mb-0 ps-3">
-                                <li>Apunte la cámara al código de barras del producto</li>
-                                <li>Mantenga el código dentro del recuadro verde</li>
-                                <li>El producto se agregará automáticamente al carrito</li>
-                            </ul>
+                        <div id="modalCartList" class="modal-cart-scroll bg-white rounded border p-2">
+                            <!-- Aquí se cargarán los productos en tiempo real -->
+                            <div class="text-center py-4 text-muted" id="modalCartEmpty">
+                                <i class="ri-barcode-line fs-24 d-block mb-2"></i>
+                                Escanee un código para comenzar
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-white border-top-dashed p-3">
-                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">
-                        <i class="ri-close-line me-1"></i>CERRAR
-                    </button>
-                    <button type="button" class="btn btn-outline-primary fw-bold" id="btnCambiarCamara">
-                        <i class="ri-camera-switch-line me-1"></i>CAMBIAR CÁMARA
+                <div class="modal-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted d-block text-uppercase">Total a Pagar</small>
+                        <h4 class="text-primary fw-bold mb-0" id="modalCartTotal">S/ 0.00</h4>
+                    </div>
+                    <button type="button" class="btn btn-success btn-lg px-4 fw-bold" onclick="goToCheckoutFromModal()">
+                        <i class="ri-money-dollar-circle-line me-1"></i> COBRAR
                     </button>
                 </div>
             </div>
@@ -894,6 +804,7 @@
 @endsection
 
 @section('script')
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         // =====================================================
         // CONFIGURACIÓN Y ESTADO
@@ -1151,7 +1062,35 @@
             // Actualizar contadores
             cantidadItems.textContent = carrito.length;
             totalDisplay.textContent = `S/ ${totalCarrito.toFixed(2)}`;
+
+            // --- Actualizar Vista en Modal Escáner ---
+            const modalCartList = document.getElementById('modalCartList');
+            const modalCartEmpty = document.getElementById('modalCartEmpty');
+            const modalCartTotal = document.getElementById('modalCartTotal');
+            const modalScanCount = document.getElementById('modalScanCount');
+
+            if (modalCartList) {
+                if (carrito.length === 0) {
+                    modalCartList.innerHTML =
+                        `<div class="text-center py-4 text-muted" id="modalCartEmpty"><i class="ri-barcode-line fs-24 d-block mb-2"></i>Escanee un código para comenzar</div>`;
+                } else {
+                    modalCartList.innerHTML = carrito.map(item => `
+                        <div class="modal-cart-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fs-12 mb-0 text-uppercase">${item.nombre}</h6>
+                                <small class="text-muted">S/ ${item.precio.toFixed(2)} x ${item.cantidad}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold text-primary">S/ ${item.subtotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                if (modalCartTotal) modalCartTotal.textContent = `S/ ${totalCarrito.toFixed(2)}`;
+                if (modalScanCount) modalScanCount.textContent = `${carrito.length} Items`;
+            }
         }
+
 
         // =====================================================
         // FUNCIONES DEL CHECKOUT
@@ -1750,228 +1689,72 @@
         }
 
         // =====================================================
-        // ESCÁNER DE CÓDIGO DE BARRAS CON CÁMARA
+        // ESCÁNER DE CÓDIGO DE BARRAS CON CÁMARA (html5-qrcode)
         // =====================================================
 
-        let cameraStream = null;
-        let isScanning = false;
-        let currentFacingMode = 'environment'; // 'environment' = cámara trasera, 'user' = frontal
-        let lastScannedCode = '';
-        let scanningInterval = null;
+        let html5QrCode = null;
 
-        // Referencias a elementos del DOM
-        const scannerModal = document.getElementById('modalEscaner');
-        const videoElement = document.getElementById('scanner-video');
-        const canvasElement = document.getElementById('scanner-canvas');
-        const statusText = document.getElementById('scanner-status-text');
-        const codigoInput = document.getElementById('codigoDetectado');
-        const btnCambiarCamara = document.getElementById('btnCambiarCamara');
-
-        /**
-         * Inicia la cámara y el escaneo
-         */
-        async function iniciarEscaner() {
-            try {
-                updateScannerStatus('Solicitando permisos de cámara...', true);
-
-                const constraints = {
-                    video: {
-                        facingMode: currentFacingMode,
-                        width: {
-                            ideal: 1280
-                        },
-                        height: {
-                            ideal: 720
-                        }
-                    }
-                };
-
-                cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-                videoElement.srcObject = cameraStream;
-
-                await videoElement.play();
-
-                updateScannerStatus('Buscando código de barras...', true);
-                isScanning = true;
-
-                // Iniciar el proceso de escaneo
-                iniciarProcesoEscaneo();
-
-            } catch (error) {
-                console.error('Error al acceder a la cámara:', error);
-
-                if (error.name === 'NotAllowedError') {
-                    updateScannerStatus('⚠️ Permiso de cámara denegado', false);
-                    mostrarAlertaCamara('Debe permitir el acceso a la cámara para usar esta función.');
-                } else if (error.name === 'NotFoundError') {
-                    updateScannerStatus('⚠️ No se encontró cámara', false);
-                    mostrarAlertaCamara('No se detectó ninguna cámara en este dispositivo.');
-                } else {
-                    updateScannerStatus('❌ Error al iniciar cámara', false);
-                    mostrarAlertaCamara('Ocurrió un error al acceder a la cámara: ' + error.message);
+        function inicializarLectorCamara() {
+            const config = {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 150
                 }
-            }
-        }
+            };
 
-        /**
-         * Detiene la cámara y limpia recursos
-         */
-        function detenerEscaner() {
-            isScanning = false;
-
-            if (scanningInterval) {
-                clearInterval(scanningInterval);
-                scanningInterval = null;
+            // Si ya hay una instancia, limpiarla antes de empezar
+            if (html5QrCode) {
+                html5QrCode.stop().catch(err => console.error("Error al detener scanner:", err));
             }
 
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
+            html5QrCode = new Html5Qrcode("reader");
 
-            if (videoElement) {
-                videoElement.srcObject = null;
-            }
+            const onScanSuccess = (decodedText, decodedResult) => {
+                // Sonido de escaneo
+                reproducirBeep();
 
-            codigoInput.value = '';
-            lastScannedCode = '';
-            updateScannerStatus('Cámara detenida', false);
-        }
+                // NO detener la cámara para permitir múltiples escaneos
+                // No cerrar el modal
 
-        /**
-         * Cambia entre cámara frontal y trasera
-         */
-        async function cambiarCamara() {
-            currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
-            detenerEscaner();
-            await iniciarEscaner();
-        }
+                // Buscar el producto
+                buscarPorCodigoBarras(decodedText);
 
-        /**
-         * Actualiza el texto de estado del escáner
-         */
-        function updateScannerStatus(text, showSpinner) {
-            statusText.textContent = text;
-            const spinner = document.querySelector('#scanner-status .spinner-border');
-            if (spinner) {
-                spinner.style.display = showSpinner ? 'block' : 'none';
-            }
-        }
+                // Feedback visual de escaneo exitoso (breve destello)
+                const reader = document.getElementById('reader');
+                reader.style.opacity = '0.5';
+                setTimeout(() => reader.style.opacity = '1', 100);
+            };
 
-        /**
-         * Muestra una alerta sobre problemas con la cámara
-         */
-        function mostrarAlertaCamara(mensaje) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Cámara no disponible',
-                text: mensaje,
-                confirmButtonColor: '#0ab39c'
+
+            const onScanFailure = (error) => {
+                // Se ignoran fallos menores de detección
+            };
+
+            html5QrCode.start({
+                    facingMode: "environment"
+                }, // Prioriza cámara trasera
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).catch(err => {
+                console.error("No se pudo iniciar la cámara:", err);
+                mostrarToast("No se pudo acceder a la cámara. Verifique los permisos.", "error");
+                const modalLector = bootstrap.Modal.getInstance(document.getElementById('modalLectorCamara'));
+                if (modalLector) modalLector.hide();
             });
         }
 
-        /**
-         * Proceso de escaneo usando canvas
-         */
-        function iniciarProcesoEscaneo() {
-            const ctx = canvasElement.getContext('2d');
-
-            scanningInterval = setInterval(() => {
-                if (!isScanning || !videoElement.videoWidth) return;
-
-                // Configurar canvas
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-
-                // Capturar frame
-                ctx.drawImage(videoElement, 0, 0);
-
-                // Obtener datos de imagen para procesamiento
-                const imageData = ctx.getImageData(0, 0, canvasElement.width, canvasElement.height);
-
-                // Intentar decodificar con ZXing-js (librería más ligera integrada)
-                try {
-                    const code = decodeBarcode(imageData);
-                    if (code && code !== lastScannedCode) {
-                        lastScannedCode = code;
-                        procesarCodigoEscaneado(code);
-                    }
-                } catch (e) {
-                    // Continuar escaneando
-                }
-            }, 200); // Escanear cada 200ms
-        }
-
-        /**
-         * Decodificador básico de código de barras
-         * Usa la API BarcodeDetector si está disponible (Chrome, Edge)
-         */
-        let barcodeDetector = null;
-
-        async function initBarcodeDetector() {
-            if ('BarcodeDetector' in window) {
-                try {
-                    barcodeDetector = new BarcodeDetector({
-                        formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'code_93', 'upc_a', 'upc_e', 'itf',
-                            'codabar'
-                        ]
-                    });
-                    console.log('BarcodeDetector API disponible');
-                    return true;
-                } catch (e) {
-                    console.log('BarcodeDetector no soporta los formatos requeridos');
-                }
+        function detenerLectorCamara() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    console.log("Cámara detenida.");
+                }).catch(err => {
+                    console.error("Error al detener la cámara:", err);
+                });
             }
-            console.log('BarcodeDetector API no disponible, usando fallback');
-            return false;
         }
 
-        async function decodeBarcode(imageData) {
-            if (barcodeDetector) {
-                try {
-                    const barcodes = await barcodeDetector.detect(canvasElement);
-                    if (barcodes.length > 0) {
-                        return barcodes[0].rawValue;
-                    }
-                } catch (e) {
-                    // Silenciar error
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Procesa el código de barras detectado
-         */
-        function procesarCodigoEscaneado(codigo) {
-            console.log('Código escaneado:', codigo);
-
-            codigoInput.value = codigo;
-            updateScannerStatus('✅ Código detectado: ' + codigo, false);
-
-            // Vibración de feedback (si está disponible)
-            if (navigator.vibrate) {
-                navigator.vibrate(200);
-            }
-
-            // Sonido de "beep" de escaneo
-            reproducirBeep();
-
-            // Buscar el producto automáticamente
-            setTimeout(() => {
-                buscarPorCodigoBarras(codigo);
-
-                // Cerrar el modal después de encontrar el producto
-                const modalInstance = bootstrap.Modal.getInstance(scannerModal);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-            }, 500);
-        }
-
-        /**
-         * Reproduce un sonido de beep para feedback
-         */
         function reproducirBeep() {
             try {
                 const audioContext = new(window.AudioContext || window.webkitAudioContext)();
@@ -1987,97 +1770,51 @@
 
                 oscillator.start();
                 setTimeout(() => oscillator.stop(), 100);
-            } catch (e) {
-                // Silenciar error si no hay soporte de audio
-            }
+            } catch (e) {}
         }
 
-        // =====================================================
-        // EVENT LISTENERS PARA EL ESCÁNER
-        // =====================================================
-
-        // Cuando se abre el modal, iniciar el escáner
-        scannerModal.addEventListener('shown.bs.modal', async function() {
-            await initBarcodeDetector();
-            await iniciarEscaner();
+        // Event Listeners para el lector de cámara
+        document.getElementById('btnAbrirCamara').addEventListener('click', function() {
+            const modalLector = new bootstrap.Modal(document.getElementById('modalLectorCamara'));
+            modalLector.show();
+            // Esperar a que el modal se muestre para iniciar la cámara
+            document.getElementById('modalLectorCamara').addEventListener('shown.bs.modal', function() {
+                inicializarLectorCamara();
+            }, {
+                once: true
+            });
         });
 
-        // Cuando se cierra el modal, detener el escáner
-        scannerModal.addEventListener('hidden.bs.modal', function() {
-            detenerEscaner();
+        // Asegurar que la cámara se detenga al cerrar el modal
+        document.getElementById('modalLectorCamara').addEventListener('hidden.bs.modal', function() {
+            detenerLectorCamara();
         });
 
-        // Botón para cambiar de cámara
-        btnCambiarCamara.addEventListener('click', cambiarCamara);
-    </script>
+        document.getElementById('btnCerrarLector').addEventListener('click', function() {
+            detenerLectorCamara();
+        });
 
-    <!-- Fallback: QuaggaJS para navegadores sin BarcodeDetector API -->
-    <script>
-        // Cargar QuaggaJS dinámicamente como fallback
-        (function() {
-            if (!('BarcodeDetector' in window)) {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js';
-                script.onload = function() {
-                    console.log('QuaggaJS cargado como fallback');
-
-                    // Sobrescribir la función de escaneo para usar Quagga
-                    window.iniciarProcesoEscaneo = function() {
-                        Quagga.init({
-                            inputStream: {
-                                name: "Live",
-                                type: "LiveStream",
-                                target: document.getElementById('scanner-container'),
-                                constraints: {
-                                    facingMode: currentFacingMode,
-                                    width: {
-                                        min: 640
-                                    },
-                                    height: {
-                                        min: 480
-                                    }
-                                }
-                            },
-                            decoder: {
-                                readers: [
-                                    "ean_reader",
-                                    "ean_8_reader",
-                                    "code_128_reader",
-                                    "code_39_reader",
-                                    "upc_reader",
-                                    "upc_e_reader"
-                                ]
-                            },
-                            locate: true
-                        }, function(err) {
-                            if (err) {
-                                console.error('Error al iniciar Quagga:', err);
-                                return;
-                            }
-                            Quagga.start();
-                        });
-
-                        Quagga.onDetected(function(result) {
-                            const code = result.codeResult.code;
-                            if (code && code !== lastScannedCode) {
-                                lastScannedCode = code;
-                                procesarCodigoEscaneado(code);
-                                Quagga.stop();
-                            }
-                        });
-                    };
-
-                    window.detenerEscanerOriginal = window.detenerEscaner;
-                    window.detenerEscaner = function() {
-                        try {
-                            Quagga.stop();
-                        } catch (e) {}
-                        window.detenerEscanerOriginal();
-                    };
-                };
-                document.head.appendChild(script);
+        /**
+         * Función puente para ir al checkout desde el modal de escaner
+         */
+        function goToCheckoutFromModal() {
+            if (carrito.length === 0) {
+                mostrarToast('Agregue productos para continuar', 'warning');
+                return;
             }
-        })();
+
+            // Primero detenemos cámara y cerramos modal
+            detenerLectorCamara();
+            const modalEl = document.getElementById('modalLectorCamara');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            // Abrimos el modal de comprobantes o directamente a checkout
+            // Según tu lógica actual, btnRealizarCobro abre modalComprobante
+            const modalComprobante = new bootstrap.Modal(document.getElementById('modalComprobante'));
+            modalComprobante.show();
+        }
     </script>
+
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

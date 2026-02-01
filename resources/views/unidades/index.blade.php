@@ -30,102 +30,113 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center">
-                    <h5 class="card-title mb-0 flex-grow-1">Listado de Unidades</h5>
-                    <div class="d-flex flex-shrink-0 gap-2">
-                        <button type="button" id="btnExportarPDF" class="btn btn-soft-danger waves-effect waves-light">
-                            <i class="las la-file-pdf fs-3"></i><span>PDF</span>
+                <div class="card-header d-flex align-items-center flex-wrap gap-2">
+                    <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold">Listado de Unidades</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" id="btnExportarPDF"
+                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-pdf-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
                         </button>
-                        <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
-                            <i class="las la-file-excel fs-3"></i><span>Excel</span>
+                        <button type="button" id="btnExportarExcel"
+                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-excel-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
                         </button>
                         @can('unidades.crear')
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUnidad"
-                                onclick="limpiarFormulario()">
-                                <i class="ri-add-line me-1"></i> Nueva Unidad
+                            <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
+                                data-bs-toggle="modal" data-bs-target="#modalUnidad" onclick="limpiarFormulario()">
+                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nueva
+                                    Unidad</span>
+                                <span class="d-inline d-md-none text-uppercase">Nuevo</span>
                             </button>
                         @endcan
                     </div>
                 </div>
 
+
                 <div class="card-body">
-                    <table id="tablaUnidades" class="table nowrap align-middle" style="width:100%">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th style="width: 100px;">Estado</th>
-                                <th class="no-exportar" style="width: 150px;">Acciones</th>
-                                <th class="no-exportar" style="width: 50px;">On/Off</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($unidades as $unidad)
-                                <tr data-id="{{ $unidad->id }}">
-                                    <td><span class="badge bg-secondary fs-6">{{ $unidad->codigo }}</span></td>
-                                    <td><strong>{{ $unidad->nombre }}</strong></td>
-                                    <td>
-                                        @if ($unidad->descripcion)
-                                            <i
-                                                class="bx bx-comment-dots me-1"></i>{{ Str::limit($unidad->descripcion, 40) }}
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td id="estado-badge-{{ $unidad->id }}">
-                                        @if ($unidad->estado)
-                                            <span class="badge bg-success">Activo</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactivo</span>
-                                        @endif
-                                    </td>
-                                    <td class="no-exportar">
-                                        <div class="d-flex gap-1">
-                                            <button type="button" class="btn btn-sm btn-info"
-                                                onclick="verUnidad({{ $unidad->id }})" title="Ver">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
-                                            @can('unidades.editar')
-                                                <button type="button" class="btn btn-sm btn-warning"
-                                                    onclick="editarUnidad({{ $unidad->id }})" title="Editar">
-                                                    <i class="ri-pencil-line"></i>
+                    <div class="table-responsive">
+                        <table id="tablaUnidades" class="table nowrap align-middle mb-0" style="width:100%">
+                            <thead class="table-light text-muted">
+                                <tr class="text-uppercase fs-12">
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th style="width: 100px;">Estado</th>
+                                    <th class="no-exportar" style="width: 150px;">Acciones</th>
+                                    <th class="no-exportar" style="width: 50px;">On/Off</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @forelse($unidades as $unidad)
+                                    <tr data-id="{{ $unidad->id }}">
+                                        <td><span class="badge bg-secondary fs-6">{{ $unidad->codigo }}</span></td>
+                                        <td><strong>{{ $unidad->nombre }}</strong></td>
+                                        <td>
+                                            @if ($unidad->descripcion)
+                                                <i
+                                                    class="bx bx-comment-dots me-1"></i>{{ Str::limit($unidad->descripcion, 40) }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td id="estado-badge-{{ $unidad->id }}">
+                                            @if ($unidad->estado)
+                                                <span class="badge bg-success">Activo</span>
+                                            @else
+                                                <span class="badge bg-danger">Inactivo</span>
+                                            @endif
+                                        </td>
+                                        <td class="no-exportar">
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-sm btn-info"
+                                                    onclick="verUnidad({{ $unidad->id }})" title="Ver">
+                                                    <i class="ri-eye-line"></i>
                                                 </button>
-                                            @endcan
-                                            @can('unidades.eliminar')
-                                                <button type="button" class="btn btn-sm btn-danger"
-                                                    onclick="eliminarUnidad({{ $unidad->id }}, '{{ $unidad->nombre }}')"
-                                                    title="Eliminar">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            @endcan
-                                        </div>
-                                    </td>
-                                    <td class="no-exportar">
-                                        @can('unidades.editar')
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox"
-                                                    id="toggle-estado-{{ $unidad->id }}"
-                                                    {{ $unidad->estado ? 'checked' : '' }}
-                                                    onchange="toggleEstado({{ $unidad->id }})">
+                                                @can('unidades.editar')
+                                                    <button type="button" class="btn btn-sm btn-warning"
+                                                        onclick="editarUnidad({{ $unidad->id }})" title="Editar">
+                                                        <i class="ri-pencil-line"></i>
+                                                    </button>
+                                                @endcan
+                                                @can('unidades.eliminar')
+                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                        onclick="eliminarUnidad({{ $unidad->id }}, '{{ $unidad->nombre }}')"
+                                                        title="Eliminar">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                @endcan
                                             </div>
-                                        @else
-                                            <span
-                                                class="badge {{ $unidad->estado ? 'bg-success' : 'bg-danger' }}">{{ $unidad->estado ? 'On' : 'Off' }}</span>
-                                        @endcan
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">
-                                        <i class="ri-inbox-line fs-1 d-block mb-2"></i>
-                                        No hay unidades registradas
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        </td>
+                                        <td class="no-exportar">
+                                            @can('unidades.editar')
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="toggle-estado-{{ $unidad->id }}"
+                                                        {{ $unidad->estado ? 'checked' : '' }}
+                                                        onchange="toggleEstado({{ $unidad->id }})">
+                                                </div>
+                                            @else
+                                                <span
+                                                    class="badge {{ $unidad->estado ? 'bg-success' : 'bg-danger' }}">{{ $unidad->estado ? 'On' : 'Off' }}</span>
+                                            @endcan
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            <i class="ri-inbox-line fs-1 d-block mb-2"></i>
+                                            No hay unidades registradas
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>

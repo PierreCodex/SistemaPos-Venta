@@ -343,8 +343,8 @@ function generarFilaHTML(unidad) {
             <td id="estado-badge-${unidad.id}">
                 ${unidad.estado ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'}
             </td>
-            <td>
-                <div class="d-flex gap-1">
+            <td class="no-exportar">
+                <div class="d-flex gap-1 text-center justify-content-center">
                     <button type="button" class="btn btn-sm btn-info" onclick="verUnidad(${unidad.id})" title="Ver">
                         <i class="ri-eye-line"></i>
                     </button>
@@ -356,12 +356,13 @@ function generarFilaHTML(unidad) {
                     </button>
                 </div>
             </td>
-            <td>
+            <td class="no-exportar">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="toggle-estado-${unidad.id}"
                         ${unidad.estado ? 'checked' : ''} onchange="toggleEstado(${unidad.id})">
                 </div>
             </td>
+
         </tr>
     `;
 }

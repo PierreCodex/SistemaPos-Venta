@@ -1,11 +1,11 @@
-@extends('layouts.master')
 
-@section('title')
+
+<?php $__env->startSection('title'); ?>
     Ventas a Crédito
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
-    <link href="{{ URL::asset('build/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css">
+<?php $__env->startSection('css'); ?>
+    <link href="<?php echo e(URL::asset('build/libs/flatpickr/flatpickr.min.css')); ?>" rel="stylesheet" type="text/css">
     <style>
         .filter-btn-purple {
             background-color: #903ef5 !important;
@@ -51,16 +51,16 @@
             color: #fff;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                 <h4 class="mb-sm-0">Ventas a Crédito</h4>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Dashboard</a></li>
                         <li class="breadcrumb-item">Ventas a Crédito</li>
                         <li class="breadcrumb-item active">Listado</li>
                     </ol>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="row align-items-stretch">
-        {{-- Bloque de Filtros --}}
+        
         <div class="col-lg-8">
             <div class="card card-height-100">
                 <div class="card-body p-4">
@@ -82,7 +82,7 @@
                                     class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha Inicio</label>
                                 <div class="input-group">
                                     <input type="text" id="fecha_inicio" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ $fechaInicio }}">
+                                        data-provider="flatpickr" data-date-format="Y-m-d" value="<?php echo e($fechaInicio); ?>">
                                     <span class="input-group-text border-light bg-light"><i
                                             class="ri-calendar-event-line"></i></span>
                                 </div>
@@ -92,7 +92,7 @@
                                     Fin</label>
                                 <div class="input-group">
                                     <input type="text" id="fecha_fin" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ $fechaFin }}">
+                                        data-provider="flatpickr" data-date-format="Y-m-d" value="<?php echo e($fechaFin); ?>">
                                     <span class="input-group-text border-light bg-light"><i
                                             class="ri-calendar-event-line"></i></span>
                                 </div>
@@ -108,7 +108,7 @@
             </div>
         </div>
 
-        {{-- Bloque de Resumen --}}
+        
         <div class="col-lg-4">
             <div class="card card-height-100">
                 <div class="card-body p-4">
@@ -118,7 +118,8 @@
                                 <p class="text-success text-uppercase fw-bold mb-2 fs-12">Total</p>
                                 <h4 class="mb-0 fw-bold">
                                     <span class="fs-12 fw-normal text-muted me-1">S/</span>
-                                    {{ number_format($estadisticas['total'], 2) }}
+                                    <?php echo e(number_format($estadisticas['total'], 2)); ?>
+
                                 </h4>
                             </div>
                         </div>
@@ -127,7 +128,8 @@
                                 <p class="text-warning text-uppercase fw-bold mb-2 fs-12">Saldo Pendiente</p>
                                 <h4 class="mb-0 fw-bold">
                                     <span class="fs-12 fw-normal text-muted me-1">S/</span>
-                                    {{ number_format($estadisticas['saldo_pendiente'], 2) }}
+                                    <?php echo e(number_format($estadisticas['saldo_pendiente'], 2)); ?>
+
                                 </h4>
                             </div>
                         </div>
@@ -140,138 +142,124 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center flex-wrap gap-2">
-                    <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold"><i class="ri-table-line me-1"></i>
-                        REGISTROS DE CRÉDITOS</h5>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button type="button"
-                            class="btn btn-purple btn-label waves-effect waves-light d-flex align-items-center shadow-none"
+                <div class="card-header d-flex align-items-center">
+                    <h5 class="card-title mb-0 flex-grow-1"><i class="ri-table-line me-1"></i> REGISTROS DE CRÉDITOS</h5>
+                    <div class="d-flex flex-shrink-0 gap-2">
+                        <button type="button" class="btn btn-purple btn-label waves-effect waves-light"
                             onclick="verHistorialGeneral()">
-                            <i class="ri-history-line label-icon align-middle fs-16 me-2"></i>
-                            <span class="d-none d-sm-inline text-uppercase">Historial de Pagos</span>
-                            <span class="d-inline d-sm-none text-uppercase">Historial</span>
+                            <i class="ri-history-line label-icon align-middle fs-16 me-2"></i> HISTORIAL DE PAGOS
                         </button>
-                        <button type="button"
-                            class="btn btn-success btn-label waves-effect waves-light d-flex align-items-center shadow-none">
-                            <i class="ri-file-excel-2-line label-icon align-middle fs-16 me-2"></i>
-                            <span class="d-none d-sm-inline text-uppercase">Excel</span>
+                        <button type="button" class="btn btn-success btn-label waves-effect waves-light">
+                            <i class="ri-file-excel-2-line label-icon align-middle fs-16 me-2"></i> Excel
                         </button>
                     </div>
                 </div>
-
 
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="tablaCreditos" class="table nowrap align-middle mb-0" style="width:100%">
-                            <thead class="table-light text-muted">
-                                <tr class="text-uppercase fs-12">
-                                    <th>Comprobante</th>
-                                    <th>Cliente</th>
-                                    <th>Vendedor</th>
-                                    <th>Método</th>
-                                    <th>Fecha</th>
-                                    <th>Total</th>
-                                    <th>Saldo Pend.</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="no-exportar text-center">Acciones</th>
+                    <table id="tablaCreditos" class="table nowrap align-middle" style="width:100%">
+                        <thead class="table-light">
+                            <tr class="text-uppercase fs-11">
+                                <th>Comprobante</th>
+                                <th>Nom. Cliente</th>
+                                <th>Vendedor</th>
+                                <th>Met. Pago</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Saldo Pend.</th>
+                                <th>Estado</th>
+                                <th class="no-exportar">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $__empty_1 = true; $__currentLoopData = $ventas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $venta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <tr>
+                                    <td>
+                                        <small
+                                            class="text-muted text-uppercase d-block"><?php echo e($venta->serie); ?><?php echo e($venta->numero); ?></small>
+                                        <span class="fw-bold text-uppercase"><?php echo e($venta->comprobante); ?></span><br>
+                                        <small
+                                            class="text-muted"><?php echo e($venta->serie); ?>-<?php echo e(str_pad($venta->numero, 8, '0', STR_PAD_LEFT)); ?></small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="ri-user-line me-2 text-muted"></i>
+                                            <span class="text-uppercase"><?php echo e($venta->nombre_cliente); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="ri-user-star-line me-2 text-muted"></i>
+                                            <span><?php echo e($venta->vendedor->name ?? '-'); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="ri-money-dollar-circle-line me-2 text-success"></i>
+                                            <span class="text-uppercase"><?php echo e($venta->metodo_pago); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-muted small">
+                                            <i
+                                                class="ri-calendar-line me-1"></i><?php echo e($venta->fecha_emision->format('d/m/Y')); ?><br>
+                                            <i class="ri-time-line me-1"></i><?php echo e($venta->fecha_emision->format('H:i:s')); ?>
+
+                                        </div>
+                                    </td>
+                                    <td><span class="text-primary fw-bold">S/ <?php echo e(number_format($venta->total, 2)); ?></span>
+                                    </td>
+                                    <td><span class="text-warning fw-bold">S/
+                                            <?php echo e(number_format($venta->saldo_pendiente, 2)); ?></span></td>
+                                    <td>
+                                        <?php
+                                            $badge = match ($venta->estado_pago) {
+                                                'PAGADO' => 'bg-success',
+                                                'PARCIAL' => 'bg-warning',
+                                                default => 'bg-danger',
+                                            };
+                                        ?>
+                                        <span
+                                            class="badge <?php echo e($badge); ?> text-uppercase"><?php echo e($venta->estado_pago); ?></span>
+                                    </td>
+                                    <td>
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ri-more-fill align-middle"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="javascript:void(0);"
+                                                        onclick="verDetalles(<?php echo e($venta->id); ?>)"><i
+                                                            class="ri-eye-fill align-bottom me-2 text-muted"></i> Ver
+                                                        Detalle</a></li>
+                                                <?php if($venta->saldo_pendiente > 0): ?>
+                                                    <li><a class="dropdown-item edit-item-btn" href="javascript:void(0);"
+                                                            onclick="abrirModalPago(<?php echo e($venta->id); ?>, <?php echo e($venta->saldo_pendiente); ?>, '<?php echo e($venta->nombre_cliente); ?>')"><i
+                                                                class="ri-hand-coin-line align-bottom me-2 text-muted"></i>
+                                                            Registrar Pago</a></li>
+                                                <?php endif; ?>
+                                                <li><a class="dropdown-item" href="javascript:void(0);"
+                                                        onclick="verHistorialPagos(<?php echo e($venta->id); ?>)"><i
+                                                            class="ri-history-line align-bottom me-2 text-muted"></i>
+                                                        Historial de Pagos</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-
-                                @forelse($ventas as $venta)
-                                    <tr>
-                                        <td>
-                                            <small
-                                                class="text-muted text-uppercase d-block">{{ $venta->serie }}{{ $venta->numero }}</small>
-                                            <span class="fw-bold text-uppercase">{{ $venta->comprobante }}</span><br>
-                                            <small
-                                                class="text-muted">{{ $venta->serie }}-{{ str_pad($venta->numero, 8, '0', STR_PAD_LEFT) }}</small>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="ri-user-line me-2 text-muted"></i>
-                                                <span class="text-uppercase">{{ $venta->nombre_cliente }}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="ri-user-star-line me-2 text-muted"></i>
-                                                <span>{{ $venta->vendedor->name ?? '-' }}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="ri-money-dollar-circle-line me-2 text-success"></i>
-                                                <span class="text-uppercase">{{ $venta->metodo_pago }}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="text-muted small">
-                                                <i
-                                                    class="ri-calendar-line me-1"></i>{{ $venta->fecha_emision->format('d/m/Y') }}<br>
-                                                <i
-                                                    class="ri-time-line me-1"></i>{{ $venta->fecha_emision->format('H:i:s') }}
-                                            </div>
-                                        </td>
-                                        <td><span class="text-primary fw-bold">S/
-                                                {{ number_format($venta->total, 2) }}</span>
-                                        </td>
-                                        <td><span class="text-warning fw-bold">S/
-                                                {{ number_format($venta->saldo_pendiente, 2) }}</span></td>
-                                        <td>
-                                            @php
-                                                $badge = match ($venta->estado_pago) {
-                                                    'PAGADO' => 'bg-success',
-                                                    'PARCIAL' => 'bg-warning',
-                                                    default => 'bg-danger',
-                                                };
-                                            @endphp
-                                            <span
-                                                class="badge {{ $badge }} text-uppercase">{{ $venta->estado_pago }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ri-more-fill align-middle"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="javascript:void(0);"
-                                                            onclick="verDetalles({{ $venta->id }})"><i
-                                                                class="ri-eye-fill align-bottom me-2 text-muted"></i> Ver
-                                                            Detalle</a></li>
-                                                    @if ($venta->saldo_pendiente > 0)
-                                                        <li><a class="dropdown-item edit-item-btn"
-                                                                href="javascript:void(0);"
-                                                                onclick="abrirModalPago({{ $venta->id }}, {{ $venta->saldo_pendiente }}, '{{ $venta->nombre_cliente }}')"><i
-                                                                    class="ri-hand-coin-line align-bottom me-2 text-muted"></i>
-                                                                Registrar Pago</a></li>
-                                                    @endif
-                                                    <li><a class="dropdown-item" href="javascript:void(0);"
-                                                            onclick="verHistorialPagos({{ $venta->id }})"><i
-                                                                class="ri-history-line align-bottom me-2 text-muted"></i>
-                                                            Historial de Pagos</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="9" class="text-center py-4 text-muted">No hay registros de
-                                            créditos en
-                                            el rango seleccionado.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                <tr>
+                                    <td colspan="9" class="text-center py-4 text-muted">No hay registros de créditos en
+                                        el rango seleccionado.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
-
             </div>
         </div>
     </div>
 
-    {{-- Modal Registrar Pago --}}
+    
     <div class="modal fade" id="modalPago" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -280,7 +268,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="formPago">
-                    @csrf
+                    <?php echo csrf_field(); ?>
                     <div class="modal-body">
                         <div class="alert alert-info py-2 fs-13">
                             <strong>Cliente:</strong> <span id="pagoClienteNombre"></span><br>
@@ -306,7 +294,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Fecha de Pago</label>
-                            <input type="date" class="form-control" name="fecha_pago" value="{{ date('Y-m-d') }}"
+                            <input type="date" class="form-control" name="fecha_pago" value="<?php echo e(date('Y-m-d')); ?>"
                                 required>
                         </div>
 
@@ -331,7 +319,7 @@
         </div>
     </div>
 
-    {{-- Modal Historial de Pagos --}}
+    
     <div class="modal fade" id="modalHistorialPagos" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -352,7 +340,7 @@
                                 </tr>
                             </thead>
                             <tbody id="historialPagosBody">
-                                {{-- Se llena via JS --}}
+                                
                             </tbody>
                         </table>
                     </div>
@@ -361,7 +349,7 @@
         </div>
     </div>
 
-    {{-- Modal Ver Detalle de Venta (PREMIUM) --}}
+    
     <div class="modal fade" id="modalDetalleVenta" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 overflow-hidden shadow-lg">
@@ -410,7 +398,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="detProductosBody">
-                                    {{-- Se llena vía JS --}}
+                                    
                                 </tbody>
                                 <tfoot>
                                     <tr class="border-top border-top-dashed">
@@ -442,16 +430,16 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
-    <script src="{{ URL::asset('build/libs/flatpickr/flatpickr.min.js') }}"></script>
+<?php $__env->startSection('script'); ?>
+    <script src="<?php echo e(URL::asset('build/libs/flatpickr/flatpickr.min.js')); ?>"></script>
     <script>
         const ROUTES = {
-            pagar: '{{ route('ventas-credito.registrar-pago', ':id') }}',
-            historial: '{{ route('ventas-credito.historial-pagos', ':id') }}',
-            show: '{{ route('ventas-credito.show', ':id') }}',
-            historialGeneral: '{{ route('ventas-credito.historial-general') }}'
+            pagar: '<?php echo e(route('ventas-credito.registrar-pago', ':id')); ?>',
+            historial: '<?php echo e(route('ventas-credito.historial-pagos', ':id')); ?>',
+            show: '<?php echo e(route('ventas-credito.show', ':id')); ?>',
+            historialGeneral: '<?php echo e(route('ventas-credito.historial-general')); ?>'
         };
 
         function mostrarToast(mensaje, tipo = 'success') {
@@ -463,7 +451,7 @@
 
             // Audio de confirmación si es éxito
             if (tipo === 'success') {
-                const confirmAudio = new Audio('{{ URL::asset('mp3/sfx-menu6.mp3') }}');
+                const confirmAudio = new Audio('<?php echo e(URL::asset('mp3/sfx-menu6.mp3')); ?>');
                 confirmAudio.play().catch(e => console.log("Audio play blocked"));
             }
 
@@ -510,7 +498,7 @@
             fetch(ROUTES.pagar.replace(':id', id), {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                         'Accept': 'application/json'
                     },
                     body: formData
@@ -636,4 +624,6 @@
             window.location.href = ROUTES.historialGeneral;
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/ventas_credito/index.blade.php ENDPATH**/ ?>

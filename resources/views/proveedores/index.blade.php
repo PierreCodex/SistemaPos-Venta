@@ -30,93 +30,104 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center">
+                <div class="card-header d-flex align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1">Listado de Proveedores</h5>
-                    <div class="d-flex flex-shrink-0 gap-2">
-                        <button type="button" id="btnExportarPDF" class="btn btn-soft-danger waves-effect waves-light">
-                            <i class="las la-file-pdf fs-3"></i><span>PDF</span>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" id="btnExportarPDF"
+                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-pdf-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
                         </button>
-                        <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
-                            <i class="las la-file-excel fs-3"></i><span>Excel</span>
+                        <button type="button" id="btnExportarExcel"
+                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-excel-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
                         </button>
                         @can('proveedores.crear')
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#modalProveedor" onclick="limpiarFormulario()">
-                                <i class="ri-add-line me-1"></i> Nuevo Proveedor
+                            <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
+                                data-bs-toggle="modal" data-bs-target="#modalProveedor" onclick="limpiarFormulario()">
+                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nuevo
+                                    Proveedor</span>
+                                <span class="d-inline d-md-none text-uppercase">Nuevo</span>
                             </button>
                         @endcan
                     </div>
                 </div>
 
+
                 <div class="card-body">
-                    <table id="tablaProveedores" class="table nowrap align-middle" style="width:100%">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Documento</th>
-                                <th>Nombre</th>
-                                <th>Teléfono</th>
-                                <th>Email</th>
-                                <th style="width: 100px;">Estado</th>
-                                <th class="no-exportar" style="width: 150px;">Acciones</th>
-                                <th class="no-exportar" style="width: 50px;">On/Off</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($proveedores as $proveedor)
-                                <tr data-id="{{ $proveedor->id }}">
-                                    <td>
-                                        <span class="badge bg-secondary">{{ $proveedor->tipo_documento }}</span>
-                                        <strong>{{ $proveedor->documento }}</strong>
-                                    </td>
-                                    <td><strong>{{ $proveedor->nombre }}</strong></td>
-                                    <td>{{ $proveedor->telefono ?? '-' }}</td>
-                                    <td>{{ $proveedor->email ?? '-' }}</td>
-                                    <td id="estado-badge-{{ $proveedor->id }}">
-                                        @if ($proveedor->estado)
-                                            <span class="badge bg-success">Activo</span>
-                                        @else
-                                            <span class="badge bg-danger">Inactivo</span>
-                                        @endif
-                                    </td>
-                                    <td class="no-exportar">
-                                        <div class="d-flex gap-1">
-                                            <button type="button" class="btn btn-sm btn-info"
-                                                onclick="verProveedor({{ $proveedor->id }})" title="Ver">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
-                                            @can('proveedores.editar')
-                                                <button type="button" class="btn btn-sm btn-warning"
-                                                    onclick="editarProveedor({{ $proveedor->id }})" title="Editar">
-                                                    <i class="ri-pencil-line"></i>
-                                                </button>
-                                            @endcan
-                                            @can('proveedores.eliminar')
-                                                <button type="button" class="btn btn-sm btn-danger"
-                                                    onclick="eliminarProveedor({{ $proveedor->id }}, '{{ $proveedor->nombre }}')"
-                                                    title="Eliminar">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            @endcan
-                                        </div>
-                                    </td>
-                                    <td class="no-exportar">
-                                        @can('proveedores.editar')
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox"
-                                                    id="toggle-estado-{{ $proveedor->id }}"
-                                                    {{ $proveedor->estado ? 'checked' : '' }}
-                                                    onchange="toggleEstado({{ $proveedor->id }})">
-                                            </div>
-                                        @else
-                                            <span
-                                                class="badge {{ $proveedor->estado ? 'bg-success' : 'bg-danger' }}">{{ $proveedor->estado ? 'On' : 'Off' }}</span>
-                                        @endcan
-                                    </td>
+                    <div class="table-responsive">
+                        <table id="tablaProveedores" class="table nowrap align-middle mb-0" style="width:100%">
+                            <thead class="table-light text-muted">
+                                <tr class="text-uppercase fs-12">
+                                    <th>Documento</th>
+                                    <th>Nombre</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th style="width: 100px;">Estado</th>
+                                    <th class="no-exportar" style="width: 150px;">Acciones</th>
+                                    <th class="no-exportar" style="width: 50px;">On/Off</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+
+                                @foreach ($proveedores as $proveedor)
+                                    <tr data-id="{{ $proveedor->id }}">
+                                        <td>
+                                            <span class="badge bg-secondary">{{ $proveedor->tipo_documento }}</span>
+                                            <strong>{{ $proveedor->documento }}</strong>
+                                        </td>
+                                        <td><strong>{{ $proveedor->nombre }}</strong></td>
+                                        <td>{{ $proveedor->telefono ?? '-' }}</td>
+                                        <td>{{ $proveedor->email ?? '-' }}</td>
+                                        <td id="estado-badge-{{ $proveedor->id }}">
+                                            @if ($proveedor->estado)
+                                                <span class="badge bg-success">Activo</span>
+                                            @else
+                                                <span class="badge bg-danger">Inactivo</span>
+                                            @endif
+                                        </td>
+                                        <td class="no-exportar">
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-sm btn-info"
+                                                    onclick="verProveedor({{ $proveedor->id }})" title="Ver">
+                                                    <i class="ri-eye-line"></i>
+                                                </button>
+                                                @can('proveedores.editar')
+                                                    <button type="button" class="btn btn-sm btn-warning"
+                                                        onclick="editarProveedor({{ $proveedor->id }})" title="Editar">
+                                                        <i class="ri-pencil-line"></i>
+                                                    </button>
+                                                @endcan
+                                                @can('proveedores.eliminar')
+                                                    <button type="button" class="btn btn-sm btn-danger"
+                                                        onclick="eliminarProveedor({{ $proveedor->id }}, '{{ $proveedor->nombre }}')"
+                                                        title="Eliminar">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                @endcan
+                                            </div>
+                                        </td>
+                                        <td class="no-exportar">
+                                            @can('proveedores.editar')
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="toggle-estado-{{ $proveedor->id }}"
+                                                        {{ $proveedor->estado ? 'checked' : '' }}
+                                                        onchange="toggleEstado({{ $proveedor->id }})">
+                                                </div>
+                                            @else
+                                                <span
+                                                    class="badge {{ $proveedor->estado ? 'bg-success' : 'bg-danger' }}">{{ $proveedor->estado ? 'On' : 'Off' }}</span>
+                                            @endcan
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>

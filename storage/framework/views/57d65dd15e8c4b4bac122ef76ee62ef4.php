@@ -128,85 +128,116 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center">
+                <div class="card-header d-flex align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1">Listado de Comprobantes</h5>
-                    <div class="d-flex flex-shrink-0 gap-2">
-                        <button type="button" id="btnExportarPDF" class="btn btn-soft-danger waves-effect waves-light">
-                            <i class="las la-file-pdf fs-3"></i><span>PDF</span>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" id="btnExportarPDF"
+                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-pdf-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
                         </button>
-                        <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
-                            <i class="las la-file-excel fs-3"></i><span>Excel</span>
+                        <button type="button" id="btnExportarExcel"
+                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-excel-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
                         </button>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('ventas.crear')): ?>
-                            <a href="<?php echo e(route('ventas.create')); ?>" class="btn btn-primary">
-                                <i class="ri-add-line me-1"></i> Nueva Venta
+                            <a href="<?php echo e(route('ventas.create')); ?>" class="btn btn-primary shadow-sm d-flex align-items-center">
+                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nueva
+                                    Venta</span>
+                                <span class="d-inline d-md-none text-uppercase">Nuevo</span>
                             </a>
                         <?php endif; ?>
                     </div>
                 </div>
 
+
                 <div class="card-body">
-                    <table id="tablaVentas" class="table nowrap align-middle" style="width:100%">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Comprobante</th>
-                                <th>Cliente</th>
-                                <th>Vendedor</th>
-                                <th>Método Pago</th>
-                                <th>Fecha</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th class="no-exportar" style="width: 150px;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $__empty_1 = true; $__currentLoopData = $ventas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $venta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                <tr data-id="<?php echo e($venta->id); ?>">
-                                    <td>
-                                        <span
-                                            class="badge bg-primary-subtle text-primary"><?php echo e($venta->comprobante); ?></span><br>
-                                        <small class="text-muted"><?php echo e($venta->serie); ?>-<?php echo e($venta->numero); ?></small>
-                                    </td>
-                                    <td><?php echo e($venta->nombre_cliente); ?></td>
-                                    <td><?php echo e($venta->vendedor->name ?? '-'); ?></td>
-                                    <td>
-                                        <span class="badge bg-info-subtle text-info"><?php echo e($venta->metodo_pago); ?></span>
-                                    </td>
-                                    <td><?php echo e($venta->fecha_emision->format('d/m/Y H:i')); ?></td>
-                                    <td><strong>S/ <?php echo e(number_format($venta->total, 2)); ?></strong></td>
-                                    <td><?php echo $venta->badge_estado; ?></td>
-                                    <td>
-                                        <div class="d-flex gap-1">
-                                            <button type="button" class="btn btn-sm btn-info"
-                                                onclick="verDetalles(<?php echo e($venta->id); ?>)" title="Ver detalles">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-secondary"
-                                                onclick="imprimirVenta(<?php echo e($venta->id); ?>)" title="Imprimir">
-                                                <i class="ri-printer-line"></i>
-                                            </button>
-                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('ventas.anular')): ?>
-                                                <?php if($venta->estado !== 'ANULADA'): ?>
-                                                    <button type="button" class="btn btn-sm btn-danger"
-                                                        onclick="anularVenta(<?php echo e($venta->id); ?>)" title="Anular">
-                                                        <i class="ri-close-circle-line"></i>
-                                                    </button>
+                    <div class="table-responsive">
+                        <table id="tablaVentas" class="table nowrap align-middle table-hover mb-0" style="width:100%">
+                            <thead class="table-light text-muted">
+                                <tr class="text-uppercase fs-12">
+                                    <th>Comprobante</th>
+                                    <th>Cliente</th>
+                                    <th>Vendedor</th>
+                                    <th>Método Pago</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="no-exportar text-center" style="width: 150px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $__empty_1 = true; $__currentLoopData = $ventas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $venta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <tr data-id="<?php echo e($venta->id); ?>">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6
+                                                        class="fs-14 mb-0 fw-bold border-bottom border-primary border-opacity-25 d-inline-block text-uppercase">
+                                                        $<?php echo e($venta->comprobante); ?></h6>
+                                                    <div class="text-muted fs-11">
+                                                        $<?php echo e($venta->serie); ?>-$<?php echo e(str_pad($venta->numero, 8, '0', STR_PAD_LEFT)); ?>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-uppercase">$<?php echo e($venta->nombre_cliente); ?></td>
+                                        <td class="text-uppercase">$<?php echo e($venta->vendedor->name ?? '-'); ?></td>
+                                        <td>
+                                            <span class="badge bg-info-subtle text-info p-2 text-uppercase">
+                                                <i
+                                                    class="ri-wallet-3-line me-1 align-middle"></i>$<?php echo e($venta->metodo_pago); ?>
+
+                                            </span>
+                                        </td>
+                                        <td class="text-nowrap text-uppercase">
+                                            <div class="fw-medium">$<?php echo e($venta->fecha_emision->format('d/m/Y')); ?></div>
+                                            <div class="text-muted fs-11">$<?php echo e($venta->fecha_emision->format('H:i:s')); ?>
+
+                                            </div>
+                                        </td>
+                                        <td><span class="fw-bold text-primary fs-14">S/
+                                                $<?php echo e(number_format($venta->total, 2)); ?></span></td>
+                                        <td class="text-center text-uppercase">$<?php echo $venta->badge_estado; ?></td>
+                                        <td class="text-center no-exportar">
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-soft-info btn-icon waves-effect waves-light"
+                                                    onclick="verDetalles(<?php echo e($venta->id); ?>)" title="Ver detalles">
+                                                    <i class="ri-eye-line fs-16"></i>
+                                                </button>
+                                                <button type="button"
+                                                    class="btn btn-sm btn-soft-secondary btn-icon waves-effect waves-light"
+                                                    onclick="imprimirVenta(<?php echo e($venta->id); ?>)" title="Imprimir">
+                                                    <i class="ri-printer-line fs-16"></i>
+                                                </button>
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('ventas.anular')): ?>
+                                                    <?php if($venta->estado !== 'ANULADA'): ?>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-soft-danger btn-icon waves-effect waves-light"
+                                                            onclick="anularVenta(<?php echo e($venta->id); ?>)" title="Anular">
+                                                            <i class="ri-close-circle-line fs-16"></i>
+                                                        </button>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
-                                        <i class="ri-inbox-line fs-1 d-block mb-2"></i>
-                                        No hay ventas registradas hoy
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-5 text-uppercase">
+                                            <i class="ri-inbox-line fs-48 d-block mb-2 opacity-25"></i>
+                                            No hay ventas registradas
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -408,13 +439,13 @@
                             </thead>
                             <tbody>
                                 ${v.detalles.map(d => `
-                                                                                                        <tr>
-                                                                                                            <td>${d.producto?.nombre || 'Producto'}</td>
-                                                                                                            <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
-                                                                                                            <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
-                                                                                                            <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
-                                                                                                        </tr>
-                                                                                                    `).join('')}
+                                                                                                            <tr>
+                                                                                                                <td>${d.producto?.nombre || 'Producto'}</td>
+                                                                                                                <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                                                                                <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
+                                                                                                                <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                                                                            </tr>
+                                                                                                        `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -426,10 +457,10 @@
                                     <td class="text-end">S/ ${parseFloat(v.igv_monto).toFixed(2)}</td>
                                 </tr>
                                 ${v.descuento > 0 ? `
-                                                                                                    <tr>
-                                                                                                        <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
-                                                                                                        <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
-                                                                                                    </tr>` : ''}
+                                                                                                        <tr>
+                                                                                                            <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
+                                                                                                            <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
+                                                                                                        </tr>` : ''}
                                 <tr class="table-primary">
                                     <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
                                     <td class="text-end"><strong>S/ ${parseFloat(v.total).toFixed(2)}</strong></td>

@@ -306,28 +306,30 @@ function toggleEstado(id) {
 // FUNCIONES PARA MANIPULAR TABLA
 // =============================================
 function agregarFilaATabla(cat) {
-    const tbody = document.querySelector('#tablaCategoriasGlobales tbody');
-    if (!tbody) return;
-
-    const tr = document.createElement('tr');
-    tr.setAttribute('data-id', cat.id);
-    tr.innerHTML = generarFilaHTML(cat);
-    tbody.appendChild(tr);
+    const rowHtml = generarFilaHTML(cat);
+    dataTable.row.add($(`<tr data-id="${cat.id}">${rowHtml}</tr>`)).draw(false);
 }
+
 
 function actualizarFilaEnTabla(cat) {
-    const row = document.querySelector(`tr[data-id="${cat.id}"]`);
-    if (row) {
-        row.innerHTML = generarFilaHTML(cat);
+    const row = $(`tr[data-id="${cat.id}"]`);
+    if (row.length) {
+        const rowIndex = dataTable.row(row).index();
+        const rowHtml = generarFilaHTML(cat);
+        dataTable.row(rowIndex).data($(`<tr data-id="${cat.id}">${rowHtml}</tr>`)[0].cells).draw(false);
+        // Volver a poner el data-id que se pierde al usar .data()
+        $(`tr:eq(${rowIndex})`).attr('data-id', cat.id);
     }
 }
 
+
 function eliminarFilaDeTabla(id) {
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    if (row) {
-        row.remove();
+    const row = $(`tr[data-id="${id}"]`);
+    if (row.length) {
+        dataTable.row(row).remove().draw(false);
     }
 }
+
 
 function actualizarArrayLocal(cat) {
     const index = categorias.findIndex(c => c.id === cat.id);
@@ -343,8 +345,8 @@ function generarFilaHTML(cat) {
         <td id="estado-badge-${cat.id}">
             ${cat.estado ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'}
         </td>
-        <td>
-            <div class="d-flex gap-1">
+        <td class="no-exportar">
+            <div class="d-flex gap-1 text-center justify-content-center">
                 <button type="button" class="btn btn-sm btn-warning" onclick="editarCategoria(${cat.id})" title="Editar">
                     <i class="ri-pencil-line"></i>
                 </button>
@@ -353,7 +355,7 @@ function generarFilaHTML(cat) {
                 </button>
             </div>
         </td>
-        <td>
+        <td class="no-exportar">
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="toggle-estado-${cat.id}"
                     ${cat.estado ? 'checked' : ''} onchange="toggleEstado(${cat.id})">
@@ -361,6 +363,7 @@ function generarFilaHTML(cat) {
         </td>
     `;
 }
+
 
 // =============================================
 // UTILIDADES

@@ -362,6 +362,7 @@ function generarFilaHTML(prov) {
                         ${prov.estado ? 'checked' : ''} onchange="toggleEstado(${prov.id})">
                 </div>
             </td>
+
         </tr>
     `;
 }

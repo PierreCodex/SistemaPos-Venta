@@ -72,96 +72,107 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex align-items-center">
+                <div class="card-header d-flex align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1">
                         <i class="ri-file-list-3-line me-2"></i>Registros
                     </h5>
                     @can('compras.crear')
-                        <a href="{{ route('compras.create') }}" class="btn btn-primary">
-                            <i class="ri-add-line me-1"></i> NUEVA COMPRA
+                        <a href="{{ route('compras.create') }}" class="btn btn-primary shadow-sm d-flex align-items-center">
+                            <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nueva
+                                Compra</span>
+                            <span class="d-inline d-md-none text-uppercase">Nuevo</span>
                         </a>
                     @endcan
                 </div>
 
+
                 <div class="card-body">
-                    <table id="tablaCompras" class="table table-hover nowrap align-middle" style="width:100%">
-                        <thead class="table-light">
-                            <tr>
-                                <th>CÓDIGO</th>
-                                <th>PROVEEDOR</th>
-                                <th>MÉTODO PAGO</th>
-                                <th class="text-end">TOTAL</th>
-                                <th class="text-center">FECHA</th>
-                                <th class="text-center">ESTADO</th>
-                                <th class="text-center">ACCIONES</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($compras as $compra)
-                                <tr>
-                                    <td>
-                                        <span class="fw-medium text-primary">{{ $compra->numero_comprobante }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="avatar-xs flex-shrink-0">
-                                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                                    {{ strtoupper(substr($compra->proveedor->nombre ?? 'P', 0, 1)) }}
-                                                </span>
+                    <div class="table-responsive">
+                        <table id="tablaCompras" class="table table-hover nowrap align-middle mb-0" style="width:100%">
+                            <thead class="table-light text-muted">
+                                <tr class="text-uppercase fs-12">
+                                    <th>CÓDIGO</th>
+                                    <th>PROVEEDOR</th>
+                                    <th>MÉTODO PAGO</th>
+                                    <th class="text-end">TOTAL</th>
+                                    <th class="text-center">FECHA</th>
+                                    <th class="text-center">ESTADO</th>
+                                    <th class="text-center">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($compras as $compra)
+                                    <tr>
+                                        <td>
+                                            <span
+                                                class="fw-bold text-primary text-uppercase">${{ $compra->numero_comprobante }}</span>
+                                        </td>
+                                        <td class="text-uppercase">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="avatar-xs flex-shrink-0">
+                                                    <span
+                                                        class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                                        ${{ strtoupper(substr($compra->proveedor->nombre ?? 'P', 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                                <span>${{ $compra->proveedor->nombre ?? 'N/A' }}</span>
                                             </div>
-                                            <span>{{ $compra->proveedor->nombre ?? 'N/A' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @if ($compra->forma_pago === 'CONTADO')
-                                            <span class="badge bg-success-subtle text-success">
-                                                <i class="ri-money-dollar-circle-line me-1"></i>Efectivo
-                                            </span>
-                                        @else
-                                            <span class="badge bg-warning-subtle text-warning">
-                                                <i class="ri-bank-card-line me-1"></i>Crédito
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="text-end fw-semibold">S/ {{ number_format($compra->total, 2) }}</td>
-                                    <td class="text-center">{{ $compra->fecha_emision->format('d/m/Y') }}</td>
-                                    <td class="text-center">
-                                        @if ($compra->estado === 'COMPLETADO')
-                                            <span class="badge bg-success">Completado</span>
-                                        @elseif($compra->estado === 'PENDIENTE')
-                                            <span class="badge bg-warning">Pendiente</span>
-                                        @else
-                                            <span class="badge bg-danger">Anulado</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="d-flex gap-1 justify-content-center">
-                                            <button type="button" class="btn btn-soft-info btn-sm"
-                                                onclick="verCompra({{ $compra->id }})" title="Ver detalle">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
-                                            @if ($compra->estado !== 'ANULADO')
-                                                @can('compras.anular')
-                                                    <button type="button" class="btn btn-soft-danger btn-sm"
-                                                        onclick="anularCompra({{ $compra->id }})" title="Anular">
-                                                        <i class="ri-close-circle-line"></i>
-                                                    </button>
-                                                @endcan
+                                        </td>
+                                        <td>
+                                            @if ($compra->forma_pago === 'CONTADO')
+                                                <span class="badge bg-success-subtle text-success p-2 text-uppercase">
+                                                    <i class="ri-money-dollar-circle-line me-1 align-middle"></i>Efectivo
+                                                </span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning p-2 text-uppercase">
+                                                    <i class="ri-bank-card-line me-1 align-middle"></i>Crédito
+                                                </span>
                                             @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <i class="ri-inbox-2-line fs-1 d-block mb-2"></i>
-                                        No hay compras para mostrar.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        </td>
+                                        <td class="text-end fw-bold fs-14">S/ ${{ number_format($compra->total, 2) }}</td>
+                                        <td class="text-center text-uppercase">
+                                            ${{ $compra->fecha_emision->format('d/m/Y') }}</td>
+                                        <td class="text-center text-uppercase">
+                                            @if ($compra->estado === 'COMPLETADO')
+                                                <span class="badge bg-success">Completado</span>
+                                            @elseif($compra->estado === 'PENDIENTE')
+                                                <span class="badge bg-warning">Pendiente</span>
+                                            @else
+                                                <span class="badge bg-danger">Anulado</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex gap-1 justify-content-center">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-soft-info btn-icon waves-effect waves-light"
+                                                    onclick="verCompra({{ $compra->id }})" title="Ver detalle">
+                                                    <i class="ri-eye-line fs-16"></i>
+                                                </button>
+                                                @if ($compra->estado !== 'ANULADO')
+                                                    @can('compras.anular')
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-soft-danger btn-icon waves-effect waves-light"
+                                                            onclick="anularCompra({{ $compra->id }})" title="Anular">
+                                                            <i class="ri-close-circle-line fs-16"></i>
+                                                        </button>
+                                                    @endcan
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-5 text-uppercase">
+                                            <i class="ri-inbox-2-line fs-48 d-block mb-2 opacity-25"></i>
+                                            No hay compras registradas
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -238,13 +249,13 @@
                                 </thead>
                                 <tbody>
                                     ${c.detalles.map(d => `
-                                            <tr>
-                                                <td>${d.producto?.nombre || 'N/A'}</td>
-                                                <td class="text-end">${parseFloat(d.cantidad).toFixed(2)}</td>
-                                                <td class="text-end">S/ ${parseFloat(d.costo_unitario).toFixed(2)}</td>
-                                                <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
-                                            </tr>
-                                        `).join('')}
+                                                <tr>
+                                                    <td>${d.producto?.nombre || 'N/A'}</td>
+                                                    <td class="text-end">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                    <td class="text-end">S/ ${parseFloat(d.costo_unitario).toFixed(2)}</td>
+                                                    <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                </tr>
+                                            `).join('')}
                                 </tbody>
                                 <tfoot class="table-light">
                                     <tr>

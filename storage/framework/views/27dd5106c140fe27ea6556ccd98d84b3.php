@@ -1,24 +1,24 @@
-@extends('layouts.master')
 
-@section('title')
+
+<?php $__env->startSection('title'); ?>
     Categorías Globales
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
+<?php $__env->startSection('css'); ?>
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" rel="stylesheet"
         type="text/css" />
     <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                 <h4 class="mb-sm-0">Categorías Globales</h4>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Inicio</a></li>
                         <li class="breadcrumb-item"><a href="javascript:void(0);">Catálogo</a></li>
                         <li class="breadcrumb-item active">Categorías Globales</li>
                     </ol>
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    {{-- Los mensajes de éxito/error ahora se muestran con Toastify --}}
+    
 
     <div class="row">
         <div class="col-lg-12">
@@ -45,14 +45,14 @@
                             <i class="ri-file-excel-line fs-18"></i> <span
                                 class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
                         </button>
-                        @can('categorias.crear')
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('categorias.crear')): ?>
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalCategoriaGlobal" onclick="limpiarFormulario()">
                                 <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nueva
                                     Categoría</span>
                                 <span class="d-inline d-md-none text-uppercase">Nuevo</span>
                             </button>
-                        @endcan
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -70,56 +70,57 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($categoriasGlobales as $categoria)
-                                    <tr data-id="{{ $categoria->id }}">
-                                        <td><strong>{{ $categoria->nombre }}</strong></td>
-                                        <td>{{ Str::limit($categoria->descripcion, 50) ?? '-' }}</td>
-                                        <td id="estado-badge-{{ $categoria->id }}">
-                                            @if ($categoria->estado)
+                                <?php $__empty_1 = true; $__currentLoopData = $categoriasGlobales; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $categoria): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <tr data-id="<?php echo e($categoria->id); ?>">
+                                        <td><strong><?php echo e($categoria->nombre); ?></strong></td>
+                                        <td><?php echo e(Str::limit($categoria->descripcion, 50) ?? '-'); ?></td>
+                                        <td id="estado-badge-<?php echo e($categoria->id); ?>">
+                                            <?php if($categoria->estado): ?>
                                                 <span class="badge bg-success">Activo</span>
-                                            @else
+                                            <?php else: ?>
                                                 <span class="badge bg-danger">Inactivo</span>
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
                                         <td class="no-exportar">
                                             <div class="d-flex gap-1">
-                                                @can('categorias.editar')
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('categorias.editar')): ?>
                                                     <button type="button" class="btn btn-sm btn-warning"
-                                                        onclick="editarCategoria({{ $categoria->id }})" title="Editar">
+                                                        onclick="editarCategoria(<?php echo e($categoria->id); ?>)" title="Editar">
                                                         <i class="ri-pencil-line"></i>
                                                     </button>
-                                                @endcan
-                                                @can('categorias.eliminar')
+                                                <?php endif; ?>
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('categorias.eliminar')): ?>
                                                     <button type="button" class="btn btn-sm btn-danger"
-                                                        onclick="eliminarCategoria({{ $categoria->id }}, '{{ $categoria->nombre }}')"
+                                                        onclick="eliminarCategoria(<?php echo e($categoria->id); ?>, '<?php echo e($categoria->nombre); ?>')"
                                                         title="Eliminar">
                                                         <i class="ri-delete-bin-line"></i>
                                                     </button>
-                                                @endcan
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                         <td class="no-exportar">
-                                            @can('categorias.editar')
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('categorias.editar')): ?>
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox"
-                                                        id="toggle-estado-{{ $categoria->id }}"
-                                                        {{ $categoria->estado ? 'checked' : '' }}
-                                                        onchange="toggleEstado({{ $categoria->id }})">
+                                                        id="toggle-estado-<?php echo e($categoria->id); ?>"
+                                                        <?php echo e($categoria->estado ? 'checked' : ''); ?>
+
+                                                        onchange="toggleEstado(<?php echo e($categoria->id); ?>)">
                                                 </div>
-                                            @else
+                                            <?php else: ?>
                                                 <span
-                                                    class="badge {{ $categoria->estado ? 'bg-success' : 'bg-danger' }}">{{ $categoria->estado ? 'On' : 'Off' }}</span>
-                                            @endcan
+                                                    class="badge <?php echo e($categoria->estado ? 'bg-success' : 'bg-danger'); ?>"><?php echo e($categoria->estado ? 'On' : 'Off'); ?></span>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="5" class="text-center text-muted py-4">
                                             <i class="ri-folder-line fs-1 d-block mb-2"></i>
                                             No hay categorías globales registradas
                                         </td>
                                     </tr>
-                                @endforelse
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -128,7 +129,7 @@
         </div>
     </div>
 
-    {{-- Modal Crear/Editar --}}
+    
     <div class="modal fade" id="modalCategoriaGlobal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -136,27 +137,41 @@
                     <h5 class="modal-title" id="modalTitle">Nueva Categoría Global</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="formCategoriaGlobal" method="POST" action="{{ route('categorias-globales.store') }}">
-                    @csrf
+                <form id="formCategoriaGlobal" method="POST" action="<?php echo e(route('categorias-globales.store')); ?>">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" id="formMethod" name="_method" value="POST">
 
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('nombre') is-invalid @enderror"
-                                id="nombre" name="nombre" value="{{ old('nombre') }}"
+                            <input type="text" class="form-control <?php $__errorArgs = ['nombre'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                id="nombre" name="nombre" value="<?php echo e(old('nombre')); ?>"
                                 placeholder="Ej: Alimentos, Electrónicos" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion"
-                                rows="3" placeholder="Descripción opcional...">{{ old('descripcion') }}</textarea>
+                            <textarea class="form-control <?php $__errorArgs = ['descripcion'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="descripcion" name="descripcion"
+                                rows="3" placeholder="Descripción opcional..."><?php echo e(old('descripcion')); ?></textarea>
                         </div>
 
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="estado" name="estado"
-                                value="1" {{ old('estado', true) ? 'checked' : '' }}>
+                                value="1" <?php echo e(old('estado', true) ? 'checked' : ''); ?>>
                             <label class="form-check-label" for="estado">Estado Activo</label>
                         </div>
                     </div>
@@ -178,7 +193,7 @@
         </div>
     </div>
 
-    {{-- Modal Eliminar --}}
+    
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -194,8 +209,8 @@
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <form id="formEliminar" method="POST">
-                        @csrf
-                        @method('DELETE')
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('DELETE'); ?>
                         <button type="submit" class="btn btn-danger">
                             <i class="ri-delete-bin-line me-1"></i> Eliminar
                         </button>
@@ -204,9 +219,9 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
@@ -218,17 +233,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 
-    {{-- Configuración pasada a JavaScript --}}
+    
     <script>
         window.CATEGORIAS_GLOBALES_CONFIG = {
-            categorias: @json($categoriasGlobales),
+            categorias: <?php echo json_encode($categoriasGlobales, 15, 512) ?>,
             routes: {
-                store: "{{ route('categorias-globales.store') }}"
+                store: "<?php echo e(route('categorias-globales.store')); ?>"
             },
-            csrfToken: "{{ csrf_token() }}"
+            csrfToken: "<?php echo e(csrf_token()); ?>"
         };
     </script>
 
-    {{-- Script del módulo --}}
-    <script src="{{ URL::asset('js/modules/categorias-globales/index.js') }}"></script>
-@endsection
+    
+    <script src="<?php echo e(URL::asset('js/modules/categorias-globales/index.js')); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/categorias-globales/index.blade.php ENDPATH**/ ?>

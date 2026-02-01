@@ -65,26 +65,29 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header border-0 align-items-center d-md-flex">
-                    <h5 class="card-title mb-0 flex-grow-1">Listado de Productos</h5>
-                    <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
+                <div class="card-header border-0 align-items-center d-flex flex-wrap gap-2">
+                    <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold">Listado de Productos</h5>
+                    <div class="d-flex flex-wrap gap-2 mt-0">
                         <button type="button" id="btnExportarPDF"
-                            class="btn btn-soft-danger waves-effect waves-light shadow-none">
-                            <i class="ri-file-pdf-line fs-18"></i> <span class="d-none d-sm-inline ms-1">PDF</span>
+                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-pdf-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
                         </button>
                         <button type="button" id="btnExportarExcel"
-                            class="btn btn-soft-success waves-effect waves-light shadow-none">
-                            <i class="ri-file-excel-line fs-18"></i> <span class="d-none d-sm-inline ms-1">Excel</span>
+                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-excel-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
                         </button>
                         @can('productos.crear')
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="limpiarFormulario()">
-                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline">Nuevo
-                                    Producto</span><span class="d-inline d-md-none">Nuevo</span>
+                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nuevo
+                                    Producto</span><span class="d-inline d-md-none text-uppercase">Nuevo</span>
                             </button>
                         @endcan
                     </div>
                 </div>
+
 
                 <div class="card-body">
                     <table id="tablaProductos" class="table nowrap align-middle" style="width:100%">

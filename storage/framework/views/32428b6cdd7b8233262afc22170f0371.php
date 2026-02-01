@@ -9,6 +9,7 @@
 <link href="<?php echo e(URL::asset('build/css/app.min.css')); ?>" id="app-style" rel="stylesheet" type="text/css" />
 <!-- custom Css-->
 <link href="<?php echo e(URL::asset('build/css/custom.min.css')); ?>" id="app-style" rel="stylesheet" type="text/css" />
+
 <!-- Toastify Css -->
 <link href="<?php echo e(URL::asset('build/libs/toastify-js/src/toastify.css')); ?>" rel="stylesheet" type="text/css" />
 <?php /**PATH C:\xampp\htdocs\master\resources\views/layouts/head-css.blade.php ENDPATH**/ ?>
