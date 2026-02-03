@@ -104,6 +104,8 @@
             <p>Todas las peticiones deben incluir un <strong>Bearer Token</strong> en la cabecera
                 <code>Authorization</code>.
             </p>
+            <p>Puedes generar y gestionar tus claves desde el <a href="{{ route('api-tokens.index') }}"
+                    class="text-info font-weight-bold">Gestor de Tokens de API</a>.</p>
             <code>Authorization: Bearer TU_TOKEN_AQUÍ<br>Accept: application/json</code>
         </div>
 

@@ -87,6 +87,11 @@ Route::middleware('auth')->group(function () {
         return view('api.docs');
     })->name('api.docs');
 
+    // Gestión de Tokens de API
+    Route::get('/api-tokens', [App\Http\Controllers\ApiTokenController::class, 'index'])->name('api-tokens.index');
+    Route::post('/api-tokens', [App\Http\Controllers\ApiTokenController::class, 'store'])->name('api-tokens.store');
+    Route::delete('/api-tokens/{id}', [App\Http\Controllers\ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+
     
     // =========================================================================
     // CATEGORÍAS GLOBALES - Con permisos granulares
