@@ -82,6 +82,12 @@ Route::post('/update-password/{id}', [HomeController::class, 'updatePassword'])-
 
 Route::middleware('auth')->group(function () {
     
+    // Documentación de la API
+    Route::get('/api-docs', function () {
+        return view('api.docs');
+    })->name('api.docs');
+
+    
     // =========================================================================
     // CATEGORÍAS GLOBALES - Con permisos granulares
     // =========================================================================

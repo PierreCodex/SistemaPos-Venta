@@ -14,6 +14,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+use App\Http\Controllers\Api\ProductoApiController;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
+
+// Rutas protegidas (Requieren Token)
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // Ejemplo: obtener perfil del usuario
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    // Productos API
+    Route::get('/productos', [ProductoApiController::class, 'index']);
+    Route::get('/productos/{id}', [ProductoApiController::class, 'show']);
+    
 });
+
