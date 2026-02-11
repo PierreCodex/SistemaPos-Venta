@@ -34,36 +34,42 @@ class RolesAndPermissionsSeeder extends Seeder
             'categorias-globales.crear',
             'categorias-globales.editar',
             'categorias-globales.eliminar',
+            'categorias-globales.exportar',
 
             // Categorías (Locales)
             'categorias.ver',
             'categorias.crear',
             'categorias.editar',
             'categorias.eliminar',
+            'categorias.exportar',
             
             // Marcas
             'marcas.ver',
             'marcas.crear',
             'marcas.editar',
             'marcas.eliminar',
+            'marcas.exportar',
             
             // Unidades
             'unidades.ver',
             'unidades.crear',
             'unidades.editar',
             'unidades.eliminar',
+            'unidades.exportar',
 
             // Clientes (Nuevo)
             'clientes.ver',
             'clientes.crear',
             'clientes.editar',
             'clientes.eliminar',
+            'clientes.exportar',
             
             // Proveedores
             'proveedores.ver',
             'proveedores.crear',
             'proveedores.editar',
             'proveedores.eliminar',
+            'proveedores.exportar',
             
             // Ventas
             'ventas.ver',
@@ -134,9 +140,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'horarios.editar',
             'horarios.eliminar',
             'horarios.asignar',
+            'horarios.ver_mio',
 
             // Asistencias
             'asistencias.ver',
+            'asistencias.ver_mio',
             'asistencias.registrar',
             'asistencias.editar',
             'asistencias.eliminar',
@@ -171,8 +179,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'caja.ver', 'caja.abrir', 'caja.cerrar', 'caja.movimientos', 'caja.reporte',
             'usuarios.ver',
             'reportes.ventas', 'reportes.productos', 'reportes.creditos', 'reportes.personal',
-            'horarios.ver', 'horarios.crear', 'horarios.editar', 'horarios.asignar',
-            'asistencias.ver', 'asistencias.registrar', 'asistencias.reportes',
+            'horarios.ver', 'horarios.crear', 'horarios.editar', 'horarios.asignar', 'horarios.ver_mio',
+            'asistencias.ver', 'asistencias.ver_mio', 'asistencias.registrar', 'asistencias.reportes',
         ]);
 
         // Crear rol Vendedor/Cajero
@@ -183,8 +191,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'ventas.ver', 'ventas.crear', 'ventas.imprimir',
             'creditos.ver', 'creditos.cobrar',
             'caja.ver', 'caja.abrir', 'caja.cerrar', 'caja.movimientos',
-            'horarios.ver',
-            'asistencias.ver', 'asistencias.registrar',
+            'horarios.ver_mio',
+            'asistencias.ver_mio', 'asistencias.registrar',
         ]);
 
         // Crear rol Almacenero

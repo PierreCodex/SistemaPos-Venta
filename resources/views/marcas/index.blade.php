@@ -34,16 +34,18 @@
                 <div class="card-header d-flex align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold">Listado de Marcas</h5>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="button" id="btnExportarPDF"
-                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-pdf-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
-                        </button>
-                        <button type="button" id="btnExportarExcel"
-                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-excel-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
-                        </button>
+                        @can('marcas.exportar')
+                            <button type="button" id="btnExportarPDF"
+                                class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-pdf-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
+                            </button>
+                            <button type="button" id="btnExportarExcel"
+                                class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-excel-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
+                            </button>
+                        @endcan
                         @can('marcas.crear')
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalMarca" onclick="limpiarFormulario()">
@@ -94,10 +96,12 @@
                                         </td>
                                         <td class="no-exportar">
                                             <div class="d-flex gap-1">
-                                                <button type="button" class="btn btn-sm btn-info"
-                                                    onclick="verMarca({{ $marca->id }})" title="Ver">
-                                                    <i class="ri-eye-line"></i>
-                                                </button>
+                                                @can('marcas.ver')
+                                                    <button type="button" class="btn btn-sm btn-info"
+                                                        onclick="verMarca({{ $marca->id }})" title="Ver">
+                                                        <i class="ri-eye-line"></i>
+                                                    </button>
+                                                @endcan
                                                 @can('marcas.editar')
                                                     <button type="button" class="btn btn-sm btn-warning"
                                                         onclick="editarMarca({{ $marca->id }})" title="Editar">

@@ -2,7 +2,7 @@
 {{-- Props: $qr_code, $hash, $document, $tipo_documento_nombre --}}
 
 {{-- QR Code Section --}}
-@if(isset($qr_code) && !empty($qr_code))
+@if (isset($qr_code) && !empty($qr_code))
     <div class="qr-section">
         <div class="qr-code">
             <img src="{{ $qr_code }}" alt="QR Code">
@@ -12,12 +12,17 @@
 
 {{-- Footer Text --}}
 <div class="footer-text">
-    Representación impresa de la {{ strtoupper($tipo_documento_nombre ?? 'BOLETA DE VENTA ELECTRONICA') }}.<br>
-    Puede verificarla en www.sunat.gob.pe
+    @if (isset($qr_code) && !empty($qr_code))
+        Representación impresa de la {{ strtoupper($tipo_documento_nombre ?? 'BOLETA DE VENTA ELECTRONICA') }}.<br>
+        Puede verificarla en www.sunat.gob.pe
+    @else
+        Este documento es una {{ strtoupper($tipo_documento_nombre ?? 'NOTA DE VENTA') }}.<br>
+        No tiene valor tributario.
+    @endif
 </div>
 
 {{-- Hash Code --}}
-@if(isset($hash) && !empty($hash))
+@if (isset($hash) && !empty($hash))
     <div class="footer-auth">
         {{ $hash }}
     </div>

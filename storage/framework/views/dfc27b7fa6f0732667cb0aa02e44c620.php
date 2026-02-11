@@ -2,7 +2,7 @@
 <html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" data-layout="vertical" data-topbar="light" data-sidebar="dark"
     data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="material"
     data-theme-colors="default" data-layout-style="default" data-layout-width="fluid" data-layout-position="fixed"
-    data-sidebar-view="default" data-bs-theme="dark" data-layout-mode="dark">
+    data-sidebar-view="default">
 
 <head>
     <meta charset="utf-8" />
@@ -31,7 +31,7 @@
                 }
 
                 // Si no hay nada guardado, usamos 'dark' por defecto (preferencia del sistema)
-                const theme = savedTheme || 'dark';
+                const theme = savedTheme || 'light';
 
                 // Aplicamos al documento antes de que renderice para evitar el parpadeo blanco
                 document.documentElement.setAttribute('data-bs-theme', theme);
@@ -72,7 +72,9 @@
     </div>
     <!-- END layout-wrapper -->
 
-    
+    <?php echo $__env->make('layouts.customizer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+    <?php echo $__env->make('layouts.supervisor-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <!-- JAVASCRIPT -->
     <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>

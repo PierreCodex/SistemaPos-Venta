@@ -20,6 +20,7 @@ use App\Http\Controllers\KardexController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\AsistenciaController;
+use App\Http\Controllers\SupervisorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,10 @@ use App\Http\Controllers\AsistenciaController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::middleware('auth')->group(function () {
+    Route::post('/supervisor/verificar-pin', [SupervisorController::class, 'verificarPin'])->name('supervisor.verificar-pin');
+});
 
 Route::get('/repair-admin', function () {
     try {
@@ -427,6 +432,10 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     // HORARIOS - Con permisos granulares
     // =========================================================================
+    Route::middleware('permission:horarios.ver_mio')->group(function () {
+        Route::get('horarios/mi-horario', [HorarioController::class, 'miHorario'])->name('horarios.mio');
+    });
+
     Route::middleware('permission:horarios.ver')->group(function () {
         Route::get('horarios', [HorarioController::class, 'index'])->name('horarios.index');
         Route::get('horarios/{id}/usuarios', [HorarioController::class, 'getUsuariosAsignados'])->name('horarios.usuarios');
@@ -448,7 +457,7 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     // ASISTENCIAS - Con permisos granulares
     // =========================================================================
-    Route::middleware('permission:asistencias.ver')->group(function () {
+    Route::middleware('permission:asistencias.ver|asistencias.ver_mio')->group(function () {
         Route::get('asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
         Route::get('asistencias/usuario/{id}', [AsistenciaController::class, 'show'])->name('asistencias.show');
         Route::get('asistencias/api/calendario/{userId}', [AsistenciaController::class, 'calendarioData'])->name('asistencias.calendario-data');
@@ -460,6 +469,8 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+
+Route::get('/ticket/{codigo}', [App\Http\Controllers\TicketController::class, 'publico'])->name('ticket.publico');
 
 // ⚠️ Esta ruta DEBE ir al final porque captura CUALQUIER URL
 Route::get('{any}', [HomeController::class, 'index'])->name('index');

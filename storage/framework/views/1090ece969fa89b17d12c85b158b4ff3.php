@@ -12,8 +12,13 @@
 
 
 <div class="footer-text">
-    Representación impresa de la <?php echo e(strtoupper($tipo_documento_nombre ?? 'BOLETA DE VENTA ELECTRONICA')); ?>.<br>
-    Puede verificarla en www.sunat.gob.pe
+    <?php if(isset($qr_code) && !empty($qr_code)): ?>
+        Representación impresa de la <?php echo e(strtoupper($tipo_documento_nombre ?? 'BOLETA DE VENTA ELECTRONICA')); ?>.<br>
+        Puede verificarla en www.sunat.gob.pe
+    <?php else: ?>
+        Este documento es una <?php echo e(strtoupper($tipo_documento_nombre ?? 'NOTA DE VENTA')); ?>.<br>
+        No tiene valor tributario.
+    <?php endif; ?>
 </div>
 
 
@@ -32,4 +37,5 @@
 
 <div class="powered-by">
     Powered by NUBEFACT
-</div><?php /**PATH C:\xampp\htdocs\master\resources\views/pdf/components/footer-ticket-exact.blade.php ENDPATH**/ ?>
+</div>
+<?php /**PATH C:\xampp\htdocs\master\resources\views/pdf/components/footer-ticket-exact.blade.php ENDPATH**/ ?>

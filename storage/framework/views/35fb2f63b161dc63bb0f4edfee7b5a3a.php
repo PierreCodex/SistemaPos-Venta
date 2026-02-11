@@ -323,7 +323,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarReportes">
                             <ul class="nav nav-sm flex-column">
-                                <?php if(Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('reportes.ventas')): ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('reportes.ventas')): ?>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">Ventas del Día</a>
                                     </li>
@@ -331,7 +331,7 @@
                                         <a href="#" class="nav-link">Ventas Mensuales</a>
                                     </li>
                                 <?php endif; ?>
-                                <?php if(Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('reportes.productos')): ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('reportes.productos')): ?>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">Productos más Vendidos</a>
                                     </li>
@@ -342,88 +342,92 @@
                             </ul>
                         </div>
                     </li>
-                    <?php endif; ?>
+                <?php endif; ?>
+
+                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['horarios.ver', 'horarios.ver_mio', 'asistencias.ver', 'asistencias.ver_mio',
+                    'asistencias.registrar'])): ?>
+                    <li class="menu-title"><i class="ri-more-fill"></i> <span>RECURSOS HUMANOS</span></li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarRRHH" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarRRHH">
+                            <i class="ri-team-line"></i> <span>Personal</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarRRHH">
+                            <ul class="nav nav-sm flex-column">
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('horarios.ver')): ?>
+                                    <li class="nav-item">
+                                        <a href="<?php echo e(route('horarios.index')); ?>"
+                                            class="nav-link <?php echo e(request()->routeIs('horarios.*') ? 'active' : ''); ?>">Horarios</a>
+                                    </li>
+                                <?php endif; ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('asistencias.ver')): ?>
+                                    <li class="nav-item">
+                                        <a href="<?php echo e(route('asistencias.index')); ?>"
+                                            class="nav-link <?php echo e(request()->routeIs('asistencias.index') && !request()->has('user_id') ? 'active' : ''); ?>">Historial
+                                            General</a>
+                                    </li>
+                                <?php endif; ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('asistencias.ver_mio')): ?>
+                                    <li class="nav-item">
+                                        <a href="<?php echo e(route('asistencias.index')); ?>"
+                                            class="nav-link <?php echo e(request()->routeIs('asistencias.index') ? 'active' : ''); ?>">Mi
+                                            Asistencia</a>
+                                    </li>
+                                <?php endif; ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('horarios.ver_mio')): ?>
+                                    <li class="nav-item">
+                                        <a href="<?php echo e(route('horarios.mio')); ?>"
+                                            class="nav-link <?php echo e(request()->routeIs('horarios.mio') ? 'active' : ''); ?>">Mi
+                                            Horario</a>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+                    </li>
+                <?php endif; ?>
+
+                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['usuarios.ver', 'roles.ver', 'configuracion.ver'])): ?>
+                    <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
 
                     
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['horarios.ver', 'asistencias.ver', 'asistencias.registrar'])): ?>
-                        <li class="menu-title"><i class="ri-more-fill"></i> <span>RECURSOS HUMANOS</span></li>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('usuarios.ver')): ?>
                         <li class="nav-item">
-                            <a class="nav-link menu-link" href="#sidebarRRHH" data-bs-toggle="collapse" role="button"
-                                aria-expanded="false" aria-controls="sidebarRRHH">
-                                <i class="ri-team-line"></i> <span>Personal</span>
+                            <a class="nav-link menu-link <?php echo e(request()->routeIs('usuarios.*') ? 'active' : ''); ?>"
+                                href="<?php echo e(route('usuarios.index')); ?>">
+                                <i class="ri-user-settings-line"></i> <span>Usuarios</span>
                             </a>
-                            <div class="collapse menu-dropdown" id="sidebarRRHH">
-                                <ul class="nav nav-sm flex-column">
-                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('horarios.ver')): ?>
-                                        <?php if(Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador'])): ?>
-                                            <li class="nav-item">
-                                                <a href="<?php echo e(route('horarios.index')); ?>"
-                                                    class="nav-link <?php echo e(request()->routeIs('horarios.*') ? 'active' : ''); ?>">Horarios</a>
-                                            </li>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('asistencias.ver')): ?>
-                                        <?php if(Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador'])): ?>
-                                            
-                                            <li class="nav-item">
-                                                <a href="<?php echo e(route('asistencias.index')); ?>"
-                                                    class="nav-link <?php echo e(request()->routeIs('asistencias.index') ? 'active' : ''); ?>">Asistencias</a>
-                                            </li>
-                                        <?php endif; ?>
-                                        
-                                        <li class="nav-item">
-                                            <a href="<?php echo e(route('asistencias.show', Auth::id())); ?>"
-                                                class="nav-link <?php echo e(request()->routeIs('asistencias.show') ? 'active' : ''); ?>">Mi
-                                                Asistencia</a>
-                                        </li>
-                                    <?php endif; ?>
-                                </ul>
-                            </div>
                         </li>
                     <?php endif; ?>
 
                     
-                    <?php if(Auth::user()->hasRole(['Admin', 'super-admin']) ||
-                            Auth::user()->canAny(['usuarios.ver', 'roles.ver', 'configuracion.ver'])): ?>
-                        <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
-
-                        
-                        <?php if(Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('usuarios.ver')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link menu-link <?php echo e(request()->routeIs('usuarios.*') ? 'active' : ''); ?>"
-                                    href="<?php echo e(route('usuarios.index')); ?>">
-                                    <i class="ri-user-settings-line"></i> <span>Usuarios</span>
-                                </a>
-                            </li>
-                        <?php endif; ?>
-
-                        
-                        <?php if(Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('roles.ver')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link menu-link <?php echo e(request()->routeIs('roles.*') ? 'active' : ''); ?>"
-                                    href="<?php echo e(route('roles.index')); ?>">
-                                    <i class="ri-shield-user-line"></i> <span>Roles y Permisos</span>
-                                </a>
-                            </li>
-                        <?php endif; ?>
-
-                        
-                        <?php if(Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('configuracion.ver')): ?>
-                            <li class="nav-item">
-                                <a class="nav-link menu-link <?php echo e(request()->routeIs('configuracion.*') ? 'active' : ''); ?>"
-                                    href="<?php echo e(route('configuracion.index')); ?>">
-                                    <i class="ri-settings-3-line"></i> <span>Configuración</span>
-                                </a>
-                            </li>
-                        <?php endif; ?>
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('roles.ver')): ?>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link <?php echo e(request()->routeIs('roles.*') ? 'active' : ''); ?>"
+                                href="<?php echo e(route('roles.index')); ?>">
+                                <i class="ri-shield-user-line"></i> <span>Roles y Permisos</span>
+                            </a>
+                        </li>
                     <?php endif; ?>
 
-                </ul>
-            </div>
-        </div>
+                    
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('configuracion.ver')): ?>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link <?php echo e(request()->routeIs('configuracion.*') ? 'active' : ''); ?>"
+                                href="<?php echo e(route('configuracion.index')); ?>">
+                                <i class="ri-settings-3-line"></i> <span>Configuración</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endif; ?>
 
-        <div class="sidebar-background"></div>
+            </ul>
+        </div>
     </div>
-    <!-- Left Sidebar End -->
-    <div class="vertical-overlay"></div>
+
+    <div class="sidebar-background"></div>
+</div>
+<!-- Left Sidebar End -->
+<div class="vertical-overlay"></div>
 <?php /**PATH C:\xampp\htdocs\master\resources\views/layouts/sidebar.blade.php ENDPATH**/ ?>

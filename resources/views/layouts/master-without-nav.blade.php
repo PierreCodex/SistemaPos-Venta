@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-topbar="light" data-sidebar="dark"
     data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="material"
-    data-theme-colors="default" data-layout-style="default" data-layout-mode="dark" data-layout-width="fluid"
-    data-layout-position="fixed" data-sidebar-view="default">
+    data-theme-colors="default" data-layout-style="default" data-layout-width="fluid" data-layout-position="fixed"
+    data-sidebar-view="default">
 
 <head>
     <meta charset="utf-8" />
@@ -14,18 +14,15 @@
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}">
 
     <script>
-        // Restaura el tema guardado antes de que cargue el CSS para evitar el parpadeo blanco
+        // Sincronización dinámica de tema (Luz/Oscuro)
         (function() {
             try {
-                const config = JSON.parse(sessionStorage.getItem('defaultAttribute'));
-                if (config) {
-                    const theme = config['data-bs-theme'] || 'dark';
-                    document.documentElement.setAttribute('data-bs-theme', theme);
-                    document.documentElement.setAttribute('data-layout-mode', theme);
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark');
-                    document.documentElement.setAttribute('data-layout-mode', 'dark');
-                }
+                const savedTheme = localStorage.getItem('data-bs-theme') ||
+                    sessionStorage.getItem('data-bs-theme') ||
+                    'light'; // Default a light para evitar el problema del usuario
+
+                document.documentElement.setAttribute('data-bs-theme', savedTheme);
+                document.documentElement.setAttribute('data-layout-mode', savedTheme);
             } catch (e) {
                 console.error("Error al restaurar el tema:", e);
             }

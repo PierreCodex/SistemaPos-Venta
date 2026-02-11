@@ -22,6 +22,7 @@ class AsistenciaController extends Controller
     {
         $user = auth()->user();
         $esAdmin = $user->hasAnyRole(['super-admin', 'Admin', 'administrador']);
+        $puedeRegistrar = $user->can('asistencias.registrar') || $esAdmin;
 
         $filtros = [
             'fecha_inicio' => $request->get('fecha_inicio', Carbon::today()->startOfMonth()->toDateString()),
@@ -39,7 +40,7 @@ class AsistenciaController extends Controller
         // Solo admins ven la lista completa de usuarios para el filtro/modal
         $usuarios = $esAdmin ? User::all() : collect([$user]);
 
-        return view('asistencias.index', compact('asistencias', 'usuarios', 'filtros', 'esAdmin'));
+        return view('asistencias.index', compact('asistencias', 'usuarios', 'filtros', 'esAdmin', 'puedeRegistrar'));
     }
 
     public function store(Request $request)
@@ -49,16 +50,33 @@ class AsistenciaController extends Controller
             $esAdmin = $user->hasAnyRole(['super-admin', 'Admin', 'administrador']);
 
             if ($request->has('estado')) {
-                // Registro manual desde el modal (solo admin)
+                // Registro manual desde el modal
+                $targetUserId = $request->input('user_id');
+                
+                // Si no es admin:
+                // 1. Debe tener permiso 'asistencias.registrar'
+                // 2. Solo puede registrarse a sí mismo
+                // 3. Forzamos FECHA y HORA actual para evitar trampas
                 if (!$esAdmin) {
-                    throw new Exception('No tienes permiso para registrar asistencias manualmente.');
+                    if (!$user->can('asistencias.registrar')) {
+                        throw new Exception('No tienes permiso para registrar asistencias.');
+                    }
+                    if ((int)$targetUserId !== (int)$user->id) {
+                        throw new Exception('Solo puedes registrar tu propia asistencia.');
+                    }
+                    
+                    // Sobrescribir datos del request por seguridad
+                    $request->merge([
+                        'fecha' => Carbon::now()->toDateString(),
+                        'hora_entrada' => Carbon::now()->toTimeString()
+                    ]);
                 }
 
                 $data = $request->validate([
                     'user_id' => 'required|exists:users,id',
                     'estado' => 'required|string',
                     'fecha' => 'required|date',
-                    'hora_entrada' => 'nullable',
+                    'hora_entrada' => 'required', // Ahora requerida
                     'observaciones' => 'nullable|string'
                 ]);
 
@@ -81,6 +99,10 @@ class AsistenciaController extends Controller
     public function show($id)
     {
         $user = auth()->user();
+        if (!$user->can('asistencias.ver_mio') && !$user->can('asistencias.ver')) {
+            abort(403, 'No tienes permiso para ver esta sección.');
+        }
+
         $esAdmin = $user->hasAnyRole(['super-admin', 'Admin', 'administrador']);
 
         // Si no es admin, solo puede ver su propio calendario

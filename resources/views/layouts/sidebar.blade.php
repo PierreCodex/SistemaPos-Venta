@@ -336,110 +336,114 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarReportes">
                             <ul class="nav nav-sm flex-column">
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('reportes.ventas'))
+                                @can('reportes.ventas')
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">Ventas del Día</a>
                                     </li>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">Ventas Mensuales</a>
                                     </li>
-                                @endif
-                                @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('reportes.productos'))
+                                @endcan
+                                @can('reportes.productos')
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">Productos más Vendidos</a>
                                     </li>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link">Inventario</a>
                                     </li>
-                                @endif
+                                @endcan
                             </ul>
                         </div>
                     </li>
-                    @endif
+                @endcanany
 
-                    {{-- =====================================================
+                {{-- =====================================================
                      RECURSOS HUMANOS
                 ===================================================== --}}
-                    @canany(['horarios.ver', 'asistencias.ver', 'asistencias.registrar'])
-                        <li class="menu-title"><i class="ri-more-fill"></i> <span>RECURSOS HUMANOS</span></li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" href="#sidebarRRHH" data-bs-toggle="collapse" role="button"
-                                aria-expanded="false" aria-controls="sidebarRRHH">
-                                <i class="ri-team-line"></i> <span>Personal</span>
-                            </a>
-                            <div class="collapse menu-dropdown" id="sidebarRRHH">
-                                <ul class="nav nav-sm flex-column">
-                                    @can('horarios.ver')
-                                        @if (Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador']))
-                                            <li class="nav-item">
-                                                <a href="{{ route('horarios.index') }}"
-                                                    class="nav-link {{ request()->routeIs('horarios.*') ? 'active' : '' }}">Horarios</a>
-                                            </li>
-                                        @endif
-                                    @endcan
-                                    @can('asistencias.ver')
-                                        @if (Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador']))
-                                            {{-- Admin: ve todas las asistencias --}}
-                                            <li class="nav-item">
-                                                <a href="{{ route('asistencias.index') }}"
-                                                    class="nav-link {{ request()->routeIs('asistencias.index') ? 'active' : '' }}">Asistencias</a>
-                                            </li>
-                                        @endif
-                                        {{-- Todos: ven su propio calendario --}}
-                                        <li class="nav-item">
-                                            <a href="{{ route('asistencias.show', Auth::id()) }}"
-                                                class="nav-link {{ request()->routeIs('asistencias.show') ? 'active' : '' }}">Mi
-                                                Asistencia</a>
-                                        </li>
-                                    @endcan
-                                </ul>
-                            </div>
-                        </li>
-                    @endcanany
+                @canany(['horarios.ver', 'horarios.ver_mio', 'asistencias.ver', 'asistencias.ver_mio',
+                    'asistencias.registrar'])
+                    <li class="menu-title"><i class="ri-more-fill"></i> <span>RECURSOS HUMANOS</span></li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarRRHH" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="sidebarRRHH">
+                            <i class="ri-team-line"></i> <span>Personal</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarRRHH">
+                            <ul class="nav nav-sm flex-column">
+                                @can('horarios.ver')
+                                    <li class="nav-item">
+                                        <a href="{{ route('horarios.index') }}"
+                                            class="nav-link {{ request()->routeIs('horarios.*') ? 'active' : '' }}">Horarios</a>
+                                    </li>
+                                @endcan
+                                @can('asistencias.ver')
+                                    <li class="nav-item">
+                                        <a href="{{ route('asistencias.index') }}"
+                                            class="nav-link {{ request()->routeIs('asistencias.index') && !request()->has('user_id') ? 'active' : '' }}">Historial
+                                            General</a>
+                                    </li>
+                                @endcan
+                                @can('asistencias.ver_mio')
+                                    <li class="nav-item">
+                                        <a href="{{ route('asistencias.index') }}"
+                                            class="nav-link {{ request()->routeIs('asistencias.index') ? 'active' : '' }}">Mi
+                                            Asistencia</a>
+                                    </li>
+                                @endcan
+                                @can('horarios.ver_mio')
+                                    <li class="nav-item">
+                                        <a href="{{ route('horarios.mio') }}"
+                                            class="nav-link {{ request()->routeIs('horarios.mio') ? 'active' : '' }}">Mi
+                                            Horario</a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </div>
+                    </li>
+                @endcanany
 
-                    {{-- =====================================================
+                {{-- =====================================================
                      CONFIGURACIÓN - Solo para administradores
                 ===================================================== --}}
-                    @if (Auth::user()->hasRole(['Admin', 'super-admin']) ||
-                            Auth::user()->canAny(['usuarios.ver', 'roles.ver', 'configuracion.ver']))
-                        <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
+                @canany(['usuarios.ver', 'roles.ver', 'configuracion.ver'])
+                    <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
 
-                        {{-- Usuarios --}}
-                        @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('usuarios.ver'))
-                            <li class="nav-item">
-                                <a class="nav-link menu-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}"
-                                    href="{{ route('usuarios.index') }}">
-                                    <i class="ri-user-settings-line"></i> <span>Usuarios</span>
-                                </a>
-                            </li>
-                        @endif
+                    {{-- Usuarios --}}
+                    @can('usuarios.ver')
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}"
+                                href="{{ route('usuarios.index') }}">
+                                <i class="ri-user-settings-line"></i> <span>Usuarios</span>
+                            </a>
+                        </li>
+                    @endcan
 
-                        {{-- Roles y Permisos - --}}
-                        @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('roles.ver'))
-                            <li class="nav-item">
-                                <a class="nav-link menu-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                                    href="{{ route('roles.index') }}">
-                                    <i class="ri-shield-user-line"></i> <span>Roles y Permisos</span>
-                                </a>
-                            </li>
-                        @endif
+                    {{-- Roles y Permisos - --}}
+                    @can('roles.ver')
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                                href="{{ route('roles.index') }}">
+                                <i class="ri-shield-user-line"></i> <span>Roles y Permisos</span>
+                            </a>
+                        </li>
+                    @endcan
 
-                        {{-- Configuración General --}}
-                        @if (Auth::user()->hasRole(['Admin', 'super-admin']) || Auth::user()->can('configuracion.ver'))
-                            <li class="nav-item">
-                                <a class="nav-link menu-link {{ request()->routeIs('configuracion.*') ? 'active' : '' }}"
-                                    href="{{ route('configuracion.index') }}">
-                                    <i class="ri-settings-3-line"></i> <span>Configuración</span>
-                                </a>
-                            </li>
-                        @endif
-                    @endif
+                    {{-- Configuración General --}}
+                    @can('configuracion.ver')
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('configuracion.*') ? 'active' : '' }}"
+                                href="{{ route('configuracion.index') }}">
+                                <i class="ri-settings-3-line"></i> <span>Configuración</span>
+                            </a>
+                        </li>
+                    @endcan
+                @endcanany
 
-                </ul>
-            </div>
+            </ul>
         </div>
-
-        <div class="sidebar-background"></div>
     </div>
-    <!-- Left Sidebar End -->
-    <div class="vertical-overlay"></div>
+
+    <div class="sidebar-background"></div>
+</div>
+<!-- Left Sidebar End -->
+<div class="vertical-overlay"></div>

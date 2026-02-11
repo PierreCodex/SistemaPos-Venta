@@ -35,17 +35,19 @@
                 <div class="card-header d-flex align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold">Lista de Categorías Globales</h5>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="button" id="btnExportarPDF"
-                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-pdf-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
-                        </button>
-                        <button type="button" id="btnExportarExcel"
-                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-excel-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
-                        </button>
-                        @can('categorias.crear')
+                        @can('categorias-globales.exportar')
+                            <button type="button" id="btnExportarPDF"
+                                class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-pdf-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
+                            </button>
+                            <button type="button" id="btnExportarExcel"
+                                class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-excel-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
+                            </button>
+                        @endcan
+                        @can('categorias-globales.crear')
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalCategoriaGlobal" onclick="limpiarFormulario()">
                                 <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nueva
@@ -83,13 +85,13 @@
                                         </td>
                                         <td class="no-exportar">
                                             <div class="d-flex gap-1">
-                                                @can('categorias.editar')
+                                                @can('categorias-globales.editar')
                                                     <button type="button" class="btn btn-sm btn-warning"
                                                         onclick="editarCategoria({{ $categoria->id }})" title="Editar">
                                                         <i class="ri-pencil-line"></i>
                                                     </button>
                                                 @endcan
-                                                @can('categorias.eliminar')
+                                                @can('categorias-globales.eliminar')
                                                     <button type="button" class="btn btn-sm btn-danger"
                                                         onclick="eliminarCategoria({{ $categoria->id }}, '{{ $categoria->nombre }}')"
                                                         title="Eliminar">
@@ -99,7 +101,7 @@
                                             </div>
                                         </td>
                                         <td class="no-exportar">
-                                            @can('categorias.editar')
+                                            @can('categorias-globales.editar')
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox"
                                                         id="toggle-estado-{{ $categoria->id }}"

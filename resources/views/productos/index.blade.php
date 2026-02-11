@@ -68,16 +68,18 @@
                 <div class="card-header border-0 align-items-center d-flex flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold">Listado de Productos</h5>
                     <div class="d-flex flex-wrap gap-2 mt-0">
-                        <button type="button" id="btnExportarPDF"
-                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-pdf-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
-                        </button>
-                        <button type="button" id="btnExportarExcel"
-                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-excel-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
-                        </button>
+                        @can('productos.exportar')
+                            <button type="button" id="btnExportarPDF"
+                                class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-pdf-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
+                            </button>
+                            <button type="button" id="btnExportarExcel"
+                                class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-excel-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
+                            </button>
+                        @endcan
                         @can('productos.crear')
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="limpiarFormulario()">
@@ -141,10 +143,12 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-info"
-                                            onclick="verProducto({{ $producto->id }})" title="Ver Detalles">
-                                            <i class="ri-eye-line"></i>
-                                        </button>
+                                        @can('productos.ver')
+                                            <button type="button" class="btn btn-sm btn-info"
+                                                onclick="verProducto({{ $producto->id }})" title="Ver Detalles">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                        @endcan
                                         @can('productos.editar')
                                             <button type="button" class="btn btn-sm btn-warning"
                                                 onclick="editarProducto({{ $producto->id }})" title="Editar">

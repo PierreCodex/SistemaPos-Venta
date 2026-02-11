@@ -100,10 +100,12 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <button type="button" class="btn btn-sm btn-info"
-                                                onclick="verAjuste({{ $ajuste->id }})" title="Ver Detalle">
-                                                <i class="ri-eye-line"></i>
-                                            </button>
+                                            @can('ajustes.ver')
+                                                <button type="button" class="btn btn-sm btn-info"
+                                                    onclick="verAjuste({{ $ajuste->id }})" title="Ver Detalle">
+                                                    <i class="ri-eye-line"></i>
+                                                </button>
+                                            @endcan
                                             @can('inventario.ajustar')
                                                 @if ($ajuste->estado === 'BORRADOR')
                                                     <button type="button" class="btn btn-sm btn-success"
@@ -259,15 +261,15 @@
                                 </thead>
                                 <tbody>
                                     ${a.detalles.map(d => `
-                                                <tr>
-                                                    <td>${d.producto?.nombre || 'N/A'}</td>
-                                                    <td class="text-end">${parseFloat(d.stock_sistema).toFixed(3)}</td>
-                                                    <td class="text-end">${parseFloat(d.stock_fisico).toFixed(3)}</td>
-                                                    <td class="text-end ${parseFloat(d.diferencia) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                                                        ${parseFloat(d.diferencia) >= 0 ? '+' : ''}${parseFloat(d.diferencia).toFixed(3)}
-                                                    </td>
-                                                </tr>
-                                            `).join('')}
+                                                    <tr>
+                                                        <td>${d.producto?.nombre || 'N/A'}</td>
+                                                        <td class="text-end">${parseFloat(d.stock_sistema).toFixed(3)}</td>
+                                                        <td class="text-end">${parseFloat(d.stock_fisico).toFixed(3)}</td>
+                                                        <td class="text-end ${parseFloat(d.diferencia) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
+                                                            ${parseFloat(d.diferencia) >= 0 ? '+' : ''}${parseFloat(d.diferencia).toFixed(3)}
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
                                 </tbody>
                             </table>
                         `;

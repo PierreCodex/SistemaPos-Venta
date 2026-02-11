@@ -381,6 +381,11 @@
                     title="Pantalla Completa">
                     <i class="ri-fullscreen-line fs-20 text-muted"></i>
                 </button>
+                <div class="vr mx-1 opacity-25"></div>
+                <button class="btn btn-soft-light d-flex align-items-center justify-content-center p-0 light-dark-mode"
+                    style="width: 48px; height: 48px; border-radius: 16px;" title="Cambiar Tema">
+                    <i class="ri-moon-line fs-20 text-muted"></i>
+                </button>
             </div>
         </div>
         <div class="col-auto">
@@ -795,116 +800,112 @@
         </div>
     </div>
 
-    <!-- MODAL DESCARGA DE COMPROBANTE -->
+    <!-- MODAL DESCARGA DE COMPROBANTE (Versión Compacta) -->
     <div class="modal fade" id="modalDescargaComprobante" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
         data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 overflow-hidden shadow-lg">
-                <div class="modal-header bg-success p-4 border-0">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-white text-success rounded-circle fs-24">
-                                <i class="ri-checkbox-circle-line"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <h5 class="modal-title text-white fw-bold mb-1 text-uppercase">¡VENTA EXITOSA!</h5>
-                            <p class="text-white-50 mb-0 fs-13" id="comprobanteNumero">Comprobante generado</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-body p-4 bg-light">
-                    <div class="text-center mb-4">
-                        <p class="text-muted mb-2 fs-14">Descargue su comprobante en el formato deseado:</p>
-                        <h6 class="text-dark fw-bold mb-0" id="tipoComprobanteTexto">BOLETA ELECTRÓNICA</h6>
-                    </div>
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold mb-1 text-dark text-uppercase fs-16">
+                        Comprobante: <span id="comprobanteNumero" class="text-primary">#000-000000</span>
+                    </h5>
+                    <p class="text-muted fs-11 fw-medium text-uppercase mb-4" id="tipoComprobanteTexto">COMPROBANTE</p>
 
-                    <!-- Opciones de descarga -->
-                    <div class="row g-3">
-                        <!-- 50mm -->
-                        <div class="col-12">
-                            <a href="#" id="btnDescargar50mm"
-                                class="btn btn-outline-primary w-100 py-3 d-flex align-items-center justify-content-between"
-                                target="_blank">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-primary-subtle text-primary rounded fs-20">
-                                            <i class="ri-file-text-line"></i>
-                                        </div>
-                                    </div>
-                                    <div class="text-start">
-                                        <h6 class="mb-0 fw-bold text-uppercase">Ticket 50mm</h6>
-                                        <small class="text-muted">Impresora térmica pequeña</small>
-                                    </div>
-                                </div>
-                                <i class="ri-download-2-line fs-20"></i>
-                            </a>
-                        </div>
-
-                        <!-- 80mm -->
-                        <div class="col-12">
-                            <a href="#" id="btnDescargar80mm"
-                                class="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-between"
-                                target="_blank">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-white text-primary rounded fs-20">
-                                            <i class="ri-file-text-line"></i>
-                                        </div>
-                                    </div>
-                                    <div class="text-start">
-                                        <h6 class="mb-0 fw-bold text-white text-uppercase">Ticket 80mm</h6>
-                                        <small class="text-white-50">Impresora térmica estándar (Recomendado)</small>
-                                    </div>
-                                </div>
-                                <i class="ri-download-2-line fs-20 text-white"></i>
-                            </a>
-                        </div>
-
+                    <!-- Formatos de impresión compactos -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
                         <!-- A4 -->
-                        <div class="col-12">
-                            <a href="#" id="btnDescargarA4"
-                                class="btn btn-outline-primary w-100 py-3 d-flex align-items-center justify-content-between"
-                                target="_blank">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-primary-subtle text-primary rounded fs-20">
-                                            <i class="ri-file-pdf-line"></i>
-                                        </div>
-                                    </div>
-                                    <div class="text-start">
-                                        <h6 class="mb-0 fw-bold text-uppercase">Formato A4</h6>
-                                        <small class="text-muted">Hoja tamaño carta</small>
+                        <div class="text-center flex-grow-1">
+                            <a href="#" id="btnDescargarA4" target="_blank"
+                                class="d-block text-decoration-none group">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-info rounded text-white fs-20 shadow-sm">
+                                        <i class="ri-file-text-line"></i>
                                     </div>
                                 </div>
-                                <i class="ri-download-2-line fs-20"></i>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Imprimir A4</span>
+                            </a>
+                        </div>
+                        <!-- 80mm -->
+                        <div class="text-center flex-grow-1 border-start border-end border-light">
+                            <a href="#" id="btnDescargar80mm" target="_blank"
+                                class="d-block text-decoration-none group">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-info rounded text-white fs-20 shadow-sm">
+                                        <i class="ri-bill-line"></i>
+                                    </div>
+                                </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Ticket 80mm</span>
+                            </a>
+                        </div>
+                        <!-- 50mm -->
+                        <div class="text-center flex-grow-1 border-end border-light">
+                            <a href="#" id="btnDescargar50mm" target="_blank"
+                                class="d-block text-decoration-none group">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-info rounded text-white fs-20 shadow-sm">
+                                        <i class="ri-coupon-3-line"></i>
+                                    </div>
+                                </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Ticket 50mm</span>
+                            </a>
+                        </div>
+                        <!-- A5 (Opcional, lo dejamos como A4 por ahora si no hay ruta específica) -->
+                        <div class="text-center flex-grow-1">
+                            <a href="#" target="_blank" class="d-block text-decoration-none opacity-50">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-secondary rounded text-white fs-20">
+                                        <i class="ri-file-list-line"></i>
+                                    </div>
+                                </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Imprimir A5</span>
                             </a>
                         </div>
                     </div>
 
-                    <!-- Información adicional -->
-                    <div class="alert alert-info border-0 mt-4 mb-0">
-                        <div class="d-flex align-items-start gap-2">
-                            <i class="ri-information-line fs-18 mt-1"></i>
-                            <div class="flex-grow-1">
-                                <p class="mb-1 fw-semibold">Información importante:</p>
-                                <ul class="mb-0 ps-3 fs-13">
-                                    <li>Los comprobantes se descargarán automáticamente</li>
-                                    <li id="infoElectronico" class="d-none">Este comprobante fue enviado a SUNAT</li>
-                                    <li id="infoNotaVenta" class="d-none">Esta nota de venta no es válida como comprobante
-                                        de pago</li>
-                                </ul>
-                            </div>
+                    <!-- Canales de envío -->
+                    <div class="vstack gap-3 mt-2">
+                        <!-- Email -->
+                        <div class="input-group">
+                            <input type="email" class="form-control border-light-subtle bg-light"
+                                placeholder="Correo electrónico del cliente" id="emailClienteEnvio">
+                            <button class="btn btn-outline-light border-light-subtle text-muted" type="button"
+                                id="btnEnviarEmail">
+                                <i class="ri-mail-send-line me-1"></i> Enviar
+                            </button>
+                        </div>
+                        <!-- WhatsApp -->
+                        <div class="input-group">
+                            <span class="input-group-text border-light-subtle bg-light text-muted">+51</span>
+                            <input type="text" class="form-control border-light-subtle bg-light"
+                                placeholder="Número de celular" id="celularClienteEnvio">
+                            <button class="btn btn-outline-light border-light-subtle text-muted" type="button"
+                                id="btnEnviarWhatsapp">
+                                Enviar <i class="ri-whatsapp-line ms-1 text-success"></i>
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Alerta de estado pequeña -->
+                    <div class="mt-4 pt-2 border-top border-light border-dashed">
+                        <p class="mb-0 fs-11 text-muted text-uppercase fw-medium" id="infoNotaVenta">
+                            <i class="ri-error-warning-line me-1 text-warning"></i> No tiene validez tributaria
+                        </p>
+                        <p class="mb-0 fs-11 text-success text-uppercase fw-bold d-none" id="infoElectronico">
+                            <i class="ri-checkbox-circle-line me-1"></i> Comprobante validado SUNAT
+                        </p>
+                    </div>
                 </div>
-                <div class="modal-footer bg-white border-top-dashed">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" onclick="resetearPOS()">
-                        <i class="ri-close-line me-1"></i> Cerrar
-                    </button>
-                    <button type="button" class="btn btn-success px-4" onclick="nuevaVenta()">
-                        <i class="ri-add-line me-1"></i> Nueva Venta
-                    </button>
+                <div class="modal-footer bg-light-subtle border-0 p-3">
+                    <div class="d-flex w-100 gap-2">
+                        <button type="button" class="btn btn-primary flex-grow-1 fw-bold shadow-sm"
+                            onclick="nuevaVenta()">
+                            NUEVA VENTA <i class="ri-add-line ms-1"></i>
+                        </button>
+                        <button type="button" class="btn btn-white border fw-bold px-4" data-bs-dismiss="modal"
+                            onclick="resetearPOS()">
+                            CERRAR
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1047,6 +1048,17 @@
 
         const CSRF_TOKEN = '{{ csrf_token() }}';
 
+        // =====================================================
+        // FUNCIONES DE VALIDACIÓN (Declinadas al inicio para evitar errores de ReferenceError)
+        // =====================================================
+        function validarAgregarProducto(id, nombre, precio, stock, permiteDecimales, unidadCodigo) {
+            if (['KG', 'GR', 'LTR', 'ML'].includes(unidadCodigo)) {
+                abrirModalPeso(id, nombre, precio, stock, unidadCodigo);
+            } else {
+                agregarAlCarrito(id, nombre, precio, stock, 1, permiteDecimales, unidadCodigo);
+            }
+        }
+
         // Estado del carrito
         let carrito = [];
         let totalCarrito = 0;
@@ -1057,16 +1069,6 @@
         // FUNCIONES DE VALIDACIÓN Y MODAL DE PESO
         // =====================================================
 
-        /**
-         * Decide si agregar directo o mostrar modal de peso
-         */
-        function validarAgregarProducto(id, nombre, precio, stock, permiteDecimales, unidadCodigo) {
-            if (['KG', 'GR', 'LTR', 'ML'].includes(unidadCodigo)) {
-                abrirModalPeso(id, nombre, precio, stock, unidadCodigo);
-            } else {
-                agregarAlCarrito(id, nombre, precio, stock, 1, permiteDecimales, unidadCodigo);
-            }
-        }
 
         /**
          * Configura y abre el modal de peso
@@ -2068,6 +2070,4 @@
             modalComprobante.show();
         }
     </script>
-
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

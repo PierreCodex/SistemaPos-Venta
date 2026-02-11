@@ -3,14 +3,22 @@
 
 <div class="client-section">
     
-    <div class="client-name"><?php echo e(strtoupper($client['nombre'] ?? 'CLIENTE GENERAL')); ?></div>
+    <div class="client-name"><?php echo e(strtoupper($client['razon_social'] ?? 'CAMILO SANCHEZ')); ?></div>
 
     
     <div class="client-separator">---</div>
 
     
-    <div class="client-details"><?php echo e($client['tipo_documento'] ?? 'DNI'); ?> <?php echo e($client['numero_documento'] ?? '00000000'); ?>
+    <div class="client-details">
+        <?php if(
+            !empty($client['numero_documento']) &&
+                $client['numero_documento'] !== '00000000' &&
+                $client['numero_documento'] !== 'N/A'): ?>
+            <?php echo e(($client['tipo_documento'] ?? '1') == '6' ? 'RUC' : 'DNI'); ?>: <?php echo e($client['numero_documento']); ?>
 
+        <?php else: ?>
+            VARIOS
+        <?php endif; ?>
     </div>
 
     

@@ -72,7 +72,7 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Registros de Asistencias</h5>
-                    @if ($esAdmin)
+                    @if ($puedeRegistrar)
                         <div class="flex-shrink-0">
                             <button class="btn btn-success" onclick="abrirModalAsistencia()">
                                 <i class="ri-fingerprint-line align-bottom me-1"></i> Registrar Asistencia
@@ -188,15 +188,21 @@
                             <div class="col-lg-6">
                                 <label for="reg_user_id" class="form-label fw-bold">Empleado <span
                                         class="text-danger">*</span></label>
-                                <select name="user_id" id="reg_user_id" class="form-control select2-modal" required>
-                                    <option value="">Seleccione una opcion...</option>
-                                    @foreach ($usuarios as $usuario)
-                                        <option value="{{ $usuario->id }}"
-                                            {{ auth()->id() == $usuario->id ? 'selected' : '' }}>
-                                            {{ $usuario->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                @if ($esAdmin)
+                                    <select name="user_id" id="reg_user_id" class="form-control select2-modal" required>
+                                        <option value="">Seleccione una opcion...</option>
+                                        @foreach ($usuarios as $usuario)
+                                            <option value="{{ $usuario->id }}"
+                                                {{ auth()->id() == $usuario->id ? 'selected' : '' }}>
+                                                {{ $usuario->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+                                    <input type="text" class="form-control" value="{{ auth()->user()->name }}"
+                                        readonly disabled>
+                                @endif
                             </div>
 
                             <!-- Estado -->
@@ -215,18 +221,24 @@
                                 <label for="reg_fecha" class="form-label fw-bold">Fecha <span
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
+                                    <span class="input-group-text"><i class="ri-calendar-event-line"></i></span>
                                     <input type="date" name="fecha" id="reg_fecha" class="form-control"
-                                        value="{{ date('Y-m-d') }}" required>
+                                        value="{{ date('Y-m-d') }}" required {{ !$esAdmin ? 'readonly' : '' }}>
                                 </div>
                             </div>
 
                             <!-- Hora Entrada -->
                             <div class="col-lg-6">
                                 <label for="reg_hora_entrada" class="form-label fw-bold">Hora de Entrada <span
-                                        class="text-danger">*</span></label>
+                                        class="text-danger">*</span>
+                                    @if (!$esAdmin)
+                                        <span class="badge badge-soft-primary ms-2" id="time-badge">Tiempo Real</span>
+                                    @endif
+                                </label>
                                 <div class="input-group">
+                                    <span class="input-group-text"><i class="ri-time-line"></i></span>
                                     <input type="time" name="hora_entrada" id="reg_hora_entrada" class="form-control"
-                                        value="{{ date('H:i') }}" required>
+                                        value="{{ date('H:i') }}" required {{ !$esAdmin ? 'readonly' : '' }}>
                                 </div>
                             </div>
 
@@ -275,6 +287,13 @@
             setInterval(() => {
                 let now = new Date();
                 $('#reloj').text(now.toLocaleTimeString());
+
+                @if (!$esAdmin)
+                    // Si no es admin, mantener la hora del modal sincronizada con el servidor/cliente
+                    let hours = String(now.getHours()).padStart(2, '0');
+                    let minutes = String(now.getMinutes()).padStart(2, '0');
+                    $('#reg_hora_entrada').val(hours + ':' + minutes);
+                @endif
             }, 1000);
 
             $('#formAsistencia').submit(function(e) {

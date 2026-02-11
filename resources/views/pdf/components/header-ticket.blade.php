@@ -2,37 +2,64 @@
 {{-- Props: $company, $document, $tipo_documento_nombre, $format --}}
 
 @php
-    $logoPath = public_path('logo_factura.png');
+    // Obtener el logo desde los datos de la empresa
+    $logo = data_get($company, 'logo');
+    $logoPath = null;
+    $logoBase64 = null;
+
+    if ($logo && file_exists(storage_path('app/public/' . $logo))) {
+        $logoPath = storage_path('app/public/' . $logo);
+    } else {
+        $logoPath = public_path('logo_factura.png');
+    }
+
+    if (file_exists($logoPath)) {
+        try {
+            $logoBase64 = base64_encode(file_get_contents($logoPath));
+        } catch (\Exception $e) {
+            $logoBase64 = null;
+        }
+    }
+
+    // Normalizar datos
+    $razonSocial = data_get($company, 'razon_social', 'EMPRESA');
+    $nombreComercial = data_get($company, 'nombre_comercial');
+    $direccion = data_get($company, 'direccion', 'DIRECCIÓN');
+    $ruc = data_get($company, 'ruc');
+    $telefono = data_get($company, 'telefono');
+    $email = data_get($company, 'email');
+    $distrito = data_get($company, 'distrito');
+    $provincia = data_get($company, 'provincia');
 @endphp
 
 <div class="header">
     {{-- Logo --}}
-    @if(file_exists($logoPath))
+    @if ($logoBase64)
         <div class="logo-section-ticket">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoPath)) }}" alt="Logo Empresa" class="logo-img-ticket">
+            <img src="data:image/png;base64,{{ $logoBase64 }}" alt="Logo Empresa" class="logo-img-ticket">
         </div>
     @endif
 
     {{-- Company Info --}}
-    <div class="company-name">{{ strtoupper($company->razon_social ?? 'NOMBRE DE LA EMPRESA') }}</div>
-    
+    <div class="company-name">{{ strtoupper($razonSocial) }}</div>
+
     <div class="company-details">
-        @if($company->nombre_comercial && $company->nombre_comercial != $company->razon_social)
-            {{ $company->nombre_comercial }}<br>
+        @if ($nombreComercial && $nombreComercial != $razonSocial)
+            {{ $nombreComercial }}<br>
         @endif
-        
-        {{ $company->direccion ?? 'DIRECCIÓN DE LA EMPRESA' }}<br>
-        
-        @if($company->distrito || $company->provincia)
-            {{ $company->distrito }}{{ $company->provincia ? ', ' . $company->provincia : '' }}<br>
+
+        {{ $direccion }}<br>
+
+        @if ($distrito || $provincia)
+            {{ $distrito }}{{ $provincia ? ', ' . $provincia : '' }}<br>
         @endif
-        
-        @if($company->telefono)
-            Tel: {{ $company->telefono }}<br>
+
+        @if ($telefono)
+            Tel: {{ $telefono }}<br>
         @endif
-        
-        @if($company->email)
-            {{ strtoupper($company->email) }}
+
+        @if ($email)
+            {{ strtoupper($email) }}
         @endif
     </div>
 

@@ -9,28 +9,27 @@
 
         body {
             font-family: 'Helvetica', Arial, sans-serif;
-            background-color: #f5f5f5;
-            /* Color de fondo para previsualización */
-            padding: 20px 0;
-            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .ticket-container {
-            width: 216pt;
-            /* Reducido para margen de seguridad de impresora 80mm */
+            width: 100%;
+            max-width: 300px;
             background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
             margin: 0 auto;
-            padding: 0;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            /* Sombra suave para que parezca papel */
-            min-height: 100%;
         }
 
         .ticket {
-            width: 100%;
-            padding: 0;
-            /* Usar el ancho total del contenedor */
-            text-align: center;
+            width: 80mm;
+            /* Ancho estándar para tickets de 80mm */
+            padding: 10pt;
             margin: 0 auto;
         }
 
@@ -123,26 +122,94 @@
         }
 
         /* ================= ITEMS TABLE ================= */
-        .items-section {
-            margin: 4px 0;
-            width: 100%;
-        }
-
-        table.items-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table.items-table th,
-        table.items-table td {
-            font-size: 8px;
-            /* Un poco más grande para 80mm */
+        .items-header {
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
             padding: 2px 0;
-            vertical-align: top;
+            font-size: 10px;
+            font-weight: bold;
+            margin: 3px 0;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
         }
 
+        .items-header>div {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            padding: 1px;
+        }
 
+        .header-prod {
+            width: 40%;
+            text-align: left;
+        }
 
+        .header-cant {
+            width: 10%;
+        }
+
+        .header-um {
+            width: 10%;
+        }
+
+        .header-pu {
+            width: 20%;
+        }
+
+        .header-imp {
+            width: 20%;
+        }
+
+        .items-section {
+            margin: 3px 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 3px;
+        }
+
+        .item {
+            margin-bottom: 2px;
+            font-size: 10px;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .item>div {
+            display: table-cell;
+            text-align: center;
+            vertical-align: top;
+            padding: 1px;
+        }
+
+        .item-prod {
+            width: 40%;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        .item-cant {
+            width: 10%;
+        }
+
+        .item-um {
+            width: 10%;
+        }
+
+        .item-pu {
+            width: 20%;
+        }
+
+        .item-imp {
+            width: 20%;
+        }
+
+        .item-descripcion {
+            font-size: 10px;
+            text-align: left;
+            margin-top: 1px;
+        }
 
         /* ================= TOTALS ================= */
         .totals-section {
@@ -253,12 +320,9 @@
         }
 
         .footer-auth {
-            font-size: 8px;
+            font-size: 10px;
             text-align: center;
             margin: 2px 0;
-            word-wrap: break-word;
-            word-break: break-all;
-            padding: 0 10px;
         }
 
         .powered-by {
@@ -338,10 +402,8 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('body-content'); ?>
-    <div class="ticket-container">
-        <div class="ticket">
-            <?php echo $__env->yieldContent('content'); ?>
-        </div>
+    <div class="container">
+        <?php echo $__env->yieldContent('content'); ?>
     </div>
 <?php $__env->stopSection(); ?>
 

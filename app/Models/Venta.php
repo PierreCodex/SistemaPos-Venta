@@ -17,7 +17,26 @@ class Venta extends Model
 
     protected $table = 'ventas';
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($venta) {
+            $venta->codigo_externo = self::generarCodigoUnico();
+        });
+    }
+
+    private static function generarCodigoUnico()
+    {
+        do {
+            $codigo = strtoupper(\Illuminate\Support\Str::random(10));
+        } while (self::where('codigo_externo', $codigo)->exists());
+
+        return $codigo;
+    }
+
     protected $fillable = [
+        'codigo_externo',
         'caja_sesion_id',
         'cliente_id',
         'nombre_cliente_generico',
@@ -192,6 +211,17 @@ class Venta extends Model
         }
         
         return $this->nombre_cliente_generico ?: 'Cliente General';
+    }
+
+    /**
+     * URL pública para compartir por WhatsApp
+     */
+    public function getUrlPublicaAttribute(): string
+    {
+        if (!$this->codigo_externo) {
+            return '#';
+        }
+        return route('ticket.publico', ['codigo' => $this->codigo_externo]);
     }
 
     /**

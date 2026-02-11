@@ -155,11 +155,13 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex gap-1 justify-content-center">
-                                                <button type="button"
-                                                    class="btn btn-sm btn-soft-info btn-icon waves-effect waves-light"
-                                                    onclick="verCompra({{ $compra->id }})" title="Ver detalle">
-                                                    <i class="ri-eye-line fs-16"></i>
-                                                </button>
+                                                @can('compras.ver')
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-soft-info btn-icon waves-effect waves-light"
+                                                        onclick="verCompra({{ $compra->id }})" title="Ver detalle">
+                                                        <i class="ri-eye-line fs-16"></i>
+                                                    </button>
+                                                @endcan
                                                 @if ($compra->estado !== 'ANULADO')
                                                     @can('compras.anular')
                                                         <button type="button"
@@ -262,13 +264,13 @@
                                 </thead>
                                 <tbody>
                                     ${c.detalles.map(d => `
-                                                        <tr>
-                                                            <td>${d.producto?.nombre || 'N/A'}</td>
-                                                            <td class="text-end">${parseFloat(d.cantidad).toFixed(2)}</td>
-                                                            <td class="text-end">S/ ${parseFloat(d.costo_unitario).toFixed(2)}</td>
-                                                            <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
-                                                        </tr>
-                                                    `).join('')}
+                                                            <tr>
+                                                                <td>${d.producto?.nombre || 'N/A'}</td>
+                                                                <td class="text-end">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                                <td class="text-end">S/ ${parseFloat(d.costo_unitario).toFixed(2)}</td>
+                                                                <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                            </tr>
+                                                        `).join('')}
                                 </tbody>
                                 <tfoot class="table-light">
                                     <tr>

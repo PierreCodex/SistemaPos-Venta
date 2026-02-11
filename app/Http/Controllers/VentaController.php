@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\VentaService;
-use App\Services\PdfComprobanteService;
+use App\Services\PdfService;
 use App\Http\Requests\StoreVentaRequest;
 use App\Models\Venta;
 use App\Models\Producto;
@@ -21,7 +21,8 @@ use Illuminate\View\View;
 class VentaController extends Controller
 {
     public function __construct(
-        private VentaService $ventaService
+        private VentaService $ventaService,
+        private PdfService $pdfService
     ) {}
 
     /**
@@ -285,28 +286,41 @@ class VentaController extends Controller
     public function descargarPdf(int $id, string $formato = '80mm')
     {
         try {
-            $venta = Venta::with('comprobanteElectronico')->findOrFail($id);
+            $venta = Venta::with(['comprobanteElectronico', 'detalles.producto', 'cliente'])->findOrFail($id);
 
             if (!$venta->comprobanteElectronico) {
-                abort(404, 'Esta venta no tiene comprobante electrónico');
+                abort(404, 'Esta venta no tiene un comprobante asociado');
             }
 
             $comprobante = $venta->comprobanteElectronico;
+            // Vincular la venta ya cargada (con detalles) al comprobante para evitar re-consultas y pérdida de datos
+            $comprobante->setRelation('venta', $venta);
             
-            // Construir la ruta del PDF según el formato
+            // Determinar tipo de documento para PdfService
+            $tipoDoc = match($comprobante->tipo_comprobante) {
+                'FACTURA' => 'invoice',
+                'BOLETA' => 'boleta',
+                'NOTA_CREDITO' => 'credit-note',
+                'NOTA_DEBITO' => 'debit-note',
+                'NOTA_VENTA' => 'sale-note',
+                default => 'boleta'
+            };
+
+            // Generar el PDF usando el nuevo PdfService
+            $pdfContent = $this->pdfService->generatePdf($comprobante, $tipoDoc, $formato);
+
             $filename = $comprobante->serie . '-' . $comprobante->numero . '-' . $formato . '.pdf';
-            $path = "greenter/pdf/{$formato}/{$filename}";
 
-            if (!\Illuminate\Support\Facades\Storage::exists($path)) {
-                // Si no existe, generar el PDF
-                $pdfService = app(\App\Services\PdfComprobanteService::class);
-                $pdfService->generarPdf($comprobante, $formato);
-            }
-
-            // Descargar el PDF
-            return \Illuminate\Support\Facades\Storage::download($path, $filename);
+            return response($pdfContent)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         } catch (\Exception $e) {
+            \Log::error('Error al descargar PDF: ' . $e->getMessage(), [
+                'venta_id' => $id,
+                'formato' => $formato,
+                'trace' => $e->getTraceAsString()
+            ]);
             abort(500, 'Error al descargar el PDF: ' . $e->getMessage());
         }
     }

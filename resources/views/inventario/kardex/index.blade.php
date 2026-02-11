@@ -155,14 +155,16 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0 flex-grow-1">Historial de Movimientos</h5>
-                    <div class="d-flex flex-shrink-0 gap-2">
-                        <button type="button" id="btnExportarPDF" class="btn btn-soft-danger waves-effect waves-light">
-                            <i class="las la-file-pdf fs-3"></i><span>PDF</span>
-                        </button>
-                        <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
-                            <i class="las la-file-excel fs-3"></i><span>Excel</span>
-                        </button>
-                    </div>
+                    @can('kardex.exportar')
+                        <div class="d-flex flex-shrink-0 gap-2">
+                            <button type="button" id="btnExportarPDF" class="btn btn-soft-danger waves-effect waves-light">
+                                <i class="las la-file-pdf fs-3"></i><span>PDF</span>
+                            </button>
+                            <button type="button" id="btnExportarExcel" class="btn btn-soft-success waves-effect waves-light">
+                                <i class="las la-file-excel fs-3"></i><span>Excel</span>
+                            </button>
+                        </div>
+                    @endcan
                 </div>
 
                 <div class="card-body">
@@ -276,10 +278,12 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="{{ route('inventario.kardex.producto', $mov->producto_id) }}"
-                                            class="btn btn-sm btn-info" title="Ver Kardex del Producto">
-                                            <i class="ri-eye-line"></i>
-                                        </a>
+                                        @can('kardex.ver')
+                                            <a href="{{ route('inventario.kardex.producto', $mov->producto_id) }}"
+                                                class="btn btn-sm btn-info" title="Ver Kardex del Producto">
+                                                <i class="ri-eye-line"></i>
+                                            </a>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach

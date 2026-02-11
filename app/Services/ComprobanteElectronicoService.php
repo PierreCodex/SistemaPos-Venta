@@ -23,11 +23,11 @@ use Carbon\Carbon;
 class ComprobanteElectronicoService
 {
     protected GreenterService $greenterService;
-    protected PdfComprobanteService $pdfService;
+    protected PdfService $pdfService;
 
     public function __construct(
         GreenterService $greenterService,
-        PdfComprobanteService $pdfService
+        PdfService $pdfService
     ) {
         $this->greenterService = $greenterService;
         $this->pdfService = $pdfService;
@@ -76,21 +76,7 @@ class ComprobanteElectronicoService
                 $this->generarYEnviarASunat($comprobante, $venta);
             }
 
-            // Generar PDFs en todos los formatos
-            try {
-                $this->pdfService->generarTodosLosFormatos($comprobante);
-                
-                Log::info('PDFs generados para comprobante', [
-                    'comprobante_id' => $comprobante->id,
-                    'tipo' => $comprobante->tipo_comprobante
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error al generar PDFs', [
-                    'comprobante_id' => $comprobante->id,
-                    'error' => $e->getMessage()
-                ]);
-                // No lanzar excepción - el comprobante ya está creado
-            }
+            // PDFs are now generated on-demand by the controller using PdfService
 
             return $comprobante->fresh();
         });

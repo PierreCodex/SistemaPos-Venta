@@ -3,13 +3,21 @@
 
 <div class="client-section">
     {{-- Client Name --}}
-    <div class="client-name">{{ strtoupper($client['nombre'] ?? 'CLIENTE GENERAL') }}</div>
+    <div class="client-name">{{ strtoupper($client['razon_social'] ?? 'CAMILO SANCHEZ') }}</div>
 
     {{-- Separator --}}
     <div class="client-separator">---</div>
 
     {{-- Document Number --}}
-    <div class="client-details">{{ $client['tipo_documento'] ?? 'DNI' }} {{ $client['numero_documento'] ?? '00000000' }}
+    <div class="client-details">
+        @if (
+            !empty($client['numero_documento']) &&
+                $client['numero_documento'] !== '00000000' &&
+                $client['numero_documento'] !== 'N/A')
+            {{ ($client['tipo_documento'] ?? '1') == '6' ? 'RUC' : 'DNI' }}: {{ $client['numero_documento'] }}
+        @else
+            VARIOS
+        @endif
     </div>
 
     {{-- Date and Time --}}

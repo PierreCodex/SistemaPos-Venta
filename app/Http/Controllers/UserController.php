@@ -54,14 +54,25 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'confirmed', Password::min(6)],
-            'roles' => 'nullable|array'
+            'pin' => 'nullable|string|min:4|max:6',
+            'roles' => 'nullable|array',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
+            $avatarName = null;
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+                $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+                $avatar->move(public_path('images'), $avatarName);
+            }
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'pin' => $request->filled('pin') ? Hash::make($request->pin) : null,
+                'avatar' => $avatarName
             ]);
 
             if ($request->has('roles')) {
@@ -110,17 +121,35 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => ['nullable', 'confirmed', Password::min(6)],
-            'roles' => 'nullable|array'
+            'pin' => 'nullable|string|min:4|max:6',
+            'roles' => 'nullable|array',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
             $user = User::findOrFail($id);
             
+            if ($request->hasFile('avatar')) {
+                // Eliminar anterior si existe
+                if ($user->avatar && file_exists(public_path('images/' . $user->avatar))) {
+                    unlink(public_path('images/' . $user->avatar));
+                }
+                
+                $avatar = $request->file('avatar');
+                $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+                $avatar->move(public_path('images'), $avatarName);
+                $user->avatar = $avatarName;
+            }
+
             $user->name = $request->name;
             $user->email = $request->email;
             
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
+            }
+
+            if ($request->filled('pin')) {
+                $user->pin = Hash::make($request->pin);
             }
             
             $user->save();

@@ -381,14 +381,13 @@
                     subirLogo(this.files[0]);
                 }
             });
-        });
 
-        // Upload cert
-        document.getElementById('inputCertificado')?.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            subirCertificado(this.files[0]);
-        }
-        });
+            // Upload cert
+            document.getElementById('inputCertificado')?.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    subirCertificado(this.files[0]);
+                }
+            });
         });
 
         function guardarConfiguracion(formData) {

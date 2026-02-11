@@ -14,7 +14,7 @@
 
 
 <!--end back-to-top-->
-<div class="customizer-setting d-none">
+<div class="customizer-setting">
     <div class="btn-info rounded-pill shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas"
         data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
         <i class='mdi mdi-spin mdi-cog-outline fs-22'></i>

@@ -2,43 +2,60 @@
 {{-- Props: $company, $document, $tipo_documento_nombre --}}
 
 @php
-    $logoPath = public_path('img/logo-ticket.png'); // Ruta local en master
+    // Obtener el logo desde los datos de la empresa
+    $logo = data_get($company, 'logo');
+    $logoPath = null;
+    $logoBase64 = null;
+
+    if ($logo && file_exists(storage_path('app/public/' . $logo))) {
+        $logoPath = storage_path('app/public/' . $logo);
+    } else {
+        $logoPath = public_path('logo_factura.png');
+    }
+
+    if (file_exists($logoPath)) {
+        try {
+            $logoBase64 = base64_encode(file_get_contents($logoPath));
+        } catch (\Exception $e) {
+            $logoBase64 = null;
+        }
+    }
+
+    // Normalizar datos
+    $razonSocial = data_get($company, 'razon_social', 'EMPRESA DEMO SAC');
+    $ruc = data_get($company, 'ruc', '20100100100');
+    $direccion = data_get($company, 'direccion', 'CALLE LAS NORMAS 123');
+    $distrito = data_get($company, 'distrito', 'CALLAO');
+    $email = data_get($company, 'email', 'Administrador@facturas.net');
+    $web = data_get($company, 'website') ?? data_get($company, 'web', 'www.facturas.net');
 @endphp
 
 <div class="header">
     {{-- Logo --}}
-    @if (file_exists($logoPath))
+    @if ($logoBase64)
         <div class="logo-section-ticket">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoPath)) }}" alt="Logo"
-                class="logo-img-ticket">
+            <img src="data:image/png;base64,{{ $logoBase64 }}" alt="Logo" class="logo-img-ticket">
         </div>
     @endif
 
     {{-- Company Name --}}
-    <div class="company-name">{{ strtoupper($company['razon_social'] ?? '') }}</div>
+    <div class="company-name">{{ strtoupper($razonSocial) }}</div>
 
     {{-- RUC --}}
-    <div class="company-ruc">RUC: {{ $company['ruc'] ?? '' }}</div>
+    <div class="company-ruc">RUC: {{ $ruc }}</div>
 
     {{-- Company Details --}}
     <div class="company-details">
-        {{ $company['direccion'] ?? '' }}<br>
-        {{ $company['distrito'] ?? '' }} {{ $company['provincia'] ?? '' }}<br>
-        @if (!empty($company['telefono']))
-            Tel: {{ $company['telefono'] }}<br>
-        @endif
-        @if (!empty($company['email']))
-            Correo: {{ $company['email'] }}<br>
-        @endif
-        @if (!empty($company['website']))
-            Web: {{ $company['website'] }}
-        @endif
+        {{ $direccion }}<br>
+        {{ $distrito }}<br>
+        Correo: {{ $email }}<br>
+        Web: {{ $web }}
     </div>
 
     {{-- Document Title --}}
-    <div class="document-title">{{ strtoupper($tipo_documento_nombre ?? 'COMPROBANTE') }}</div>
+    <div class="document-title">{{ strtoupper($tipo_documento_nombre ?? 'BOLETA DE VENTA ELECTRONICA') }}</div>
 
     {{-- Document Number --}}
-    <div class="document-number">{{ $document['serie'] ?? '' }} -
-        {{ str_pad($document['numero'] ?? ($document['correlativo'] ?? ''), 8, '0', STR_PAD_LEFT) }}</div>
+    <div class="document-number">{{ $document->serie ?? 'B002' }} -
+        {{ str_pad($document->numero ?? ($document->correlativo ?? '0'), 8, '0', STR_PAD_LEFT) }}</div>
 </div>

@@ -324,6 +324,7 @@ class CajaController extends Controller
         return view('caja.pagos_credito', [
             'cajaSesion' => $cajaSesion,
             'pagos' => $data['pagos'],
+            'ventasCredito' => $data['ventasCredito'],
             'totales' => $data['totales'],
         ]);
     }

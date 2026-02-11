@@ -7,6 +7,25 @@
 @section('css')
     <link href="{{ URL::asset('build/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Fix for dropdown menus in responsive tables */
+        .table-responsive {
+            min-height: 300px;
+            /* Give enough height for dropdowns */
+        }
+
+        .dropdown-menu {
+            z-index: 1050 !important;
+        }
+
+        /* Ensure the last rows don't cut off the menu */
+        #tablaCreditos tbody tr:last-child .dropdown-menu,
+        #tablaCreditos tbody tr:nth-last-child(2) .dropdown-menu {
+            bottom: 100%;
+            top: auto;
+            margin-bottom: 2px;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -89,7 +108,7 @@
 
 
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive pb-5">
                         <table id="tablaCreditos" class="table nowrap align-middle mb-0" style="width:100%">
                             <thead class="table-light text-muted">
                                 <tr class="text-uppercase fs-12">
@@ -155,8 +174,8 @@
                                                 class="badge {{ $badge }} text-uppercase">{{ $venta->estado_pago }}</span>
                                         </td>
                                         <td>
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                                            <div class="dropdown">
+                                                <button class="btn btn-primary btn-sm" type="button"
                                                     data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="ri-more-fill align-middle"></i>
                                                 </button>

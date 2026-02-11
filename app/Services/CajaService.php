@@ -220,8 +220,8 @@ class CajaService
      */
     public function registrarVenta(Venta $venta): ?CajaMovimiento
     {
-        // Solo registrar si hay pago en efectivo
-        $montoEfectivo = floatval($venta->pago_efectivo ?? 0);
+        // Calcular el ingreso neto a caja (efectivo recibido - vuelto)
+        $montoEfectivo = floatval($venta->pago_efectivo ?? 0) - floatval($venta->vuelto ?? 0);
         
         if ($montoEfectivo <= 0) {
             return null;
@@ -258,7 +258,7 @@ class CajaService
      */
     public function registrarAnulacionVenta(Venta $venta): ?CajaMovimiento
     {
-        $montoEfectivo = floatval($venta->pago_efectivo ?? 0);
+        $montoEfectivo = floatval($venta->pago_efectivo ?? 0) - floatval($venta->vuelto ?? 0);
         
         if ($montoEfectivo <= 0) {
             return null;
@@ -440,15 +440,24 @@ class CajaService
             ->orderBy('fecha_pago', 'desc')
             ->get();
 
+        $ventasCredito = \App\Models\Venta::with(['cliente'])
+            ->where('caja_sesion_id', $cajaSesion->id)
+            ->where('es_credito', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $totales = [
             'efectivo' => $pagos->where('metodo_pago', 'EFECTIVO')->sum('monto'),
             'otros' => $pagos->where('metodo_pago', '!=', 'EFECTIVO')->sum('monto'),
             'total' => $pagos->sum('monto'),
             'cantidad' => $pagos->count(),
+            'total_creditos_otorgados' => $ventasCredito->sum('total'),
+            'cantidad_creditos' => $ventasCredito->count(),
         ];
 
         return [
             'pagos' => $pagos,
+            'ventasCredito' => $ventasCredito,
             'totales' => $totales,
             'cajaSesion' => $cajaSesion,
         ];

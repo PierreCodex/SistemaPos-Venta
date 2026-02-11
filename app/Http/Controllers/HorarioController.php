@@ -22,6 +22,17 @@ class HorarioController extends Controller
         return view('horarios.index', compact('horarios', 'usuariosDisponibles'));
     }
 
+    /**
+     * Ver el horario asignado al usuario actual
+     */
+    public function miHorario()
+    {
+        $user = auth()->user();
+        $horario = $user->horarioActual();
+        
+        return view('horarios.mi-horario', compact('user', 'horario'));
+    }
+
     public function store(Request $request)
     {
         try {

@@ -11,25 +11,28 @@
 
         body {
             font-family: 'Helvetica', Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px 0;
-            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
         }
 
         .ticket-container {
-            width: 135pt;
-            /* Reducido ligeramente para margen de seguridad */
+            width: 100%;
+            max-width: 188px;
+            /* Approximated for 50mm */
             background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
             margin: 0 auto;
-            padding: 0;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .ticket {
-            width: 100%;
-            padding: 0;
-            /* Eliminado padding para usar el ancho real */
-            text-align: center;
+            width: 50mm;
+            /* Ancho estándar para tickets de 50mm */
+            padding: 5pt;
             margin: 0 auto;
         }
 
@@ -122,25 +125,94 @@
         }
 
         /* ================= ITEMS TABLE ================= */
+        .items-header {
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 1px 0;
+            font-size: 8px;
+            font-weight: bold;
+            margin: 2px 0;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .items-header>div {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            padding: 1px;
+        }
+
+        .header-prod {
+            width: 35%;
+            text-align: left;
+        }
+
+        .header-cant {
+            width: 10%;
+        }
+
+        .header-um {
+            width: 10%;
+        }
+
+        .header-pu {
+            width: 22.5%;
+        }
+
+        .header-imp {
+            width: 22.5%;
+        }
+
         .items-section {
             margin: 2px 0;
-            width: 100%;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
         }
 
-        table.items-table {
+        .item {
+            margin-bottom: 1px;
+            font-size: 8px;
+            display: table;
             width: 100%;
-            border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        table.items-table th,
-        table.items-table td {
-            font-size: 6.5px;
-            padding: 1px 0;
+        .item>div {
+            display: table-cell;
+            text-align: center;
             vertical-align: top;
+            padding: 1px;
         }
 
+        .item-prod {
+            width: 35%;
+            text-align: left;
+            word-wrap: break-word;
+        }
 
+        .item-cant {
+            width: 10%;
+        }
 
+        .item-um {
+            width: 10%;
+        }
+
+        .item-pu {
+            width: 22.5%;
+        }
+
+        .item-imp {
+            width: 22.5%;
+        }
+
+        .item-descripcion {
+            font-size: 8px;
+            text-align: left;
+            margin-top: 1px;
+        }
 
         /* ================= TOTALS ================= */
         .totals-section {
@@ -251,12 +323,9 @@
         }
 
         .footer-auth {
-            font-size: 6px;
+            font-size: 7px;
             text-align: center;
             margin: 1px 0;
-            word-wrap: break-word;
-            word-break: break-all;
-            padding: 0 5px;
         }
 
         .powered-by {
@@ -336,9 +405,7 @@
 @endsection
 
 @section('body-content')
-    <div class="ticket-container">
-        <div class="ticket">
-            @yield('content')
-        </div>
+    <div class="container">
+        @yield('content')
     </div>
 @endsection

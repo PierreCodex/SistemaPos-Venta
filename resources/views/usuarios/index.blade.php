@@ -204,7 +204,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Roles</label>
-                                <div class="d-flex flex-wrap gap-3" id="rolesCheckboxesCreate">
+                                <div class="d-flex flex-wrap gap-3 mb-2" id="rolesCheckboxesCreate">
                                     @foreach ($roles as $role)
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="roles[]"
@@ -215,6 +215,18 @@
                                         </div>
                                     @endforeach
                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">PIN de Supervisor <small class="text-muted">(4-6
+                                        dígitos)</small></label>
+                                <input type="password" class="form-control" name="pin" maxlength="6"
+                                    pattern="\d*" placeholder="Opcional">
+                                <small class="text-muted">Necesario para autorizar acciones críticas</small>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Avatar / Foto de Perfil</label>
+                                <input type="file" class="form-control" name="avatar" accept="image/*">
+                                <small class="text-muted">Formatos: JPG, PNG. Máx: 2MB.</small>
                             </div>
                         </div>
                     </div>
@@ -253,7 +265,7 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Nueva Contraseña</label>
                                 <input type="password" class="form-control" name="password" minlength="6"
-                                    placeholder="Dejar vacío para no cambiar">
+                                    placeholder="Opcional">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Confirmar Contraseña</label>
@@ -261,7 +273,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Roles</label>
-                                <div class="d-flex flex-wrap gap-3" id="rolesCheckboxesEdit">
+                                <div class="d-flex flex-wrap gap-3 mb-2" id="rolesCheckboxesEdit">
                                     @foreach ($roles as $role)
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="roles[]"
@@ -272,6 +284,15 @@
                                         </div>
                                     @endforeach
                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">PIN de Supervisor</label>
+                                <input type="password" class="form-control" name="pin" maxlength="6"
+                                    pattern="\d*" placeholder="Dejar vacío para no cambiar">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Avatar / Foto</label>
+                                <input type="file" class="form-control" name="avatar" accept="image/*">
                             </div>
                         </div>
                     </div>
@@ -404,22 +425,12 @@
         }
 
         function crearUsuario(formData) {
-            const roles = [];
-            formData.getAll('roles[]').forEach(r => roles.push(r));
-
             fetch(ROUTES.store, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({
-                        name: formData.get('name'),
-                        email: formData.get('email'),
-                        password: formData.get('password'),
-                        password_confirmation: formData.get('password_confirmation'),
-                        roles: roles
-                    })
+                    body: formData
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -461,27 +472,16 @@
 
         function actualizarUsuario(formData) {
             const id = formData.get('user_id');
-            const roles = [];
-            formData.getAll('roles[]').forEach(r => roles.push(r));
 
-            const payload = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                roles: roles
-            };
-
-            if (formData.get('password')) {
-                payload.password = formData.get('password');
-                payload.password_confirmation = formData.get('password_confirmation');
-            }
+            // Laravel necesita _method: PUT para procesar archivos vía POST
+            formData.append('_method', 'PUT');
 
             fetch(ROUTES.update.replace(':id', id), {
-                    method: 'PUT',
+                    method: 'POST', // Usamos POST con _method: PUT para que funcione con archivos
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify(payload)
+                    body: formData
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -511,24 +511,31 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(ROUTES.destroy.replace(':id', id), {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
+                    // Requerir PIN de Supervisor para esta acción crítica
+                    solicitarAutorizacion('usuarios', 'eliminar_usuario', `Eliminando al usuario: ${name}`)
+                        .then(() => {
+                            fetch(ROUTES.destroy.replace(':id', id), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    }
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        mostrarToast('✅ ' + data.message, 'success');
+                                        cargarUsuarios();
+                                    } else {
+                                        mostrarToast('❌ ' + data.message, 'error');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    mostrarToast('❌ Error de conexión', 'error');
+                                });
                         })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                mostrarToast('✅ ' + data.message, 'success');
-                                cargarUsuarios();
-                            } else {
-                                mostrarToast('❌ ' + data.message, 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            mostrarToast('❌ Error de conexión', 'error');
+                        .catch(() => {
+                            // Cancelado o fallido
                         });
                 }
             });

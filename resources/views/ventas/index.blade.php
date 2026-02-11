@@ -73,16 +73,18 @@
                 <div class="card-header d-flex align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0 flex-grow-1">Listado de Comprobantes</h5>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="button" id="btnExportarPDF"
-                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-pdf-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
-                        </button>
-                        <button type="button" id="btnExportarExcel"
-                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
-                            <i class="ri-file-excel-line fs-18"></i> <span
-                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
-                        </button>
+                        @can('ventas.exportar')
+                            <button type="button" id="btnExportarPDF"
+                                class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-pdf-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
+                            </button>
+                            <button type="button" id="btnExportarExcel"
+                                class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                                <i class="ri-file-excel-line fs-18"></i> <span
+                                    class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
+                            </button>
+                        @endcan
                         @can('ventas.crear')
                             <a href="{{ route('ventas.create') }}" class="btn btn-primary shadow-sm d-flex align-items-center">
                                 <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nueva
@@ -117,41 +119,56 @@
                                                 <div class="flex-grow-1">
                                                     <h6
                                                         class="fs-14 mb-0 fw-bold border-bottom border-primary border-opacity-25 d-inline-block text-uppercase">
-                                                        ${{ $venta->comprobante }}</h6>
+                                                        {{ $venta->comprobante }}</h6>
                                                     <div class="text-muted fs-11">
-                                                        ${{ $venta->serie }}-${{ str_pad($venta->numero, 8, '0', STR_PAD_LEFT) }}
+                                                        {{ $venta->serie }}-{{ str_pad($venta->numero, 8, '0', STR_PAD_LEFT) }}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-uppercase">${{ $venta->nombre_cliente }}</td>
-                                        <td class="text-uppercase">${{ $venta->vendedor->name ?? '-' }}</td>
+                                        <td class="text-uppercase">{{ $venta->nombre_cliente }}</td>
+                                        <td class="text-uppercase">{{ $venta->vendedor->name ?? '-' }}</td>
                                         <td>
                                             <span class="badge bg-info-subtle text-info p-2 text-uppercase">
-                                                <i
-                                                    class="ri-wallet-3-line me-1 align-middle"></i>${{ $venta->metodo_pago }}
+                                                <i class="ri-wallet-3-line me-1 align-middle"></i>{{ $venta->metodo_pago }}
                                             </span>
                                         </td>
                                         <td class="text-nowrap text-uppercase">
-                                            <div class="fw-medium">${{ $venta->fecha_emision->format('d/m/Y') }}</div>
-                                            <div class="text-muted fs-11">${{ $venta->fecha_emision->format('H:i:s') }}
+                                            <div class="fw-medium">{{ $venta->fecha_emision->format('d/m/Y') }}</div>
+                                            <div class="text-muted fs-11">{{ $venta->fecha_emision->format('H:i:s') }}
                                             </div>
                                         </td>
                                         <td><span class="fw-bold text-primary fs-14">S/
-                                                ${{ number_format($venta->total, 2) }}</span></td>
-                                        <td class="text-center text-uppercase">${!! $venta->badge_estado !!}</td>
+                                                {{ number_format($venta->total, 2) }}</span></td>
+                                        <td class="text-center text-uppercase">{!! $venta->badge_estado !!}</td>
                                         <td class="text-center no-exportar">
                                             <div class="d-flex justify-content-center gap-1">
-                                                <button type="button"
-                                                    class="btn btn-sm btn-soft-info btn-icon waves-effect waves-light"
-                                                    onclick="verDetalles({{ $venta->id }})" title="Ver detalles">
-                                                    <i class="ri-eye-line fs-16"></i>
-                                                </button>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-soft-secondary btn-icon waves-effect waves-light"
-                                                    onclick="imprimirVenta({{ $venta->id }})" title="Imprimir">
-                                                    <i class="ri-printer-line fs-16"></i>
-                                                </button>
+                                                @can('ventas.ver')
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-soft-info btn-icon waves-effect waves-light"
+                                                        onclick="verDetalles({{ $venta->id }})" title="Ver detalles">
+                                                        <i class="ri-eye-line fs-16"></i>
+                                                    </button>
+                                                @endcan
+                                                @can('ventas.imprimir')
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-soft-secondary btn-icon waves-effect waves-light"
+                                                        onclick="imprimirVenta({{ $venta->id }})" title="Imprimir">
+                                                        <i class="ri-printer-line fs-16"></i>
+                                                    </button>
+                                                    <a href="https://api.whatsapp.com/send?text={{ urlencode('Hola! Aquí tienes tu ticket de su compra: ' . $venta->url_publica) }}"
+                                                        target="_blank"
+                                                        class="btn btn-sm btn-soft-success btn-icon waves-effect waves-light"
+                                                        title="Enviar WhatsApp">
+                                                        <i class="ri-whatsapp-line fs-16"></i>
+                                                    </a>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-soft-primary btn-icon waves-effect waves-light"
+                                                        onclick="copiarLink('{{ $venta->url_publica }}')"
+                                                        title="Copiar Link">
+                                                        <i class="ri-links-line fs-16"></i>
+                                                    </button>
+                                                @endcan
                                                 @can('ventas.anular')
                                                     @if ($venta->estado !== 'ANULADA')
                                                         <button type="button"
@@ -202,126 +219,124 @@
         </div>
     </div>
 
-    {{-- Modal Opciones de la Venta (Diseño Integrado Velzon) --}}
+    {{-- Modal Opciones de Comprobante (Diseño Compacto POS) --}}
     <div class="modal fade" id="modalImpresion" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg overflow-hidden">
-                {{-- Header con Estilo Nativo Velzon --}}
-                <div class="modal-header bg-primary bg-gradient p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="avatar-xs me-2">
-                            <span class="avatar-title bg-white-subtle text-white rounded-circle fs-16">
-                                <i class="ri-printer-line"></i>
-                            </span>
-                        </div>
-                        <h5 class="modal-title text-white fw-semibold mb-0">Opciones de Venta</h5>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0 shadow-lg">
                 <div class="modal-body p-4">
-                    {{-- Información de la Venta en Card Nativa --}}
-                    <div class="card bg-light-subtle border-dashed border-primary-subtle shadow-none mb-4">
-                        <div class="card-body p-3">
-                            <div class="row align-items-center">
-                                <div class="col-8">
-                                    <p class="text-muted text-uppercase fw-semibold fs-11 mb-1">Cliente / Titular</p>
-                                    <h6 class="fs-14 fw-bold mb-0 text-truncate text-uppercase" id="printCliente">--</h6>
-                                    <span class="badge bg-info-subtle text-info mt-1" id="printCodigoLabel">--</span>
-                                </div>
-                                <div class="col-4 text-end">
-                                    <p class="text-muted text-uppercase fw-semibold fs-11 mb-1">Total</p>
-                                    <h5 class="text-primary fw-bold mb-0" id="printTotal">--</h5>
-                                </div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark text-uppercase fs-16">
+                                Comprobante: <span id="printCodigoLabel" class="text-primary">#000-000000</span>
+                            </h5>
+                            <p class="text-muted fs-11 fw-medium text-uppercase mb-0" id="printTipoTexto">COMPROBANTE</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    {{-- Resumen rápido --}}
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <div class="bg-light p-2 rounded text-center border border-light">
+                                <p class="text-muted fs-10 mb-1 text-uppercase fw-bold">Fecha Emisión</p>
+                                <h6 class="fs-12 mb-0 fw-bold" id="printFecha">--/--/--</h6>
                             </div>
-                            <div class="border-top border-top-dashed mt-3 pt-3">
-                                <div class="row text-center">
-                                    <div class="col-6 border-end border-end-dashed">
-                                        <p class="text-muted fs-11 mb-1">FECHA</p>
-                                        <span class="fw-medium" id="printFecha">--</span>
-                                    </div>
-                                    <div class="col-6">
-                                        <p class="text-muted fs-11 mb-1">ESTADO</p>
-                                        <div id="printEstado">--</div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light p-2 rounded text-center border border-light">
+                                <p class="text-muted fs-10 mb-1 text-uppercase fw-bold">Total Venta</p>
+                                <h6 class="fs-12 mb-0 fw-bold text-primary" id="printTotal">S/ 0.00</h6>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Acciones Principales --}}
-                    <div id="wrapperAcciones">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label text-muted text-uppercase fs-10 fw-bold mb-2">Formatos de
-                                    Impresión</label>
-                                <div class="d-grid gap-2">
-                                    <button type="button" onclick="descargarPDFFormato('58mm')"
-                                        class="btn btn-primary btn-label waves-effect waves-light py-2">
-                                        <i class="ri-ticket-2-line label-icon align-middle fs-20 me-2"></i>
-                                        Generar Ticket Térmico (58mm)
-                                    </button>
-                                    <button type="button" onclick="descargarPDFFormato('a4')"
-                                        class="btn btn-outline-primary btn-label waves-effect waves-light py-2">
-                                        <i class="ri-file-text-line label-icon align-middle fs-20 me-2"></i>
-                                        Descargar Documento A4
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mt-4">
-                                <label class="form-label text-muted text-uppercase fs-10 fw-bold mb-2">Canales de
-                                    Envío</label>
-                                <div class="row g-2">
-                                    <div class="col-4">
-                                        <button type="button" onclick="mostrarSeccionWhatsApp()"
-                                            class="btn btn-soft-success w-100 py-3">
-                                            <i class="ri-whatsapp-fill fs-24 d-block mb-1"></i>
-                                            <span class="fs-12 fw-medium">WhatsApp</span>
-                                        </button>
-                                    </div>
-                                    <div class="col-4">
-                                        <button type="button" class="btn btn-soft-info w-100 py-3">
-                                            <i class="ri-telegram-fill fs-24 d-block mb-1"></i>
-                                            <span class="fs-12 fw-medium">Telegram</span>
-                                        </button>
+                    {{-- Formatos de impresión compactos --}}
+                    <div class="d-flex justify-content-between align-items-center mb-4 gap-2">
+                        <!-- A4 -->
+                        <div class="text-center flex-grow-1">
+                            <a href="javascript:void(0)" onclick="descargarPDFFormato('a4')"
+                                class="d-block text-decoration-none group">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-info rounded text-white fs-20 shadow-sm">
+                                        <i class="ri-file-text-line"></i>
                                     </div>
                                 </div>
-                            </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Imprimir A4</span>
+                            </a>
+                        </div>
+                        <!-- 80mm -->
+                        <div class="text-center flex-grow-1 border-start border-end border-light">
+                            <a href="javascript:void(0)" onclick="descargarPDFFormato('80mm')"
+                                class="d-block text-decoration-none group">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-info rounded text-white fs-20 shadow-sm">
+                                        <i class="ri-bill-line"></i>
+                                    </div>
+                                </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Ticket 80mm</span>
+                            </a>
+                        </div>
+                        <!-- 50mm -->
+                        <div class="text-center flex-grow-1 border-end border-light">
+                            <a href="javascript:void(0)" onclick="descargarPDFFormato('50mm')"
+                                class="d-block text-decoration-none group">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-info rounded text-white fs-20 shadow-sm">
+                                        <i class="ri-coupon-3-line"></i>
+                                    </div>
+                                </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Ticket 50mm</span>
+                            </a>
+                        </div>
+                        <!-- A5 -->
+                        <div class="text-center flex-grow-1">
+                            <a href="javascript:void(0)" class="d-block text-decoration-none opacity-50">
+                                <div class="avatar-sm mx-auto mb-2">
+                                    <div class="avatar-title bg-secondary rounded text-white fs-20">
+                                        <i class="ri-file-list-line"></i>
+                                    </div>
+                                </div>
+                                <span class="text-muted fw-bold fs-11 text-uppercase">Imprimir A5</span>
+                            </a>
                         </div>
                     </div>
 
-                    {{-- Sección WhatsApp Integrada --}}
-                    <div id="seccionWhatsApp" class="d-none animate__animated animate__fadeIn">
-                        <div class="p-4 bg-success-subtle rounded text-center border border-success border-opacity-25">
-                            <div class="avatar-md mx-auto mb-3">
-                                <div class="avatar-title bg-success text-white rounded-circle fs-24">
-                                    <i class="ri-whatsapp-line"></i>
-                                </div>
-                            </div>
-                            <h5 class="fw-bold text-success mb-2">Enviar a WhatsApp</h5>
-                            <p class="text-muted fs-13 mb-4">Ingrese el número del cliente para enviar los enlaces de
-                                descarga.</p>
-
-                            <div class="input-group mb-3 shadow-sm">
-                                <span class="input-group-text bg-white border-success border-opacity-25 text-success">
-                                    <i class="ri-phone-line"></i>
-                                </span>
-                                <input type="text" id="inputTelefonoWA"
-                                    class="form-control border-success border-opacity-25" placeholder="Ej: 51900000000">
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button type="button" onclick="ocultarSeccionWhatsApp()"
-                                    class="btn btn-light flex-grow-1">Cancelar</button>
-                                <button type="button" onclick="procesarWhatsAppEnvio()"
-                                    class="btn btn-success flex-grow-1">
-                                    <i class="ri-send-plane-fill me-1"></i> Enviar Ahora
-                                </button>
-                            </div>
+                    {{-- Canales de envío --}}
+                    <div class="vstack gap-3 mt-2">
+                        <!-- Email -->
+                        <div class="input-group">
+                            <input type="email" class="form-control border-light-subtle bg-light"
+                                placeholder="Correo electrónico" id="inputEmailEnvio">
+                            <button class="btn btn-outline-light border-light-subtle text-muted" type="button"
+                                id="btnEnviarEmail">
+                                <i class="ri-mail-send-line me-1"></i> Enviar
+                            </button>
+                        </div>
+                        <!-- WhatsApp -->
+                        <div class="input-group">
+                            <span class="input-group-text border-light-subtle bg-light text-muted">+51</span>
+                            <input type="text" class="form-control border-light-subtle bg-light"
+                                placeholder="Número de celular" id="inputTelefonoWA">
+                            <button class="btn btn-outline-light border-light-subtle text-muted" type="button"
+                                onclick="enviarPorWhatsApp()">
+                                Enviar <i class="ri-whatsapp-line ms-1 text-success"></i>
+                            </button>
                         </div>
                     </div>
+
+                    {{-- Alerta de estado pequeña --}}
+                    <div class="mt-4 pt-2 border-top border-light border-dashed">
+                        <div id="printEstado">
+                            <p class="mb-0 fs-11 text-muted text-uppercase fw-medium" id="infoNotaVenta">
+                                <i class="ri-error-warning-line me-1 text-warning"></i> No tiene validez tributaria
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light-subtle border-0 p-3">
+                    <button type="button" class="btn btn-white border fw-bold w-100" data-bs-dismiss="modal">
+                        CERRAR VENTANA
+                    </button>
                 </div>
             </div>
         </div>
@@ -394,13 +409,13 @@
                             </thead>
                             <tbody>
                                 ${v.detalles.map(d => `
-                                                                                                                                    <tr>
-                                                                                                                                        <td>${d.producto?.nombre || 'Producto'}</td>
-                                                                                                                                        <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
-                                                                                                                                        <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
-                                                                                                                                        <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
-                                                                                                                                    </tr>
-                                                                                                                                `).join('')}
+                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                    <td>${d.producto?.nombre || 'Producto'}</td>
+                                                                                                                                                                                                                    <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                                                                                                                                                                                    <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
+                                                                                                                                                                                                                    <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                            `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -412,10 +427,10 @@
                                     <td class="text-end">S/ ${parseFloat(v.igv_monto).toFixed(2)}</td>
                                 </tr>
                                 ${v.descuento > 0 ? `
-                                                                                                                                <tr>
-                                                                                                                                    <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
-                                                                                                                                    <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
-                                                                                                                                </tr>` : ''}
+                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
+                                                                                                                                                                                                                <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
+                                                                                                                                                                                                            </tr>` : ''}
                                 <tr class="table-primary">
                                     <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
                                     <td class="text-end"><strong>S/ ${parseFloat(v.total).toFixed(2)}</strong></td>
@@ -471,7 +486,7 @@
         // Variables globales para el modal de impresión
         let ventaSeleccionada = null;
 
-        // Imprimir venta - Abre el modal de opciones
+        // Imprimir venta - Abre el modal de opciones (Versión Compacta)
         function imprimirVenta(id) {
             fetch(ROUTES.show.replace(':id', id), {
                     headers: {
@@ -483,26 +498,30 @@
                     if (data.success) {
                         ventaSeleccionada = data.venta;
 
-                        // Poblar datos del modal con IDs del diseño original
+                        // Datos básicos
                         document.getElementById('printCodigoLabel').textContent =
                             `${ventaSeleccionada.serie}-${ventaSeleccionada.numero.toString().padStart(8, '0')}`;
-                        document.getElementById('printEstado').innerHTML =
-                            `<span class="badge bg-success text-uppercase">Emitido</span>`;
+                        document.getElementById('printTipoTexto').textContent = ventaSeleccionada.comprobante ||
+                            'COMPROBANTE';
                         document.getElementById('printFecha').textContent = new Date(ventaSeleccionada.fecha_emision)
-                            .toLocaleString();
+                            .toLocaleDateString();
                         document.getElementById('printTotal').textContent =
                             `S/ ${parseFloat(ventaSeleccionada.total).toFixed(2)}`;
-                        document.getElementById('printCliente').textContent = ventaSeleccionada.cliente?.nombre ||
-                            ventaSeleccionada.nombre_cliente_generico || 'Cliente General';
 
-                        // Resetear vista de WhatsApp si estaba abierta
-                        ocultarSeccionWhatsApp();
+                        // Campos de contacto
+                        document.getElementById('inputEmailEnvio').value = ventaSeleccionada.cliente?.email || '';
+                        document.getElementById('inputTelefonoWA').value = ventaSeleccionada.cliente?.telefono || '';
+
+                        // Estado / Validez
+                        const printEstado = document.getElementById('printEstado');
+                        const esElectronico = (ventaSeleccionada.comprobante || '').includes('ELECTRÓNICA');
+
+                        printEstado.innerHTML = esElectronico ?
+                            `<p class="mb-0 fs-11 text-success text-uppercase fw-bold"><i class="ri-checkbox-circle-line me-1"></i> Comprobante validado SUNAT</p>` :
+                            `<p class="mb-0 fs-11 text-muted text-uppercase fw-medium"><i class="ri-error-warning-line me-1 text-warning"></i> No tiene validez tributaria</p>`;
 
                         let modalEl = document.getElementById('modalImpresion');
-                        let modal = bootstrap.Modal.getInstance(modalEl);
-                        if (!modal) {
-                            modal = new bootstrap.Modal(modalEl);
-                        }
+                        let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                         modal.show();
                     }
                 });
@@ -511,48 +530,71 @@
         // Descargar PDF en formato específico
         function descargarPDFFormato(formato) {
             if (!ventaSeleccionada) return;
-            const url = `{{ url('ventas') }}/${ventaSeleccionada.id}/pdf/${formato}`;
+            // Ajuste de formatos (mapeo de nombres si es necesario)
+            const fmt = formato === '50mm' ? '50mm' : (formato === '80mm' ? '80mm' : 'a4');
+            const url = `{{ url('ventas') }}/${ventaSeleccionada.id}/pdf/${fmt}`;
             window.open(url, '_blank');
         }
 
-        // Funciones para la sección de WhatsApp (ajustadas al nuevo ID wrapperAcciones)
-        function mostrarSeccionWhatsApp() {
-            document.getElementById('wrapperAcciones').classList.add('d-none');
-            document.getElementById('seccionWhatsApp').classList.remove('d-none');
-            document.getElementById('inputTelefonoWA').value = ventaSeleccionada.cliente?.telefono || '';
-            document.getElementById('inputTelefonoWA').focus();
-        }
+        function enviarPorWhatsApp() {
+            if (!ventaSeleccionada) return;
 
-        function ocultarSeccionWhatsApp() {
-            document.getElementById('wrapperAcciones').classList.remove('d-none');
-            document.getElementById('seccionWhatsApp').classList.add('d-none');
-        }
-
-        function procesarWhatsAppEnvio() {
-            const telefono = document.getElementById('inputTelefonoWA').value.replace(/\D/g, '');
+            const telefono = document.getElementById('inputTelefonoWA').value;
             if (!telefono) {
-                Toastify({
-                    text: "Ingrese un número válido",
-                    duration: 3000,
-                    className: "bg-danger"
-                }).showToast();
+                mostrarToast("Ingrese un número válido", "error");
                 return;
             }
 
-            const codigo = `${ventaSeleccionada.serie}-${ventaSeleccionada.numero.toString().padStart(8, '0')}`;
             const baseUrl = window.location.origin;
+            const linkTicket = `${baseUrl}/ticket/${ventaSeleccionada.codigo_externo}`;
 
-            // Generar los enlaces tal como pidió el usuario
-            const linkTicket = `${baseUrl}/ticket/${ventaSeleccionada.id}`;
-            const linkA4 = `${baseUrl}/ticket-a4/${ventaSeleccionada.id}`;
+            const mensaje = `¡Hola! Aquí tienes el ticket de tu compra:\n\n` +
+                `📄 Ver Ticket: ${linkTicket}`;
 
-            const mensaje = `¡Hola! Aquí tienes los enlaces de tu comprobante:\n\n` +
-                `📄 Ticket: ${linkTicket}\n` +
-                `📄 A4: ${linkA4}`;
-
-            const waUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+            const waUrl = `https://wa.me/51${telefono}?text=${encodeURIComponent(mensaje)}`;
             window.open(waUrl, '_blank');
         }
+
+        function mostrarToast(mensaje, tipo = 'success') {
+            const colors = {
+                success: "#0ab39c",
+                error: "#f06548"
+            };
+            Toastify({
+                text: mensaje,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: colors[tipo]
+                }
+            }).showToast();
+        }
+
+        function copiarLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                Toastify({
+                    text: "Enlace copiado al portapapeles",
+                    duration: 3000,
+                    className: "bg-success"
+                }).showToast();
+            }).catch(err => {
+                const textArea = document.createElement("textarea");
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    Toastify({
+                        text: "Enlace copiado",
+                        duration: 3000,
+                        className: "bg-success"
+                    }).showToast();
+                } catch (e) {
+                    console.error('Error al copiar link', e);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
     </script>
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
