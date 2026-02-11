@@ -29,7 +29,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'productos.eliminar',
             'productos.exportar',
             
-            // Categorías
+            // Categorías Globales
+            'categorias-globales.ver',
+            'categorias-globales.crear',
+            'categorias-globales.editar',
+            'categorias-globales.eliminar',
+
+            // Categorías (Locales)
             'categorias.ver',
             'categorias.crear',
             'categorias.editar',
@@ -46,6 +52,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'unidades.crear',
             'unidades.editar',
             'unidades.eliminar',
+
+            // Clientes (Nuevo)
+            'clientes.ver',
+            'clientes.crear',
+            'clientes.editar',
+            'clientes.eliminar',
             
             // Proveedores
             'proveedores.ver',
@@ -88,6 +100,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reportes.productos',
             'reportes.creditos',
             'reportes.caja',
+            'reportes.personal',
             
             // Compras (Ingreso de Mercadería)
             'compras.ver',
@@ -95,10 +108,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'compras.anular',
             'compras.exportar',
             
-            // Inventario (Kardex y Ajustes)
+            // Inventario
             'inventario.ver',
             'inventario.ajustar',
             'inventario.exportar',
+            
+            // Kardex (Granular)
+            'kardex.ver',
+            'kardex.exportar',
+
+            // Ajustes (Granular)
+            'ajustes.ver',
+            'ajustes.crear',
             
             // Caja (Apertura, Cierre, Movimientos)
             'caja.ver',
@@ -136,17 +157,20 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->givePermissionTo([
             'dashboard.ver',
             'productos.ver', 'productos.crear', 'productos.editar', 'productos.exportar',
+            'categorias-globales.ver', 'categorias-globales.crear', 'categorias-globales.editar',
             'categorias.ver', 'categorias.crear', 'categorias.editar',
             'marcas.ver', 'marcas.crear', 'marcas.editar',
             'unidades.ver', 'unidades.crear', 'unidades.editar',
+            'clientes.ver', 'clientes.crear', 'clientes.editar',
             'proveedores.ver', 'proveedores.crear', 'proveedores.editar',
             'ventas.ver', 'ventas.crear', 'ventas.exportar', 'ventas.imprimir',
             'creditos.ver', 'creditos.cobrar', 'creditos.historial',
             'compras.ver', 'compras.crear', 'compras.exportar',
             'inventario.ver', 'inventario.ajustar', 'inventario.exportar',
+            'kardex.ver', 'ajustes.ver',
             'caja.ver', 'caja.abrir', 'caja.cerrar', 'caja.movimientos', 'caja.reporte',
             'usuarios.ver',
-            'reportes.ventas', 'reportes.productos', 'reportes.creditos',
+            'reportes.ventas', 'reportes.productos', 'reportes.creditos', 'reportes.personal',
             'horarios.ver', 'horarios.crear', 'horarios.editar', 'horarios.asignar',
             'asistencias.ver', 'asistencias.registrar', 'asistencias.reportes',
         ]);
