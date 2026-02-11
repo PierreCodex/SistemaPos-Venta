@@ -31,5 +31,10 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        // Compartir los datos de la empresa con todas las vistas
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            $view->with('empresa_config', \App\Models\Empresa::find(1));
+        });
     }
 }

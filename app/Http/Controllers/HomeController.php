@@ -77,15 +77,28 @@ class HomeController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
+            'telefono' => ['nullable', 'string', 'max:20'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
         ]);
 
         $user = User::find($id);
         $user->name = $request->get('name');
         $user->email = $request->get('email');
+        $user->telefono = $request->get('telefono');
+
+        // Actualizar password si se proporcionó
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->get('password'));
+        }
 
         if ($request->file('avatar')) {
+            // Eliminar avatar anterior si existe
+            if ($user->avatar && file_exists(public_path('images/' . $user->avatar))) {
+                @unlink(public_path('images/' . $user->avatar));
+            }
+
             $avatar = $request->file('avatar');
             $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
             $avatarPath = public_path('/images/');
@@ -94,23 +107,11 @@ class HomeController extends Controller
         }
 
         $user->update();
-        if ($user) {
-            Session::flash('message', 'User Details Updated successfully!');
-            Session::flash('alert-class', 'alert-success');
-            // return response()->json([
-            //     'isSuccess' => true,
-            //     'Message' => "User Details Updated successfully!"
-            // ], 200); // Status code here
-            return redirect()->back();
-        } else {
-            Session::flash('message', 'Something went wrong!');
-            Session::flash('alert-class', 'alert-danger');
-            // return response()->json([
-            //     'isSuccess' => true,
-            //     'Message' => "Something went wrong!"
-            // ], 200); // Status code here
-            return redirect()->back();
 
+        if ($user) {
+            return redirect()->back()->with('success', '¡Perfil actualizado con éxito!');
+        } else {
+            return redirect()->back()->with('error', 'Hubo un error al actualizar el perfil.');
         }
     }
 

@@ -1,13 +1,13 @@
-@extends('layouts.master')
 
-@section('title')
-    @lang('translation.profile')
-@endsection
 
-@section('content')
+<?php $__env->startSection('title'); ?>
+    <?php echo app('translator')->get('translation.profile'); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
     <div class="position-relative mx-n4 mt-n4">
         <div class="profile-wid-bg profile-setting-img">
-            <img src="{{ URL::asset('build/images/profile-bg.jpg') }}" class="profile-wid-img" alt="" />
+            <img src="<?php echo e(URL::asset('build/images/profile-bg.jpg')); ?>" class="profile-wid-img" alt="" />
         </div>
     </div>
 
@@ -17,16 +17,17 @@
                 <div class="card-body p-4">
                     <div class="text-center">
                         <div class="profile-user position-relative d-inline-block mx-auto mb-4">
-                            @if (Auth::user()->avatar && file_exists(public_path('images/' . Auth::user()->avatar)))
-                                <img src="{{ URL::asset('images/' . Auth::user()->avatar) }}"
+                            <?php if(Auth::user()->avatar && file_exists(public_path('images/' . Auth::user()->avatar))): ?>
+                                <img src="<?php echo e(URL::asset('images/' . Auth::user()->avatar)); ?>"
                                     class="rounded-circle avatar-xl img-thumbnail user-profile-image material-shadow"
                                     alt="user-profile-image">
-                            @else
+                            <?php else: ?>
                                 <div class="avatar-title rounded-circle bg-light text-primary avatar-xl img-thumbnail material-shadow text-uppercase"
                                     style="font-size: 2.5rem;">
-                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                    <?php echo e(substr(Auth::user()->name, 0, 1)); ?>
+
                                 </div>
-                            @endif
+                            <?php endif; ?>
                             <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
                                 <input id="profile-img-file-input" type="file" name="avatar"
                                     class="profile-img-file-input" form="profile-form" accept="image/*">
@@ -37,9 +38,9 @@
                                 </label>
                             </div>
                         </div>
-                        <h5 class="fs-16 mb-1 text-uppercase fw-bold">{{ Auth::user()->name }}</h5>
+                        <h5 class="fs-16 mb-1 text-uppercase fw-bold"><?php echo e(Auth::user()->name); ?></h5>
                         <p class="text-muted mb-0 uppercase fs-12">
-                            {{ Auth::user()->roles->pluck('name')->first() ?? 'Usuario' }}</p>
+                            <?php echo e(Auth::user()->roles->pluck('name')->first() ?? 'Usuario'); ?></p>
                     </div>
                 </div>
             </div>
@@ -58,7 +59,7 @@
                         <div class="flex-shrink-0">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch"
-                                    {{ Auth::user()->activo ? 'checked' : '' }} disabled>
+                                    <?php echo e(Auth::user()->activo ? 'checked' : ''); ?> disabled>
                             </div>
                         </div>
                     </div>
@@ -68,7 +69,7 @@
                         </div>
                         <div class="flex-shrink-0">
                             <span
-                                class="badge bg-primary-subtle text-primary">#{{ str_pad(Auth::user()->id, 6, '0', STR_PAD_LEFT) }}</span>
+                                class="badge bg-primary-subtle text-primary">#<?php echo e(str_pad(Auth::user()->id, 6, '0', STR_PAD_LEFT)); ?></span>
                         </div>
                     </div>
                 </div>
@@ -89,16 +90,16 @@
                 <div class="card-body p-4">
                     <div class="tab-content">
                         <div class="tab-pane active" id="personalDetails" role="tabpanel">
-                            <form action="{{ route('updateProfile', Auth::user()->id) }}" method="POST"
+                            <form action="<?php echo e(route('updateProfile', Auth::user()->id)); ?>" method="POST"
                                 enctype="multipart/form-data" id="profile-form">
-                                @csrf
+                                <?php echo csrf_field(); ?>
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="mb-3">
                                             <label for="firstnameInput"
                                                 class="form-label text-uppercase fs-12 fw-bold">Nombre Completo</label>
                                             <input type="text" class="form-control" name="name" id="firstnameInput"
-                                                placeholder="Ingrese su nombre" value="{{ Auth::user()->name }}" required>
+                                                placeholder="Ingrese su nombre" value="<?php echo e(Auth::user()->name); ?>" required>
                                         </div>
                                     </div>
                                     <!--end col-->
@@ -107,7 +108,7 @@
                                             <label for="phonenumberInput"
                                                 class="form-label text-uppercase fs-12 fw-bold">Teléfono / WhatsApp</label>
                                             <input type="text" class="form-control" name="telefono" id="phonenumberInput"
-                                                placeholder="Ingrese su teléfono" value="{{ Auth::user()->telefono }}">
+                                                placeholder="Ingrese su teléfono" value="<?php echo e(Auth::user()->telefono); ?>">
                                         </div>
                                     </div>
                                     <!--end col-->
@@ -116,7 +117,7 @@
                                             <label for="emailInput" class="form-label text-uppercase fs-12 fw-bold">Correo
                                                 Electrónico</label>
                                             <input type="email" class="form-control" name="email" id="emailInput"
-                                                placeholder="Ingrese su email" value="{{ Auth::user()->email }}" required>
+                                                placeholder="Ingrese su email" value="<?php echo e(Auth::user()->email); ?>" required>
                                         </div>
                                     </div>
 
@@ -165,9 +166,9 @@
         <!--end col-->
     </div>
     <!--end row-->
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script>
         // Previsualización de imagen de perfil estandard de Velzon
         document.querySelector("#profile-img-file-input").addEventListener("change", function() {
@@ -189,4 +190,6 @@
             }
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/pages-profile.blade.php ENDPATH**/ ?>

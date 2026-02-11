@@ -5,19 +5,35 @@
         <!-- Dark Logo-->
         <a href="<?php echo e(url('/')); ?>" class="logo logo-dark">
             <span class="logo-sm">
-                <img src="<?php echo e(URL::asset('build/images/logo-sm.png')); ?>" alt="" height="22">
+                <?php if(isset($empresa_config) && $empresa_config->logo): ?>
+                    <img src="<?php echo e(asset('storage/' . $empresa_config->logo)); ?>" alt="" height="22">
+                <?php else: ?>
+                    <img src="<?php echo e(URL::asset('build/images/logo-sm.png')); ?>" alt="" height="22">
+                <?php endif; ?>
             </span>
             <span class="logo-lg">
-                <img src="<?php echo e(URL::asset('build/images/logo-dark.png')); ?>" alt="" height="17">
+                <?php if(isset($empresa_config) && $empresa_config->logo): ?>
+                    <img src="<?php echo e(asset('storage/' . $empresa_config->logo)); ?>" alt="" height="24">
+                <?php else: ?>
+                    <img src="<?php echo e(URL::asset('build/images/logo-dark.png')); ?>" alt="" height="17">
+                <?php endif; ?>
             </span>
         </a>
         <!-- Light Logo-->
         <a href="<?php echo e(url('/')); ?>" class="logo logo-light">
             <span class="logo-sm">
-                <img src="<?php echo e(URL::asset('build/images/logo-sm.png')); ?>" alt="" height="22">
+                <?php if(isset($empresa_config) && $empresa_config->logo): ?>
+                    <img src="<?php echo e(asset('storage/' . $empresa_config->logo)); ?>" alt="" height="22">
+                <?php else: ?>
+                    <img src="<?php echo e(URL::asset('build/images/logo-sm.png')); ?>" alt="" height="22">
+                <?php endif; ?>
             </span>
             <span class="logo-lg">
-                <img src="<?php echo e(URL::asset('build/images/logo-light.png')); ?>" alt="" height="17">
+                <?php if(isset($empresa_config) && $empresa_config->logo): ?>
+                    <img src="<?php echo e(asset('storage/' . $empresa_config->logo)); ?>" alt="" height="24">
+                <?php else: ?>
+                    <img src="<?php echo e(URL::asset('build/images/logo-light.png')); ?>" alt="" height="17">
+                <?php endif; ?>
             </span>
         </a>
         <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
