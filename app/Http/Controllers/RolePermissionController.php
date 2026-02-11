@@ -10,33 +10,19 @@ use Illuminate\Support\Facades\DB;
 
 class RolePermissionController extends Controller
 {
-    /**
-     * Vista principal de Roles y Permisos
-     */
     public function index()
     {
         $roles = Role::with('permissions')->get();
         $permissions = Permission::all();
-        
         return view('roles.index', compact('roles', 'permissions'));
     }
 
-    /**
-     * Listar roles para DataTable (AJAX)
-     */
     public function getRoles()
     {
         $roles = Role::withCount(['users', 'permissions'])->get();
-        
-        return response()->json([
-            'success' => true,
-            'roles' => $roles
-        ]);
+        return response()->json(['success' => true, 'roles' => $roles]);
     }
 
-    /**
-     * Crear un nuevo rol
-     */
     public function storeRole(Request $request)
     {
         $request->validate([
@@ -51,22 +37,18 @@ class RolePermissionController extends Controller
                 $role->syncPermissions($request->permissions);
             }
 
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Rol creado correctamente',
+                'message' => 'Rol creado y caché actualizada',
                 'role' => $role->load('permissions')
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear el rol: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Actualizar rol y sus permisos
-     */
     public function updateRole(Request $request, $id)
     {
         $request->validate([
@@ -77,145 +59,90 @@ class RolePermissionController extends Controller
         try {
             $role = Role::findOrFail($id);
             $role->update(['name' => $request->name]);
-            
             $role->syncPermissions($request->permissions ?? []);
+
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Rol actualizado correctamente',
+                'message' => 'Rol actualizado y caché refrescada',
                 'role' => $role->load('permissions')
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el rol: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Eliminar rol
-     */
     public function destroyRole($id)
     {
         try {
             $role = Role::findOrFail($id);
-            
-            // No permitir eliminar rol de super-admin
             if ($role->name === 'super-admin') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede eliminar el rol de Super Administrador'
-                ], 403);
+                return response()->json(['success' => false, 'message' => 'Protegido'], 403);
             }
-
             $role->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Rol eliminado correctamente'
-            ]);
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            return response()->json(['success' => true, 'message' => 'Eliminado']);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar el rol: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Obtener permisos de un rol específico
-     */
     public function getRolePermissions($id)
     {
         $role = Role::with('permissions')->findOrFail($id);
-        
         return response()->json([
-            'success' => true,
-            'role' => $role,
+            'success' => true, 
+            'role' => $role, 
             'permissions' => $role->permissions->pluck('name')
         ]);
     }
 
-    /**
-     * Listar todos los permisos agrupados
-     */
     public function getPermissions()
     {
-        $permissions = Permission::all()->groupBy(function ($permission) {
-            // Agrupar por módulo (primera palabra del nombre)
-            $parts = explode('.', $permission->name);
-            return $parts[0] ?? 'general';
+        $permissions = Permission::all()->groupBy(function ($p) {
+            return explode('.', $p->name)[0] ?? 'general';
         });
-
-        return response()->json([
-            'success' => true,
-            'permissions' => $permissions
-        ]);
+        return response()->json(['success' => true, 'permissions' => $permissions]);
     }
 
-    /**
-     * Crear un nuevo permiso
-     */
     public function storePermission(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|unique:permissions,name'
-        ]);
+        $request->validate(['name' => 'required|string']);
 
         try {
-            $permission = Permission::create([
+            $permission = Permission::firstOrCreate([
                 'name' => $request->name,
                 'guard_name' => 'web'
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Permiso creado correctamente',
-                'permission' => $permission
-            ]);
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            return response()->json(['success' => true, 'permission' => $permission]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear el permiso: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Vista de usuarios con roles
-     */
     public function usuarios()
     {
         $users = User::with('roles')->get();
         $roles = Role::all();
-        
         return view('roles.usuarios', compact('users', 'roles'));
     }
 
-    /**
-     * Asignar rol a usuario
-     */
     public function assignRole(Request $request, $userId)
     {
-        $request->validate([
-            'roles' => 'required|array'
-        ]);
+        $request->validate(['roles' => 'required|array']);
 
         try {
             $user = User::findOrFail($userId);
             $user->syncRoles($request->roles);
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Roles asignados correctamente',
-                'user' => $user->load('roles')
-            ]);
+            return response()->json(['success' => true, 'user' => $user->load('roles')]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al asignar roles: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 }
