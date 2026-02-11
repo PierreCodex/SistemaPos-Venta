@@ -123,12 +123,22 @@
                 <div class="card-body">
                     <form method="GET" action="{{ route('inventario.kardex.producto', $producto->id) }}">
                         <div class="mb-2">
-                            <label class="form-label">Desde</label>
-                            <input type="date" name="fecha_desde" class="form-control" value="{{ $fechaDesde ?? '' }}">
+                            <label class="form-label fw-semibold text-muted text-uppercase fs-11">Desde</label>
+                            <div class="input-group">
+                                <input type="text" name="fecha_desde" class="form-control border-light bg-light"
+                                    data-provider="flatpickr" data-date-format="Y-m-d" value="{{ $fechaDesde ?? '' }}">
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Hasta</label>
-                            <input type="date" name="fecha_hasta" class="form-control" value="{{ $fechaHasta ?? '' }}">
+                            <label class="form-label fw-semibold text-muted text-uppercase fs-11">Hasta</label>
+                            <div class="input-group">
+                                <input type="text" name="fecha_hasta" class="form-control border-light bg-light"
+                                    data-provider="flatpickr" data-date-format="Y-m-d" value="{{ $fechaHasta ?? '' }}">
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">

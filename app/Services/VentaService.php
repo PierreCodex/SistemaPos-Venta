@@ -7,6 +7,7 @@ use App\Models\DetalleVenta;
 use App\Models\Producto;
 use App\Models\Cliente;
 use App\Models\Kardex;
+use App\Services\CajaService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -25,44 +26,84 @@ use Carbon\Carbon;
 class VentaService
 {
     protected ComprobanteElectronicoService $comprobanteService;
+    protected CajaService $cajaService;
 
-    public function __construct(ComprobanteElectronicoService $comprobanteService)
+    /**
+     * Roles que pueden ver todas las ventas
+     */
+    protected array $rolesAdministrativos = ['super-admin', 'administrador', 'Admin'];
+
+    public function __construct(ComprobanteElectronicoService $comprobanteService, CajaService $cajaService)
     {
         $this->comprobanteService = $comprobanteService;
+        $this->cajaService = $cajaService;
     }
+
+    /**
+     * Verifica si el usuario actual tiene rol administrativo
+     */
+    public function esAdministrador(): bool
+    {
+        $user = Auth::user();
+        return $user ? $user->hasAnyRole($this->rolesAdministrativos) : false;
+    }
+
+    /**
+     * Aplica filtro de usuario a una query si no es administrador
+     */
+    protected function aplicarFiltroUsuario($query)
+    {
+        if (!$this->esAdministrador()) {
+            $query->where('user_id', Auth::id());
+        }
+        return $query;
+    }
+
     /**
      * Obtiene todas las ventas con relaciones
+     * Filtrado por usuario según rol
      */
     public function obtenerTodas(): Collection
     {
-        return Venta::with(['cliente', 'vendedor', 'detalles.producto'])
-            ->orderBy('fecha_emision', 'desc')
-            ->get();
+        $query = Venta::with(['cliente', 'vendedor', 'detalles.producto'])
+            ->orderBy('fecha_emision', 'desc');
+        
+        $this->aplicarFiltroUsuario($query);
+        
+        return $query->get();
     }
 
     /**
      * Obtiene ventas filtradas por rango de fechas
+     * Filtrado por usuario según rol
      */
     public function obtenerPorFechas(string $fechaInicio, string $fechaFin): Collection
     {
-        return Venta::with(['cliente', 'vendedor'])
+        $query = Venta::with(['cliente', 'vendedor'])
             ->whereBetween('fecha_emision', [
                 Carbon::parse($fechaInicio)->startOfDay(),
                 Carbon::parse($fechaFin)->endOfDay()
             ])
-            ->orderBy('fecha_emision', 'desc')
-            ->get();
+            ->orderBy('fecha_emision', 'desc');
+        
+        $this->aplicarFiltroUsuario($query);
+        
+        return $query->get();
     }
 
     /**
      * Obtiene las ventas de hoy
+     * Filtrado por usuario según rol
      */
     public function obtenerVentasHoy(): Collection
     {
-        return Venta::with(['cliente', 'vendedor'])
+        $query = Venta::with(['cliente', 'vendedor'])
             ->whereDate('fecha_emision', today())
-            ->orderBy('fecha_emision', 'desc')
-            ->get();
+            ->orderBy('fecha_emision', 'desc');
+        
+        $this->aplicarFiltroUsuario($query);
+        
+        return $query->get();
     }
 
     /**
@@ -84,6 +125,10 @@ class VentaService
     public function crear(array $datosVenta, array $detalles): Venta
     {
         return DB::transaction(function () use ($datosVenta, $detalles) {
+            // 0. Validar que haya caja abierta
+            $this->cajaService->validarCajaParaVenta();
+            $cajaSesionId = $this->cajaService->getCajaAbiertaId();
+            
             // 1. Gestión de clientes (venta anónima, registro automático, validación crédito)
             $datosVenta = $this->gestionarCliente($datosVenta);
             
@@ -91,6 +136,7 @@ class VentaService
             $datosVenta['numero'] = $this->generarNumeroCorrelativo($datosVenta['serie'] ?? 'B001');
             $datosVenta['fecha_emision'] = now();
             $datosVenta['user_id'] = Auth::id();
+            $datosVenta['caja_sesion_id'] = $cajaSesionId;
 
             // 2. Calcular totales
             $totales = $this->calcularTotales($detalles, $datosVenta['descuento'] ?? 0);
@@ -134,6 +180,9 @@ class VentaService
                     // El comprobante se puede regenerar después
                 }
             }
+
+            // 7. Registrar movimiento de caja (si hay pago en efectivo)
+            $this->cajaService->registrarVenta($venta);
 
             return $venta->fresh(['cliente', 'vendedor', 'detalles.producto', 'comprobanteElectronico']);
         });
@@ -283,19 +332,22 @@ class VentaService
 
     /**
      * Obtiene estadísticas de ventas del día
+     * Filtrado por usuario según rol
      */
     public function obtenerEstadisticasHoy(): array
     {
         $hoy = today();
 
-        $emitidas = Venta::whereDate('fecha_emision', $hoy)
-            ->where('estado', 'COMPLETADA')
-            ->selectRaw('COUNT(*) as cantidad, COALESCE(SUM(total), 0) as total')
+        $queryEmitidas = Venta::whereDate('fecha_emision', $hoy)
+            ->where('estado', 'COMPLETADA');
+        $this->aplicarFiltroUsuario($queryEmitidas);
+        $emitidas = $queryEmitidas->selectRaw('COUNT(*) as cantidad, COALESCE(SUM(total), 0) as total')
             ->first();
 
-        $anuladas = Venta::whereDate('fecha_emision', $hoy)
-            ->where('estado', 'ANULADA')
-            ->selectRaw('COUNT(*) as cantidad, COALESCE(SUM(total), 0) as total')
+        $queryAnuladas = Venta::whereDate('fecha_emision', $hoy)
+            ->where('estado', 'ANULADA');
+        $this->aplicarFiltroUsuario($queryAnuladas);
+        $anuladas = $queryAnuladas->selectRaw('COUNT(*) as cantidad, COALESCE(SUM(total), 0) as total')
             ->first();
 
         return [

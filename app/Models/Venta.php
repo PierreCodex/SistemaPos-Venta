@@ -94,6 +94,14 @@ class Venta extends Model
     }
 
     /**
+     * Sesión de caja en la que se realizó esta venta
+     */
+    public function cajaSesion()
+    {
+        return $this->belongsTo(CajaSesion::class, 'caja_sesion_id');
+    }
+
+    /**
      * Detalles de la venta (productos vendidos)
      */
     public function detalles()

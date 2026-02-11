@@ -215,7 +215,8 @@
     <script>
         // Inicializar DataTable
         $('#tablaAjustes').DataTable({
-            responsive: true,
+            responsive: false,
+            scrollX: true,
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
             },
@@ -258,15 +259,15 @@
                                 </thead>
                                 <tbody>
                                     ${a.detalles.map(d => `
-                                            <tr>
-                                                <td>${d.producto?.nombre || 'N/A'}</td>
-                                                <td class="text-end">${parseFloat(d.stock_sistema).toFixed(3)}</td>
-                                                <td class="text-end">${parseFloat(d.stock_fisico).toFixed(3)}</td>
-                                                <td class="text-end ${parseFloat(d.diferencia) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                                                    ${parseFloat(d.diferencia) >= 0 ? '+' : ''}${parseFloat(d.diferencia).toFixed(3)}
-                                                </td>
-                                            </tr>
-                                        `).join('')}
+                                                <tr>
+                                                    <td>${d.producto?.nombre || 'N/A'}</td>
+                                                    <td class="text-end">${parseFloat(d.stock_sistema).toFixed(3)}</td>
+                                                    <td class="text-end">${parseFloat(d.stock_fisico).toFixed(3)}</td>
+                                                    <td class="text-end ${parseFloat(d.diferencia) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
+                                                        ${parseFloat(d.diferencia) >= 0 ? '+' : ''}${parseFloat(d.diferencia).toFixed(3)}
+                                                    </td>
+                                                </tr>
+                                            `).join('')}
                                 </tbody>
                             </table>
                         `;

@@ -16,9 +16,12 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    protected $dashboardService;
+
+    public function __construct(\App\Services\DashboardService $dashboardService)
     {
         $this->middleware('auth');
+        $this->dashboardService = $dashboardService;
     }
 
     /**
@@ -36,7 +39,25 @@ class HomeController extends Controller
 
     public function root()
     {
-        return view('index');
+        $user = auth()->user();
+        $esAdmin = $user->hasAnyRole(['super-admin', 'Admin', 'administrador']);
+
+        $estadisticas = $this->dashboardService->obtenerEstadisticasWidgets();
+        $productosTop = $this->dashboardService->obtenerProductosMasVendidos(5);
+        $metodosPago = $this->dashboardService->obtenerMetodosPago();
+        $ventasRecientes = $this->dashboardService->obtenerVentasRecientes(10);
+        $clientesTop = $this->dashboardService->obtenerTopClientes(5);
+        $ventasSemana = $this->dashboardService->obtenerVentasUltimos7Dias();
+
+        return view('index', compact(
+            'estadisticas',
+            'productosTop',
+            'metodosPago',
+            'ventasRecientes',
+            'clientesTop',
+            'ventasSemana',
+            'esAdmin'
+        ));
     }
 
     /*Language Translation*/

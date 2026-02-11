@@ -29,6 +29,8 @@ class VentaController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
+        $esAdmin = $this->ventaService->esAdministrador();
+
         // Si es AJAX, retornar JSON
         if ($request->ajax()) {
             $ventas = $this->ventaService->obtenerTodas();
@@ -42,10 +44,13 @@ class VentaController extends Controller
         }
 
         // Vista normal
-        $ventas = $this->ventaService->obtenerVentasHoy();
+        $fechaInicio = $request->input('fecha_inicio', now()->format('Y-m-d'));
+        $fechaFin = $request->input('fecha_fin', now()->format('Y-m-d'));
+
+        $ventas = $this->ventaService->obtenerPorFechas($fechaInicio, $fechaFin);
         $estadisticas = $this->ventaService->obtenerEstadisticasHoy();
 
-        return view('ventas.index', compact('ventas', 'estadisticas'));
+        return view('ventas.index', compact('ventas', 'estadisticas', 'fechaInicio', 'fechaFin', 'esAdmin'));
     }
 
     /**
@@ -101,11 +106,20 @@ class VentaController extends Controller
 
     /**
      * Muestra los detalles de una venta
+     * Verifica que el usuario tenga acceso a esta venta
      */
     public function show(int $id): JsonResponse
     {
         try {
             $venta = $this->ventaService->buscarPorId($id);
+
+            // Verificar acceso: solo admin o dueño de la venta
+            if (!$this->ventaService->esAdministrador() && $venta->user_id !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tiene permiso para ver esta venta'
+                ], 403);
+            }
 
             return response()->json([
                 'success' => true,
@@ -122,10 +136,21 @@ class VentaController extends Controller
 
     /**
      * Anula una venta
+     * Verifica que el usuario tenga acceso a esta venta
      */
     public function destroy(int $id, Request $request): JsonResponse
     {
         try {
+            // Primero verificar acceso
+            $venta = $this->ventaService->buscarPorId($id);
+            
+            if (!$this->ventaService->esAdministrador() && $venta->user_id !== auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tiene permiso para anular esta venta'
+                ], 403);
+            }
+
             $motivo = $request->input('motivo', 'Anulación solicitada por usuario');
             $venta = $this->ventaService->anular($id, $motivo);
 

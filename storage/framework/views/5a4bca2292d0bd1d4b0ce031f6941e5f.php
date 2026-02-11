@@ -65,26 +65,29 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="card-header border-0 align-items-center d-md-flex">
-                    <h5 class="card-title mb-0 flex-grow-1">Listado de Productos</h5>
-                    <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
+                <div class="card-header border-0 align-items-center d-flex flex-wrap gap-2">
+                    <h5 class="card-title mb-0 flex-grow-1 text-uppercase fw-bold">Listado de Productos</h5>
+                    <div class="d-flex flex-wrap gap-2 mt-0">
                         <button type="button" id="btnExportarPDF"
-                            class="btn btn-soft-danger waves-effect waves-light shadow-none">
-                            <i class="ri-file-pdf-line fs-18"></i> <span class="d-none d-sm-inline ms-1">PDF</span>
+                            class="btn btn-soft-danger waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-pdf-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">PDF</span>
                         </button>
                         <button type="button" id="btnExportarExcel"
-                            class="btn btn-soft-success waves-effect waves-light shadow-none">
-                            <i class="ri-file-excel-line fs-18"></i> <span class="d-none d-sm-inline ms-1">Excel</span>
+                            class="btn btn-soft-success waves-effect waves-light shadow-none d-flex align-items-center">
+                            <i class="ri-file-excel-line fs-18"></i> <span
+                                class="d-none d-sm-inline ms-1 text-uppercase">Excel</span>
                         </button>
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('productos.crear')): ?>
                             <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm"
                                 data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="limpiarFormulario()">
-                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline">Nuevo
-                                    Producto</span><span class="d-inline d-md-none">Nuevo</span>
+                                <i class="ri-add-line fs-18 me-1"></i> <span class="d-none d-md-inline text-uppercase">Nuevo
+                                    Producto</span><span class="d-inline d-md-none text-uppercase">Nuevo</span>
                             </button>
                         <?php endif; ?>
                     </div>
                 </div>
+
 
                 <div class="card-body">
                     <table id="tablaProductos" class="table nowrap align-middle" style="width:100%">
@@ -171,47 +174,46 @@
     
     <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content shadow-lg border-0">
+            <div class="modal-content">
 
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="modalTitle">
-                        <i class="ri-shopping-basket-2-line me-2"></i>Nuevo Producto
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header border-bottom pb-3">
+                    <div>
+                        <h5 class="modal-title mb-1" id="modalTitle">
+                            <i class="ri-shopping-basket-2-line me-2 align-middle"></i>Registro de Producto
+                        </h5>
+                        <p class="text-muted fw-medium fs-13 mb-0">Complete la información en los pasos indicados.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="formProducto" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <div class="modal-body">
                         
-                        <div class="step-wizard mb-4 py-2">
-                            <div class="d-flex justify-content-center align-items-center flex-nowrap overflow-hidden">
-                                
-                                <div class="step-item text-center flex-shrink-0" data-step="1">
-                                    <div class="step-circle active" id="stepCircle1" onclick="irAPaso(1)">
-                                        <span class="step-number">1</span>
-                                        <i class="ri-check-line step-check"></i>
-                                    </div>
-                                    <small class="d-none d-sm-block mt-1 step-label">General</small>
-                                </div>
-                                <div class="step-line flex-grow-1" id="stepLine1"></div>
-                                
-                                <div class="step-item text-center flex-shrink-0" data-step="2">
-                                    <div class="step-circle" id="stepCircle2" onclick="irAPaso(2)">
-                                        <span class="step-number">2</span>
-                                        <i class="ri-check-line step-check"></i>
-                                    </div>
-                                    <small class="d-none d-sm-block mt-1 step-label">Precios</small>
-                                </div>
-                                <div class="step-line flex-grow-1" id="stepLine2"></div>
-                                
-                                <div class="step-item text-center flex-shrink-0" data-step="3">
-                                    <div class="step-circle" id="stepCircle3" onclick="irAPaso(3)">
-                                        <span class="step-number">3</span>
-                                        <i class="ri-check-line step-check"></i>
-                                    </div>
-                                    <small class="d-none d-sm-block mt-1 step-label">Adicional</small>
-                                </div>
-                            </div>
+                        
+                        <div class="step-arrow-nav mb-4">
+                            <ul class="nav nav-pills custom-nav nav-justified" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="step1-tab" data-bs-toggle="pill"
+                                        data-bs-target="#tab-general" type="button" role="tab" aria-selected="true"
+                                        onclick="irAPaso(1)">
+                                        General
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="step2-tab" data-bs-toggle="pill"
+                                        data-bs-target="#tab-precios" type="button" role="tab"
+                                        aria-selected="false" onclick="irAPaso(2)">
+                                        Precios
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="step3-tab" data-bs-toggle="pill"
+                                        data-bs-target="#tab-adicional" type="button" role="tab"
+                                        aria-selected="false" onclick="irAPaso(3)">
+                                        Adicional
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
 
 
@@ -259,8 +261,15 @@ unset($__errorArgs, $__bag); ?>"
 
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="marca_id" class="form-label">Marca <span
-                                                class="text-danger">*</span></label>
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label for="marca_id" class="form-label mb-0">Marca <span
+                                                    class="text-danger">*</span></label>
+                                            <button type="button"
+                                                class="btn btn-link link-primary p-0 shadow-none fs-12 fw-bold"
+                                                data-bs-toggle="modal" data-bs-target="#modalNuevaMarca">
+                                                <i class="ri-add-line align-middle me-1"></i> NUEVA MARCA
+                                            </button>
+                                        </div>
                                         <select
                                             class="form-select js-example-basic-single <?php $__errorArgs = ['marca_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -432,104 +441,10 @@ unset($__errorArgs, $__bag); ?>"
 
     
     <style>
-        .step-wizard .step-circle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background-color: #e9ecef;
-            color: #6c757d;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .step-wizard .step-circle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .step-wizard .step-circle.active {
-            background-color: var(--vz-primary);
-            color: white;
-            border-color: var(--vz-primary);
-        }
-
-        .step-wizard .step-circle.completed {
-            background-color: #0ab39c;
-            color: white;
-            border-color: #0ab39c;
-        }
-
-        .step-wizard .step-circle .step-check {
-            display: none;
-        }
-
-        .step-wizard .step-circle.completed .step-number {
-            display: none;
-        }
-
-        .step-wizard .step-circle.completed .step-check {
-            display: inline;
-            font-size: 1.2rem;
-        }
-
-        .step-wizard .step-line {
-            min-width: 20px;
-            max-width: 80px;
-            height: 4px;
-            background-color: #e9ecef;
-            margin: 0 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        @media (max-width: 576px) {
-            .step-wizard .step-line {
-                margin: 0 5px;
-            }
-
-            .step-wizard .step-circle {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-        }
-
-
-        .step-wizard .step-label {
-            color: #6c757d;
-            font-weight: 500;
-        }
-
-        .step-wizard .step-item[data-step].active .step-label {
-            color: var(--vz-primary);
-            font-weight: 600;
-        }
-
-        /* Campos incompletos */
+        /* Animación de error sutil */
         .campo-incompleto {
-            border-color: #f06548 !important;
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-5px);
-            }
-
-            75% {
-                transform: translateX(5px);
-            }
+            border-color: var(--vz-danger) !important;
+            box-shadow: 0 0 0 0.25rem rgba(var(--vz-danger-rgb), .25) !important;
         }
     </style>
 
@@ -537,13 +452,12 @@ unset($__errorArgs, $__bag); ?>"
     <div class="modal fade" id="modalVer" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content overflow-hidden">
-                <div class="modal-header bg-primary text-white pb-3">
-                    <h5 class="modal-title text-white d-flex align-items-center">
+                <div class="modal-header">
+                    <h5 class="modal-title d-flex align-items-center">
                         <i class="ri-search-eye-line me-2 fs-22"></i>
                         <span id="verNombre">--</span>
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body p-0">
@@ -590,7 +504,7 @@ unset($__errorArgs, $__bag); ?>"
                                     <div class="mb-3">
                                         <label
                                             class="form-label text-muted text-uppercase fs-11 fw-bold">Descripción</label>
-                                        <p id="verDescripcion" class="text-dark bg-light p-2 rounded min-h-60 mb-0">--</p>
+                                        <p id="verDescripcion" class="border p-2 rounded min-h-60 mb-0">--</p>
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-6">
@@ -731,9 +645,9 @@ unset($__errorArgs, $__bag); ?>"
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
                     <i class="ri-error-warning-line text-danger" style="font-size: 4rem;"></i>
@@ -754,13 +668,13 @@ unset($__errorArgs, $__bag); ?>"
     </div>
 
     
-    <div class="modal fade" id="modalLectorCamara" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal fade" id="modalLectorCamara" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
+                <div class="modal-header">
                     <h5 class="modal-title"><i class="ri-camera-line me-2"></i>Escanear Código de Barras</h5>
-                    <button type="button" class="btn-close btn-close-white" id="btnCerrarLector"
-                        data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="btnCerrarLector" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="reader"
@@ -769,6 +683,50 @@ unset($__errorArgs, $__bag); ?>"
                     <div class="mt-3 text-center text-muted small">
                         Enfoque el código de barras dentro del recuadro para escanearlo automáticamente.
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="modal fade" id="modalNuevaMarca" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="ri-price-tag-3-line me-2"></i>Nueva Marca</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="btnCerrarMarcaModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formNuevaMarcaRapida">
+                        <div class="mb-3">
+                            <label for="marca_nombre_rapido" class="form-label fw-semibold">Nombre de la Marca <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="marca_nombre_rapido" name="nombre"
+                                placeholder="Ej: Samsung, Nike" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="marca_codigo_rapido" class="form-label fw-semibold">Código <small
+                                    class="text-muted">(Opcional)</small></label>
+                            <input type="text" class="form-control" id="marca_codigo_rapido" name="codigo"
+                                placeholder="Auto-generado si se deja vacío">
+                        </div>
+                        <div class="mb-0">
+                            <label for="marca_descripcion_rapida" class="form-label fw-semibold">Descripción <small
+                                    class="text-muted">(Opcional)</small></label>
+                            <textarea class="form-control" id="marca_descripcion_rapida" name="descripcion" rows="2"
+                                placeholder="Opcional..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light w-100 mb-2" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary w-100" id="btnGuardarMarcaRapida">
+                        <span id="labelGuardarMarca">Guardar Marca</span>
+                        <span id="spinnerGuardarMarca" class="d-none">
+                            <span class="spinner-border spinner-border-sm me-1"></span>Procesando...
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -810,6 +768,165 @@ unset($__errorArgs, $__bag); ?>"
 
 
     <script src="<?php echo e(URL::asset('js/modules/productos/index.js')); ?>"></script>
+    <script>
+        /**
+         * Lógica para el registro rápido de marcas desde el modal de productos
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnGuardarMarca = document.getElementById('btnGuardarMarcaRapida');
+            const formMarca = document.getElementById('formNuevaMarcaRapida');
+            const modalMarca = new bootstrap.Modal(document.getElementById('modalNuevaMarca'));
+            const selectMarca = $('#marca_id'); // Select2 usa JQuery
+
+            if (btnGuardarMarca) {
+                btnGuardarMarca.addEventListener('click', function() {
+                    const nombre = document.getElementById('marca_nombre_rapido').value;
+                    const codigo = document.getElementById('marca_codigo_rapido').value;
+                    const descripcion = document.getElementById('marca_descripcion_rapida').value;
+
+                    if (!nombre) {
+                        Toastify({
+                            text: "Por favor, ingrese el nombre de la marca",
+                            className: "bg-danger",
+                            style: {
+                                background: "#f06548"
+                            }
+                        }).showToast();
+                        return;
+                    }
+
+                    // UI Loading
+                    btnGuardarMarca.disabled = true;
+                    document.getElementById('labelGuardarMarca').classList.add('d-none');
+                    document.getElementById('spinnerGuardarMarca').classList.remove('d-none');
+
+                    // Ajax Request
+                    fetch("<?php echo e(route('marcas.store')); ?>", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': "<?php echo e(csrf_token()); ?>",
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                nombre: nombre,
+                                codigo: codigo,
+                                descripcion: descripcion,
+                                estado: 1
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // 1. Notificar
+                                Toastify({
+                                    text: "¡Marca registrada con éxito!",
+                                    className: "bg-success",
+                                    style: {
+                                        background: "#0ab39c"
+                                    }
+                                }).showToast();
+
+                                // 2. Agregar al select y seleccionar
+                                const newOption = new Option(data.marca.nombre, data.marca.id, true,
+                                    true);
+                                selectMarca.append(newOption).trigger('change');
+
+                                // 3. Limpiar y cerrar
+                                formMarca.reset();
+                                document.getElementById('btnCerrarMarcaModal').click();
+                            } else {
+                                throw new Error(data.message || "Error al registrar la marca");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Toastify({
+                                text: error.message || "No se pudo registrar la marca",
+                                className: "bg-danger",
+                                style: {
+                                    background: "#f06548"
+                                }
+                            }).showToast();
+                        })
+                        .finally(() => {
+                            // Reset UI
+                            btnGuardarMarca.disabled = false;
+                            document.getElementById('labelGuardarMarca').classList.remove('d-none');
+                            document.getElementById('spinnerGuardarMarca').classList.add('d-none');
+                        });
+                });
+            }
+        });
+
+        // Variable global para controlar el paso actual
+        window.pasoActual = 1;
+
+        // Función para cambiar de paso con VALIDACIÓN
+        function irAPaso(paso) {
+            // Si intenta avanzar al paso 2 desde el 1, validamos campos obligatorios
+            if (paso === 2 && window.pasoActual === 1) {
+                const nombre = document.getElementById('nombre').value;
+                const categoria = document.getElementById('categoria_id').value;
+                const marca = document.getElementById('marca_id').value;
+
+                let errores = false;
+
+                if (!nombre || !categoria || !marca) {
+                    errores = true;
+                    // Resaltar campos vacíos
+                    const campos = ['nombre', 'categoria_id', 'marca_id'];
+                    campos.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el.value) {
+                            el.classList.add('campo-incompleto');
+                            // Si es select2, el borde está en el container
+                            if (id === 'categoria_id' || id === 'marca_id') {
+                                $(el).next('.select2-container').find('.select2-selection').css('border-color',
+                                    'var(--vz-danger)');
+                            }
+                        } else {
+                            el.classList.remove('campo-incompleto');
+                            if (id === 'categoria_id' || id === 'marca_id') {
+                                $(el).next('.select2-container').find('.select2-selection').css('border-color', '');
+                            }
+                        }
+                    });
+
+                    Toastify({
+                        text: "Por favor, complete los campos obligatorios del Paso 1",
+                        className: "bg-danger",
+                        style: {
+                            background: "#f06548"
+                        }
+                    }).showToast();
+
+                    return false; // No avanza
+                }
+            }
+
+            // Cambiar de pestaña visualmente
+            const tabEl = document.querySelector(`#step${paso}-tab`);
+            if (tabEl) {
+                const bootstrapTab = new bootstrap.Tab(tabEl);
+                bootstrapTab.show();
+                window.pasoActual = paso;
+            }
+        }
+
+        // Limpiar errores cuando se escribe
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('campo-incompleto')) {
+                e.target.classList.remove('campo-incompleto');
+            }
+        });
+
+        // Limpiar Select2 cuando cambia
+        $(document).on('change', '#categoria_id, #marca_id', function() {
+            $(this).next('.select2-container').find('.select2-selection').css('border-color', '');
+            $(this).removeClass('campo-incompleto');
+        });
+    </script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\master\resources\views/productos/index.blade.php ENDPATH**/ ?>

@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-layout="vertical" data-topbar="light" data-sidebar="dark"
     data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="material"
     data-theme-colors="default" data-layout-style="default" data-layout-width="fluid" data-layout-position="fixed"
-    data-sidebar-view="default">
+    data-sidebar-view="default" data-bs-theme="dark" data-layout-mode="dark">
 
 <head>
     <meta charset="utf-8" />
@@ -14,19 +14,32 @@
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}">
 
     <script>
-        // Restaura el tema guardado antes de que cargue el CSS para evitar el parpadeo blanco
+        /**
+         * Sistema de Persistencia de Tema (Garantiza que el modo claro/oscuro no se pierda)
+         */
         (function() {
             try {
-                const config = JSON.parse(sessionStorage.getItem('defaultAttribute'));
-                if (config) {
-                    const theme = config['data-bs-theme'] || 'dark';
-                    document.documentElement.setAttribute('data-bs-theme', theme);
-                    document.documentElement.setAttribute('data-layout-mode', theme);
-                } else {
-                    // Si no hay config, usamos dark por defecto pero permitimos que el sistema lo cambie
-                    document.documentElement.setAttribute('data-bs-theme', 'dark');
-                    document.documentElement.setAttribute('data-layout-mode', 'dark');
+                // Buscamos el tema en localStorage (permanente) o sessionStorage (Velzon default)
+                let savedTheme = localStorage.getItem('data-bs-theme');
+
+                if (!savedTheme) {
+                    // Si no está en localStorage, intentamos recuperar de la configuración de Velzon
+                    const config = JSON.parse(sessionStorage.getItem('defaultAttribute'));
+                    if (config && config['data-bs-theme']) {
+                        savedTheme = config['data-bs-theme'];
+                    }
                 }
+
+                // Si no hay nada guardado, usamos 'dark' por defecto (preferencia del sistema)
+                const theme = savedTheme || 'dark';
+
+                // Aplicamos al documento antes de que renderice para evitar el parpadeo blanco
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                document.documentElement.setAttribute('data-layout-mode', theme);
+
+                // Sincronizamos con sessionStorage para que Velzon no lo sobrescriba
+                sessionStorage.setItem('data-bs-theme', theme);
+                sessionStorage.setItem('data-layout-mode', theme);
             } catch (e) {
                 console.error("Error al restaurar el tema:", e);
             }

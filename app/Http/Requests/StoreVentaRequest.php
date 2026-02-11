@@ -83,15 +83,41 @@ class StoreVentaRequest extends FormRequest
             ]);
         }
 
+        // Calcular pago_efectivo automáticamente si no viene del frontend
+        $pagoEfectivo = $this->pago_efectivo ?? 0;
+        $pagoTarjeta = $this->pago_tarjeta ?? 0;
+        $pagoYape = $this->pago_yape ?? 0;
+        $pagoPlin = $this->pago_plin ?? 0;
+        $pagoTransferencia = $this->pago_transferencia ?? 0;
+        
+        // Si es pago en EFECTIVO y no se especificó pago_efectivo, usar monto_recibido
+        if ($this->metodo_pago === 'EFECTIVO' && $pagoEfectivo == 0) {
+            $pagoEfectivo = $this->monto_recibido ?? 0;
+        }
+        
+        // Si es método único (no mixto ni crédito), asignar el monto al campo correspondiente
+        if (!in_array($this->metodo_pago, ['MIXTO', 'CREDITO'])) {
+            $montoRecibido = $this->monto_recibido ?? 0;
+            
+            match($this->metodo_pago) {
+                'EFECTIVO' => $pagoEfectivo = $montoRecibido,
+                'TARJETA' => $pagoTarjeta = $montoRecibido,
+                'YAPE' => $pagoYape = $montoRecibido,
+                'PLIN' => $pagoPlin = $montoRecibido,
+                'TRANSFERENCIA' => $pagoTransferencia = $montoRecibido,
+                default => null
+            };
+        }
+
         // Valores por defecto
         $this->merge([
             'descuento' => $this->descuento ?? 0,
-            'es_credito' => $this->es_credito ?? false,
-            'pago_efectivo' => $this->pago_efectivo ?? 0,
-            'pago_tarjeta' => $this->pago_tarjeta ?? 0,
-            'pago_yape' => $this->pago_yape ?? 0,
-            'pago_plin' => $this->pago_plin ?? 0,
-            'pago_transferencia' => $this->pago_transferencia ?? 0,
+            'es_credito' => $this->es_credito ?? ($this->metodo_pago === 'CREDITO'),
+            'pago_efectivo' => $pagoEfectivo,
+            'pago_tarjeta' => $pagoTarjeta,
+            'pago_yape' => $pagoYape,
+            'pago_plin' => $pagoPlin,
+            'pago_transferencia' => $pagoTransferencia,
         ]);
     }
 }

@@ -55,8 +55,22 @@ class MarcaService
      */
     public function crear(array $datos): Marca
     {
+        // Generación automática de código si no se proporciona
+        $codigo = $datos['codigo'] ?? null;
+        
+        if (empty($codigo)) {
+            $ultimoId = Marca::max('id') + 1;
+            $codigo = 'MAR-' . str_pad($ultimoId, 5, '0', STR_PAD_LEFT);
+            
+            // Verificar si el código generado ya existe (por seguridad)
+            while (Marca::where('codigo', $codigo)->exists()) {
+                $ultimoId++;
+                $codigo = 'MAR-' . str_pad($ultimoId, 5, '0', STR_PAD_LEFT);
+            }
+        }
+
         return Marca::create([
-            'codigo' => $datos['codigo'],
+            'codigo' => strtoupper($codigo),
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'] ?? null,
             'estado' => $datos['estado'] ?? true,

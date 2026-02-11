@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', function () {
 function initDataTable() {
     dataTable = $('#tablaCategoriasGlobales').DataTable({
         autoWidth: false,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         language: {
             url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
         },

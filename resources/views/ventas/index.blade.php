@@ -6,37 +6,7 @@
 
 @section('css')
     <link href="{{ URL::asset('build/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css">
-    <style>
-        /* Estilo para el botón púrpura del mockup */
-        .filter-btn-purple {
-            background-color: #903ef5 !important;
-            border-color: #903ef5 !important;
-            color: #fff !important;
-            font-weight: 500;
-        }
-
-        .filter-btn-purple:hover {
-            background-color: #7a32d4 !important;
-            border-color: #7a32d4 !important;
-        }
-
-        /* Estilo para las cajas de resumen */
-        .stat-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            min-height: 100px;
-        }
-
-        [data-layout-mode="dark"] .stat-box {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        [data-layout-mode="light"] .stat-box {
-            background: #f3f6f9;
-            border: 1px solid #e9ebec;
-        }
-    </style>
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -59,35 +29,7 @@
         <div class="col-lg-8">
             <div class="card card-height-100">
                 <div class="card-body p-4">
-                    <form id="formFiltros" action="javascript:void(0);">
-                        <div class="row g-4 align-items-end">
-                            <div class="col-sm-4">
-                                <label for="fecha_inicio"
-                                    class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha Inicio</label>
-                                <div class="input-group">
-                                    <input type="text" id="fecha_inicio" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}">
-                                    <span class="input-group-text border-light bg-light"><i
-                                            class="ri-calendar-event-line"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <label for="fecha_fin" class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha
-                                    Fin</label>
-                                <div class="input-group">
-                                    <input type="text" id="fecha_fin" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}">
-                                    <span class="input-group-text border-light bg-light"><i
-                                            class="ri-calendar-event-line"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <button type="submit" class="btn filter-btn-purple w-100 py-2 fs-14 shadow-none">
-                                    <i class="ri-filter-3-line me-1 align-middle"></i> Filtrar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    <x-filtros-fecha :fechaInicio="$fechaInicio" :fechaFin="$fechaFin" />
                 </div>
             </div>
         </div>
@@ -98,7 +40,7 @@
                 <div class="card-body p-4">
                     <div class="d-flex gap-3 h-100 align-items-center">
                         {{-- Emitidas --}}
-                        <div class="stat-box text-center p-3 rounded-3 flex-fill">
+                        <div class="text-center p-3 rounded-3 flex-fill bg-light">
                             <p class="text-success text-uppercase fw-bold mb-2 fs-12">Emitidas</p>
                             <h3 class="mb-1 fw-bold text-success">
                                 <span class="fs-12 fw-normal text-muted me-1">S/.</span>
@@ -109,7 +51,7 @@
                             </p>
                         </div>
                         {{-- Anuladas --}}
-                        <div class="stat-box text-center p-3 rounded-3 flex-fill">
+                        <div class="text-center p-3 rounded-3 flex-fill bg-light">
                             <p class="text-danger text-uppercase fw-bold mb-2 fs-12">Anuladas</p>
                             <h3 class="mb-1 fw-bold text-danger">
                                 <span class="fs-12 fw-normal text-muted me-1">S/.</span>
@@ -390,8 +332,24 @@
 @endsection
 
 @section('script')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="{{ URL::asset('build/libs/flatpickr/flatpickr.min.js') }}"></script>
     <script>
+        $(document).ready(function() {
+            $('#tablaVentas').DataTable({
+                responsive: false,
+                scrollX: true,
+                order: [
+                    [4, 'desc']
+                ],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+                }
+            });
+        });
+
         const ROUTES = {
             show: '{{ route('ventas.show', ':id') }}',
             destroy: '{{ route('ventas.destroy', ':id') }}',
@@ -436,13 +394,13 @@
                             </thead>
                             <tbody>
                                 ${v.detalles.map(d => `
-                                                                                                            <tr>
-                                                                                                                <td>${d.producto?.nombre || 'Producto'}</td>
-                                                                                                                <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
-                                                                                                                <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
-                                                                                                                <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
-                                                                                                            </tr>
-                                                                                                        `).join('')}
+                                                                                                                                    <tr>
+                                                                                                                                        <td>${d.producto?.nombre || 'Producto'}</td>
+                                                                                                                                        <td class="text-center">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                                                                                                        <td class="text-end">S/ ${parseFloat(d.precio_unitario).toFixed(2)}</td>
+                                                                                                                                        <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                                                                                                    </tr>
+                                                                                                                                `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -454,10 +412,10 @@
                                     <td class="text-end">S/ ${parseFloat(v.igv_monto).toFixed(2)}</td>
                                 </tr>
                                 ${v.descuento > 0 ? `
-                                                                                                        <tr>
-                                                                                                            <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
-                                                                                                            <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
-                                                                                                        </tr>` : ''}
+                                                                                                                                <tr>
+                                                                                                                                    <td colspan="3" class="text-end"><strong>Descuento:</strong></td>
+                                                                                                                                    <td class="text-end text-danger">- S/ ${parseFloat(v.descuento).toFixed(2)}</td>
+                                                                                                                                </tr>` : ''}
                                 <tr class="table-primary">
                                     <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
                                     <td class="text-end"><strong>S/ ${parseFloat(v.total).toFixed(2)}</strong></td>
@@ -595,18 +553,6 @@
             const waUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
             window.open(waUrl, '_blank');
         }
-
-
-
-
-        // Filtrar por fechas
-        document.getElementById('formFiltros').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Recargar la página con los filtros
-            const fechaInicio = document.getElementById('fecha_inicio').value;
-            const fechaFin = document.getElementById('fecha_fin').value;
-            window.location.href = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-        });
     </script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

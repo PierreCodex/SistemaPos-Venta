@@ -99,6 +99,27 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventario.ver',
             'inventario.ajustar',
             'inventario.exportar',
+            
+            // Caja (Apertura, Cierre, Movimientos)
+            'caja.ver',
+            'caja.abrir',
+            'caja.cerrar',
+            'caja.movimientos',
+            'caja.reporte',
+
+            // Horarios
+            'horarios.ver',
+            'horarios.crear',
+            'horarios.editar',
+            'horarios.eliminar',
+            'horarios.asignar',
+
+            // Asistencias
+            'asistencias.ver',
+            'asistencias.registrar',
+            'asistencias.editar',
+            'asistencias.eliminar',
+            'asistencias.reportes',
         ];
 
         // Crear todos los permisos
@@ -123,8 +144,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'creditos.ver', 'creditos.cobrar', 'creditos.historial',
             'compras.ver', 'compras.crear', 'compras.exportar',
             'inventario.ver', 'inventario.ajustar', 'inventario.exportar',
+            'caja.ver', 'caja.abrir', 'caja.cerrar', 'caja.movimientos', 'caja.reporte',
             'usuarios.ver',
             'reportes.ventas', 'reportes.productos', 'reportes.creditos',
+            'horarios.ver', 'horarios.crear', 'horarios.editar', 'horarios.asignar',
+            'asistencias.ver', 'asistencias.registrar', 'asistencias.reportes',
         ]);
 
         // Crear rol Vendedor/Cajero
@@ -134,6 +158,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'productos.ver',
             'ventas.ver', 'ventas.crear', 'ventas.imprimir',
             'creditos.ver', 'creditos.cobrar',
+            'caja.ver', 'caja.abrir', 'caja.cerrar', 'caja.movimientos',
+            'horarios.ver',
+            'asistencias.ver', 'asistencias.registrar',
         ]);
 
         // Crear rol Almacenero

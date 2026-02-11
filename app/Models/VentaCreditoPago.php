@@ -15,6 +15,7 @@ class VentaCreditoPago extends Model
         'fecha_pago',
         'numero_operacion',
         'user_id',
+        'caja_sesion_id',
         'observaciones'
     ];
 
@@ -31,5 +32,10 @@ class VentaCreditoPago extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function cajaSesion()
+    {
+        return $this->belongsTo(CajaSesion::class, 'caja_sesion_id');
     }
 }

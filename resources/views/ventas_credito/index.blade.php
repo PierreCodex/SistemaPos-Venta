@@ -6,51 +6,7 @@
 
 @section('css')
     <link href="{{ URL::asset('build/libs/flatpickr/flatpickr.min.css') }}" rel="stylesheet" type="text/css">
-    <style>
-        .filter-btn-purple {
-            background-color: #903ef5 !important;
-            border-color: #903ef5 !important;
-            color: #fff !important;
-            font-weight: 500;
-        }
-
-        .filter-btn-purple:hover {
-            background-color: #7a32d4 !important;
-            border-color: #7a32d4 !important;
-        }
-
-        .stat-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            min-height: 80px;
-        }
-
-        [data-layout-mode="dark"] .stat-box {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        [data-layout-mode="light"] .stat-box {
-            background: #f3f6f9;
-            border: 1px solid #e9ebec;
-        }
-
-        /* Estilo para los badges de estado de pago */
-        .badge-pago-pendiente {
-            background-color: #ffbe0b;
-            color: #000;
-        }
-
-        .badge-pago-parcial {
-            background-color: #fb5607;
-            color: #fff;
-        }
-
-        .badge-pago-pagado {
-            background-color: #06d6a0;
-            color: #fff;
-        }
-    </style>
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -75,35 +31,7 @@
         <div class="col-lg-8">
             <div class="card card-height-100">
                 <div class="card-body p-4">
-                    <form id="formFiltros" action="javascript:void(0);">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-sm-5">
-                                <label for="fecha_inicio"
-                                    class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha Inicio</label>
-                                <div class="input-group">
-                                    <input type="text" id="fecha_inicio" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ $fechaInicio }}">
-                                    <span class="input-group-text border-light bg-light"><i
-                                            class="ri-calendar-event-line"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-sm-5">
-                                <label for="fecha_fin" class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha
-                                    Fin</label>
-                                <div class="input-group">
-                                    <input type="text" id="fecha_fin" class="form-control border-light bg-light"
-                                        data-provider="flatpickr" data-date-format="Y-m-d" value="{{ $fechaFin }}">
-                                    <span class="input-group-text border-light bg-light"><i
-                                            class="ri-calendar-event-line"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <button type="submit" class="btn filter-btn-purple w-100 py-2 fs-14 shadow-none">
-                                    <i class="ri-filter-3-line me-1 align-middle"></i> Filtrar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    <x-filtros-fecha :fechaInicio="$fechaInicio" :fechaFin="$fechaFin" />
                 </div>
             </div>
         </div>
@@ -112,24 +40,24 @@
         <div class="col-lg-4">
             <div class="card card-height-100">
                 <div class="card-body p-4">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="stat-box text-center p-3 rounded-3">
-                                <p class="text-success text-uppercase fw-bold mb-2 fs-12">Total</p>
-                                <h4 class="mb-0 fw-bold">
-                                    <span class="fs-12 fw-normal text-muted me-1">S/</span>
-                                    {{ number_format($estadisticas['total'], 2) }}
-                                </h4>
-                            </div>
+                    <div class="d-flex gap-3 h-100 align-items-center">
+                        {{-- Total --}}
+                        <div class="text-center p-3 rounded-3 flex-fill bg-light">
+                            <p class="text-success text-uppercase fw-bold mb-2 fs-12">Total</p>
+                            <h3 class="mb-1 fw-bold text-success">
+                                <span class="fs-12 fw-normal text-muted me-1">S/.</span>
+                                <span>{{ number_format($estadisticas['total'], 2) }}</span>
+                            </h3>
+                            <p class="text-muted mb-0 fs-13">Ventas a crédito</p>
                         </div>
-                        <div class="col-6">
-                            <div class="stat-box text-center p-3 rounded-3">
-                                <p class="text-warning text-uppercase fw-bold mb-2 fs-12">Saldo Pendiente</p>
-                                <h4 class="mb-0 fw-bold">
-                                    <span class="fs-12 fw-normal text-muted me-1">S/</span>
-                                    {{ number_format($estadisticas['saldo_pendiente'], 2) }}
-                                </h4>
-                            </div>
+                        {{-- Saldo Pendiente --}}
+                        <div class="text-center p-3 rounded-3 flex-fill bg-light">
+                            <p class="text-warning text-uppercase fw-bold mb-2 fs-12">Saldo Pendiente</p>
+                            <h3 class="mb-1 fw-bold text-warning">
+                                <span class="fs-12 fw-normal text-muted me-1">S/.</span>
+                                <span>{{ number_format($estadisticas['saldo_pendiente'], 2) }}</span>
+                            </h3>
+                            <p class="text-muted mb-0 fs-13">Por cobrar</p>
                         </div>
                     </div>
                 </div>
@@ -165,15 +93,15 @@
                         <table id="tablaCreditos" class="table nowrap align-middle mb-0" style="width:100%">
                             <thead class="table-light text-muted">
                                 <tr class="text-uppercase fs-12">
-                                    <th>Comprobante</th>
-                                    <th>Cliente</th>
-                                    <th>Vendedor</th>
-                                    <th>Método</th>
-                                    <th>Fecha</th>
-                                    <th>Total</th>
-                                    <th>Saldo Pend.</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="no-exportar text-center">Acciones</th>
+                                    <th>COMPROBANTE</th>
+                                    <th>CLIENTE</th>
+                                    <th>VENDEDOR</th>
+                                    <th>MÉTODO</th>
+                                    <th>FECHA</th>
+                                    <th>TOTAL</th>
+                                    <th>SALDO PEND.</th>
+                                    <th class="text-center">ESTADO</th>
+                                    <th class="no-exportar text-center">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -205,12 +133,9 @@
                                                 <span class="text-uppercase">{{ $venta->metodo_pago }}</span>
                                             </div>
                                         </td>
-                                        <td>
-                                            <div class="text-muted small">
-                                                <i
-                                                    class="ri-calendar-line me-1"></i>{{ $venta->fecha_emision->format('d/m/Y') }}<br>
-                                                <i
-                                                    class="ri-time-line me-1"></i>{{ $venta->fecha_emision->format('H:i:s') }}
+                                        <td class="text-nowrap text-uppercase">
+                                            <div class="fw-medium">{{ $venta->fecha_emision->format('d/m/Y') }}</div>
+                                            <div class="text-muted fs-11">{{ $venta->fecha_emision->format('H:i:s') }}
                                             </div>
                                         </td>
                                         <td><span class="text-primary fw-bold">S/
@@ -305,9 +230,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Fecha de Pago</label>
-                            <input type="date" class="form-control" name="fecha_pago" value="{{ date('Y-m-d') }}"
-                                required>
+                            <label class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha de Pago</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control border-light bg-light" name="fecha_pago"
+                                    data-provider="flatpickr" data-date-format="Y-m-d" value="{{ date('Y-m-d') }}"
+                                    required>
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -335,7 +265,7 @@
     <div class="modal fade" id="modalHistorialPagos" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-purple">
+                <div class="modal-header bg-primary">
                     <h5 class="modal-title text-white"><i class="ri-history-line me-2"></i>Historial de Pagos</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -445,8 +375,23 @@
 @endsection
 
 @section('script')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="{{ URL::asset('build/libs/flatpickr/flatpickr.min.js') }}"></script>
     <script>
+        $(document).ready(function() {
+            $('#tablaCreditos').DataTable({
+                responsive: false,
+                scrollX: true,
+                order: [
+                    [4, 'desc']
+                ],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+                }
+            });
+        });
         const ROUTES = {
             pagar: '{{ route('ventas-credito.registrar-pago', ':id') }}',
             historial: '{{ route('ventas-credito.historial-pagos', ':id') }}',
@@ -477,14 +422,6 @@
                 }
             }).showToast();
         }
-
-        // Filtrar
-        document.getElementById('formFiltros').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const fechaInicio = document.getElementById('fecha_inicio').value;
-            const fechaFin = document.getElementById('fecha_fin').value;
-            window.location.href = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-        });
 
         // Abrir Modal Pago
         function abrirModalPago(id, saldo, cliente) {
@@ -549,15 +486,34 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.pagos.length > 0) {
-                        body.innerHTML = data.pagos.map(p => `
-                        <tr>
-                            <td>${new Date(p.fecha_pago).toLocaleDateString()}</td>
-                            <td class="fw-bold text-success">S/ ${parseFloat(p.monto).toFixed(2)}</td>
-                            <td>${p.metodo_pago}</td>
-                            <td>${p.numero_operacion || '-'}</td>
-                            <td>${p.user?.name || '-'}</td>
-                        </tr>
-                    `).join('');
+                        body.innerHTML = data.pagos.map(p => {
+                            const fecha = new Date(p.fecha_pago);
+                            const fechaFormateada = fecha.toLocaleDateString('es-PE', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                            });
+                            const horaFormateada = fecha.toLocaleTimeString('es-PE', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            });
+
+                            return `
+                            <tr>
+                                <td class="text-nowrap text-uppercase">
+                                    <div class="fw-medium">${fechaFormateada}</div>
+                                    <div class="text-muted fs-11">${horaFormateada}</div>
+                                </td>
+                                <td class="fw-bold text-success">S/ ${parseFloat(p.monto).toFixed(2)}</td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info p-1 text-uppercase">${p.metodo_pago}</span>
+                                </td>
+                                <td class="fs-12">${p.numero_operacion || '-'}</td>
+                                <td class="fs-12 text-uppercase">${p.user?.name || '-'}</td>
+                            </tr>
+                        `
+                        }).join('');
                     } else {
                         body.innerHTML =
                             '<tr><td colspan="5" class="text-center py-3">No hay pagos registrados</td></tr>';

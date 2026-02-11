@@ -38,17 +38,29 @@
                 <div class="card-body">
                     <form id="formFiltros" class="row g-3 align-items-end">
                         <div class="col-md-4">
-                            <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
-                            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
-                                value="{{ request('fecha_inicio', now()->startOfMonth()->format('Y-m-d')) }}">
+                            <label for="fecha_inicio" class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha
+                                Inicio</label>
+                            <div class="input-group">
+                                <input type="text" id="fecha_inicio" class="form-control border-light bg-light"
+                                    data-provider="flatpickr" data-date-format="Y-m-d"
+                                    value="{{ request('fecha_inicio', now()->startOfMonth()->format('Y-m-d')) }}">
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <label for="fecha_fin" class="form-label">Fecha Fin</label>
-                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
-                                value="{{ request('fecha_fin', now()->format('Y-m-d')) }}">
+                            <label for="fecha_fin" class="form-label fw-semibold text-muted text-uppercase fs-11">Fecha
+                                Fin</label>
+                            <div class="input-group">
+                                <input type="text" id="fecha_fin" class="form-control border-light bg-light"
+                                    data-provider="flatpickr" data-date-format="Y-m-d"
+                                    value="{{ request('fecha_fin', now()->format('Y-m-d')) }}">
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary w-100">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fs-14 shadow-none">
                                 <i class="ri-filter-3-line me-1"></i> Filtrar
                             </button>
                         </div>
@@ -206,7 +218,8 @@
     <script>
         // DataTable
         $('#tablaCompras').DataTable({
-            responsive: true,
+            responsive: false,
+            scrollX: true,
             order: [
                 [4, 'desc']
             ],
@@ -249,13 +262,13 @@
                                 </thead>
                                 <tbody>
                                     ${c.detalles.map(d => `
-                                                <tr>
-                                                    <td>${d.producto?.nombre || 'N/A'}</td>
-                                                    <td class="text-end">${parseFloat(d.cantidad).toFixed(2)}</td>
-                                                    <td class="text-end">S/ ${parseFloat(d.costo_unitario).toFixed(2)}</td>
-                                                    <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
-                                                </tr>
-                                            `).join('')}
+                                                        <tr>
+                                                            <td>${d.producto?.nombre || 'N/A'}</td>
+                                                            <td class="text-end">${parseFloat(d.cantidad).toFixed(2)}</td>
+                                                            <td class="text-end">S/ ${parseFloat(d.costo_unitario).toFixed(2)}</td>
+                                                            <td class="text-end">S/ ${parseFloat(d.subtotal).toFixed(2)}</td>
+                                                        </tr>
+                                                    `).join('')}
                                 </tbody>
                                 <tfoot class="table-light">
                                     <tr>

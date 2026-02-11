@@ -208,6 +208,25 @@
                 <?php endif; ?>
 
                 
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('caja.ver')): ?>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link <?php echo e(request()->routeIs('caja.*') ? 'active' : ''); ?>"
+                            href="<?php echo e(route('caja.index')); ?>">
+                            <i class="ri-safe-2-line"></i>
+                            <span>Caja</span>
+                            <?php
+                                $cajaAbierta = \App\Models\CajaSesion::abierta()->exists();
+                            ?>
+                            <?php if($cajaAbierta): ?>
+                                <span class="badge bg-success ms-auto">Abierta</span>
+                            <?php else: ?>
+                                <span class="badge bg-warning text-dark ms-auto">Cerrada</span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('compras.ver')): ?>
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>COMPRAS</span></li>
 
@@ -307,6 +326,44 @@
                             </ul>
                         </div>
                     </li>
+                    <?php endif; ?>
+
+                    
+                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['horarios.ver', 'asistencias.ver', 'asistencias.registrar'])): ?>
+                        <li class="menu-title"><i class="ri-more-fill"></i> <span>RECURSOS HUMANOS</span></li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#sidebarRRHH" data-bs-toggle="collapse" role="button"
+                                aria-expanded="false" aria-controls="sidebarRRHH">
+                                <i class="ri-team-line"></i> <span>Personal</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="sidebarRRHH">
+                                <ul class="nav nav-sm flex-column">
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('horarios.ver')): ?>
+                                        <?php if(Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador'])): ?>
+                                            <li class="nav-item">
+                                                <a href="<?php echo e(route('horarios.index')); ?>"
+                                                    class="nav-link <?php echo e(request()->routeIs('horarios.*') ? 'active' : ''); ?>">Horarios</a>
+                                            </li>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('asistencias.ver')): ?>
+                                        <?php if(Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador'])): ?>
+                                            
+                                            <li class="nav-item">
+                                                <a href="<?php echo e(route('asistencias.index')); ?>"
+                                                    class="nav-link <?php echo e(request()->routeIs('asistencias.index') ? 'active' : ''); ?>">Asistencias</a>
+                                            </li>
+                                        <?php endif; ?>
+                                        
+                                        <li class="nav-item">
+                                            <a href="<?php echo e(route('asistencias.show', Auth::id())); ?>"
+                                                class="nav-link <?php echo e(request()->routeIs('asistencias.show') ? 'active' : ''); ?>">Mi
+                                                Asistencia</a>
+                                        </li>
+                                    <?php endif; ?>
+                                </ul>
+                            </div>
+                        </li>
                     <?php endif; ?>
 
                     

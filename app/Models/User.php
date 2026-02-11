@@ -51,4 +51,30 @@ class User extends Authenticatable
     {
         return $this->hasMany(Venta::class, 'user_id');
     }
+
+    /**
+     * Horarios asignados al usuario
+     */
+    public function horarios()
+    {
+        return $this->belongsToMany(Horario::class, 'horario_user')
+                    ->withPivot('fecha_asignacion')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Asistencias del usuario
+     */
+    public function asistencias()
+    {
+        return $this->hasMany(Asistencia::class, 'user_id');
+    }
+
+    /**
+     * Retorna el horario vigente para el usuario
+     */
+    public function horarioActual()
+    {
+        return $this->horarios()->where('activo', true)->latest('fecha_asignacion')->first();
+    }
 }

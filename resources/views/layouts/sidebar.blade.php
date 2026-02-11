@@ -213,6 +213,27 @@
                 @endcanany
 
                 {{-- =====================================================
+                     CAJA - Solo si tiene permisos de caja
+                ===================================================== --}}
+                @can('caja.ver')
+                    <li class="nav-item">
+                        <a class="nav-link menu-link {{ request()->routeIs('caja.*') ? 'active' : '' }}"
+                            href="{{ route('caja.index') }}">
+                            <i class="ri-safe-2-line"></i>
+                            <span>Caja</span>
+                            @php
+                                $cajaAbierta = \App\Models\CajaSesion::abierta()->exists();
+                            @endphp
+                            @if ($cajaAbierta)
+                                <span class="badge bg-success ms-auto">Abierta</span>
+                            @else
+                                <span class="badge bg-warning text-dark ms-auto">Cerrada</span>
+                            @endif
+                        </a>
+                    </li>
+                @endcan
+
+                {{-- =====================================================
                      COMPRAS - Solo si tiene permisos de compras
                 ===================================================== --}}
                 @can('compras.ver')
@@ -319,6 +340,46 @@
                         </div>
                     </li>
                     @endif
+
+                    {{-- =====================================================
+                     RECURSOS HUMANOS
+                ===================================================== --}}
+                    @canany(['horarios.ver', 'asistencias.ver', 'asistencias.registrar'])
+                        <li class="menu-title"><i class="ri-more-fill"></i> <span>RECURSOS HUMANOS</span></li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="#sidebarRRHH" data-bs-toggle="collapse" role="button"
+                                aria-expanded="false" aria-controls="sidebarRRHH">
+                                <i class="ri-team-line"></i> <span>Personal</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="sidebarRRHH">
+                                <ul class="nav nav-sm flex-column">
+                                    @can('horarios.ver')
+                                        @if (Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador']))
+                                            <li class="nav-item">
+                                                <a href="{{ route('horarios.index') }}"
+                                                    class="nav-link {{ request()->routeIs('horarios.*') ? 'active' : '' }}">Horarios</a>
+                                            </li>
+                                        @endif
+                                    @endcan
+                                    @can('asistencias.ver')
+                                        @if (Auth::user()->hasAnyRole(['super-admin', 'Admin', 'administrador']))
+                                            {{-- Admin: ve todas las asistencias --}}
+                                            <li class="nav-item">
+                                                <a href="{{ route('asistencias.index') }}"
+                                                    class="nav-link {{ request()->routeIs('asistencias.index') ? 'active' : '' }}">Asistencias</a>
+                                            </li>
+                                        @endif
+                                        {{-- Todos: ven su propio calendario --}}
+                                        <li class="nav-item">
+                                            <a href="{{ route('asistencias.show', Auth::id()) }}"
+                                                class="nav-link {{ request()->routeIs('asistencias.show') ? 'active' : '' }}">Mi
+                                                Asistencia</a>
+                                        </li>
+                                    @endcan
+                                </ul>
+                            </div>
+                        </li>
+                    @endcanany
 
                     {{-- =====================================================
                      CONFIGURACIÓN - Solo para administradores

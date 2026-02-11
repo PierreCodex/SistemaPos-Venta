@@ -704,8 +704,14 @@
                             <!-- Fecha de Vencimiento del Crédito -->
                             <div class="mb-3 text-uppercase">
                                 <label class="form-label text-muted fs-12 fw-bold">FECHA LÍMITE DE PAGO</label>
-                                <input type="date" id="fechaVencimientoCredito" class="form-control border-light"
-                                    min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                                <div class="input-group">
+                                    <input type="text" id="fechaVencimientoCredito"
+                                        class="form-control border-light bg-light" data-provider="flatpickr"
+                                        data-date-format="Y-m-d"
+                                        data-min-date="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                                    <span class="input-group-text border-light bg-light"><i
+                                            class="ri-calendar-event-line"></i></span>
+                                </div>
                             </div>
                         </div>
 
@@ -1933,12 +1939,27 @@
 
             html5QrCode = new Html5Qrcode("reader");
 
+            let lastScannedText = "";
+            let lastScannedTime = 0;
+
             const onScanSuccess = (decodedText, decodedResult) => {
+                const now = Date.now();
+
+                // Evitar escaneos repetidos del mismo código en menos de 2 segundos
+                if (decodedText === lastScannedText && (now - lastScannedTime < 2000)) {
+                    return;
+                }
+
+                // Delay mínimo global entre cualquier escaneo para evitar ráfagas
+                if (now - lastScannedTime < 700) {
+                    return;
+                }
+
+                lastScannedText = decodedText;
+                lastScannedTime = now;
+
                 // Sonido de escaneo
                 reproducirBeep();
-
-                // NO detener la cámara para permitir múltiples escaneos
-                // No cerrar el modal
 
                 // Buscar el producto
                 buscarPorCodigoBarras(decodedText);

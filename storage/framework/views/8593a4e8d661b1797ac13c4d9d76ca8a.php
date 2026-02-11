@@ -6,6 +6,40 @@
 <script src="<?php echo e(URL::asset('build/js/plugins.js')); ?>"></script>
 
 
+<script src="<?php echo e(URL::asset('build/libs/flatpickr/flatpickr.min.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('build/libs/flatpickr/l10n/es.js')); ?>"></script>
+<script>
+    // Configuración global de Flatpickr
+    flatpickr.localize(flatpickr.l10ns.es);
+
+    // Función de utilidad para inicializar rangos de fecha de forma consistente
+    function initDateRangePicker(selectorInicio, selectorFin, fechaInicio, fechaFin) {
+        if (!document.querySelector(selectorInicio)) return;
+
+        flatpickr(selectorInicio, {
+            dateFormat: "Y-m-d",
+            defaultDate: fechaInicio,
+            locale: "es",
+            onChange: function(selectedDates, dateStr) {
+                if (selectorFin) {
+                    const minDate = selectedDates[0];
+                    const fpFin = document.querySelector(selectorFin)._flatpickr;
+                    if (fpFin) fpFin.set('minDate', minDate);
+                }
+            }
+        });
+
+        if (selectorFin && document.querySelector(selectorFin)) {
+            flatpickr(selectorFin, {
+                dateFormat: "Y-m-d",
+                defaultDate: fechaFin,
+                locale: "es"
+            });
+        }
+    }
+</script>
+
+
 <script src="<?php echo e(URL::asset('build/libs/toastify-js/src/toastify.js')); ?>"></script>
 
 
@@ -76,6 +110,27 @@
                 }).showToast();
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         <?php endif; ?>
+
+        /**
+         * Observador para persistir el tema cuando el usuario lo cambia con el botón
+         */
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && (mutation.attributeName ===
+                        'data-bs-theme' || mutation.attributeName === 'data-layout-mode')) {
+                    const newTheme = document.documentElement.getAttribute('data-bs-theme');
+                    if (newTheme) {
+                        localStorage.setItem('data-bs-theme', newTheme);
+                        // También actualizamos sessionStorage para coherencia con Velzon
+                        sessionStorage.setItem('data-bs-theme', newTheme);
+                        sessionStorage.setItem('data-layout-mode', newTheme);
+                    }
+                }
+            });
+        });
+        observer.observe(document.documentElement, {
+            attributes: true
+        });
     });
 </script>
 

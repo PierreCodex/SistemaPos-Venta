@@ -708,8 +708,14 @@
                             <!-- Fecha de Vencimiento del Crédito -->
                             <div class="mb-3 text-uppercase">
                                 <label class="form-label text-muted fs-12 fw-bold">FECHA LÍMITE DE PAGO</label>
-                                <input type="date" id="fechaVencimientoCredito" class="form-control border-light"
-                                    min="<?php echo e(date('Y-m-d', strtotime('+1 day'))); ?>">
+                                <div class="input-group">
+                                    <input type="text" id="fechaVencimientoCredito"
+                                        class="form-control border-light bg-light" data-provider="flatpickr"
+                                        data-date-format="Y-m-d"
+                                        data-min-date="<?php echo e(date('Y-m-d', strtotime('+1 day'))); ?>">
+                                    <span class="input-group-text border-light bg-light"><i
+                                            class="ri-calendar-event-line"></i></span>
+                                </div>
                             </div>
                         </div>
 

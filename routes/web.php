@@ -17,6 +17,10 @@ use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\AjusteInventarioController;
 use App\Http\Controllers\KardexController;
+use App\Http\Controllers\CajaController;
+use App\Http\Controllers\HorarioController;
+use App\Http\Controllers\AsistenciaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -381,7 +385,81 @@ Route::middleware('auth')->group(function () {
             Route::get('kardex/api/buscar-productos', [KardexController::class, 'buscarProductos'])->name('kardex.api.buscar-productos');
         });
     });
+
+    // =========================================================================
+    // CAJA (Apertura, Cierre, Movimientos) - Con permisos granulares
+    // =========================================================================
+    Route::prefix('caja')->name('caja.')->group(function () {
+        // Rutas de visualización
+        Route::middleware('permission:caja.ver')->group(function () {
+            Route::get('/', [CajaController::class, 'index'])->name('index');
+            Route::get('/estado', [CajaController::class, 'estadoJson'])->name('estado.json');
+            Route::get('/verificar', [CajaController::class, 'verificarCajaJson'])->name('verificar.json');
+            Route::get('/pagos-credito/{id?}', [CajaController::class, 'pagosCredito'])->name('pagos-credito')->where('id', '[0-9]+');
+            Route::get('/{id}', [CajaController::class, 'show'])->name('show')->where('id', '[0-9]+');
+            Route::get('/{id}/movimientos', [CajaController::class, 'movimientos'])->name('movimientos')->where('id', '[0-9]+');
+        });
+
+        // Rutas de apertura
+        Route::middleware('permission:caja.abrir')->group(function () {
+            Route::get('/apertura', [CajaController::class, 'apertura'])->name('apertura');
+            Route::post('/abrir', [CajaController::class, 'abrirCaja'])->name('abrir');
+        });
+
+        // Rutas de cierre
+        Route::middleware('permission:caja.cerrar')->group(function () {
+            Route::get('/cierre', [CajaController::class, 'cierre'])->name('cierre');
+            Route::post('/cerrar', [CajaController::class, 'cerrarCaja'])->name('cerrar');
+        });
+
+        // Rutas de movimientos manuales
+        Route::middleware('permission:caja.movimientos')->group(function () {
+            Route::get('/movimiento', [CajaController::class, 'movimientoForm'])->name('movimiento.form');
+            Route::post('/movimiento', [CajaController::class, 'storeMovimiento'])->name('movimiento.store');
+        });
+
+        // Rutas de reportes
+        Route::middleware('permission:caja.reporte')->group(function () {
+            Route::get('/reporte', [CajaController::class, 'reporte'])->name('reporte');
+        });
+    });
+
+    // =========================================================================
+    // HORARIOS - Con permisos granulares
+    // =========================================================================
+    Route::middleware('permission:horarios.ver')->group(function () {
+        Route::get('horarios', [HorarioController::class, 'index'])->name('horarios.index');
+        Route::get('horarios/{id}/usuarios', [HorarioController::class, 'getUsuariosAsignados'])->name('horarios.usuarios');
+    });
+    Route::middleware('permission:horarios.crear')->group(function () {
+        Route::post('horarios', [HorarioController::class, 'store'])->name('horarios.store');
+    });
+    Route::middleware('permission:horarios.editar')->group(function () {
+        Route::put('horarios/{id}', [HorarioController::class, 'update'])->name('horarios.update');
+        Route::patch('horarios/{id}/toggle-estado', [HorarioController::class, 'toggleEstado'])->name('horarios.toggle-estado');
+    });
+    Route::middleware('permission:horarios.eliminar')->group(function () {
+        Route::delete('horarios/{id}', [HorarioController::class, 'destroy'])->name('horarios.destroy');
+    });
+    Route::middleware('permission:horarios.asignar')->group(function () {
+        Route::post('horarios/asignar-usuarios', [HorarioController::class, 'asignarUsuarios'])->name('horarios.asignar-usuarios');
+    });
+
+    // =========================================================================
+    // ASISTENCIAS - Con permisos granulares
+    // =========================================================================
+    Route::middleware('permission:asistencias.ver')->group(function () {
+        Route::get('asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
+        Route::get('asistencias/usuario/{id}', [AsistenciaController::class, 'show'])->name('asistencias.show');
+        Route::get('asistencias/api/calendario/{userId}', [AsistenciaController::class, 'calendarioData'])->name('asistencias.calendario-data');
+        Route::get('asistencias/api/reporte', [AsistenciaController::class, 'generarNomina'])->name('asistencias.reporte');
+    });
+    Route::middleware('permission:asistencias.registrar')->group(function () {
+        Route::post('asistencias', [AsistenciaController::class, 'store'])->name('asistencias.store');
+        Route::post('asistencias/evento', [AsistenciaController::class, 'registrarEvento'])->name('asistencias.evento');
+    });
 });
+
 
 // ⚠️ Esta ruta DEBE ir al final porque captura CUALQUIER URL
 Route::get('{any}', [HomeController::class, 'index'])->name('index');

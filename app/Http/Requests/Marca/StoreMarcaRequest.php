@@ -24,7 +24,7 @@ class StoreMarcaRequest extends FormRequest
         return [
 
             //
-            'codigo' => 'required|string|max:20|unique:marcas,codigo',
+            'codigo' => 'nullable|string|max:20|unique:marcas,codigo',
             'nombre' => 'required|string|max:100|unique:marcas,nombre',
             'descripcion' => 'nullable|string|max:255',
         ];

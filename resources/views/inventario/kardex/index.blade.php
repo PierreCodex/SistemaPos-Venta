@@ -184,14 +184,24 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Desde</label>
-                            <input type="date" class="form-control" id="fecha_desde"
-                                value="{{ now()->subMonth()->format('Y-m-d') }}">
+                            <label class="form-label fw-semibold text-muted text-uppercase fs-11">Desde</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control border-light bg-light" id="fecha_desde"
+                                    data-provider="flatpickr" data-date-format="Y-m-d"
+                                    value="{{ now()->subMonth()->format('Y-m-d') }}">
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Hasta</label>
-                            <input type="date" class="form-control" id="fecha_hasta"
-                                value="{{ now()->format('Y-m-d') }}">
+                            <label class="form-label fw-semibold text-muted text-uppercase fs-11">Hasta</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control border-light bg-light" id="fecha_hasta"
+                                    data-provider="flatpickr" data-date-format="Y-m-d"
+                                    value="{{ now()->format('Y-m-d') }}">
+                                <span class="input-group-text border-light bg-light"><i
+                                        class="ri-calendar-event-line"></i></span>
+                            </div>
                         </div>
                         <div class="col-md-3 d-flex align-items-end gap-2">
                             <button type="button" id="btnFiltrar" class="btn btn-primary">
@@ -303,7 +313,8 @@
         $(document).ready(function() {
             // Inicializar DataTable
             var table = $('#tablaKardex').DataTable({
-                responsive: true,
+                responsive: false,
+                scrollX: true,
                 order: [
                     [0, 'desc']
                 ],
