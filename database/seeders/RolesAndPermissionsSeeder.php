@@ -149,6 +149,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'asistencias.editar',
             'asistencias.eliminar',
             'asistencias.reportes',
+
+            // APIs (acceso por token Sanctum)
+            'api.productos.ver',
+            'api.vigilante.ventas',
+            'api.vigilante.stock',
+
+            // Documentación / tester de APIs
+            'apis.ver',
+
+            // Gestión de tokens Sanctum
+            'apis.tokens.gestionar',
         ];
 
         // Crear todos los permisos
@@ -181,6 +192,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'reportes.ventas', 'reportes.productos', 'reportes.creditos', 'reportes.personal',
             'horarios.ver', 'horarios.crear', 'horarios.editar', 'horarios.asignar', 'horarios.ver_mio',
             'asistencias.ver', 'asistencias.ver_mio', 'asistencias.registrar', 'asistencias.reportes',
+
+            // APIs: el administrador puede usar y conceder todas las APIs
+            'api.productos.ver',
+            'api.vigilante.ventas',
+            'api.vigilante.stock',
+
+            // Vista tipo Swagger para probar APIs
+            'apis.ver',
+
+            // Gestión de tokens Sanctum
+            'apis.tokens.gestionar',
         ]);
 
         // Crear rol Vendedor/Cajero
@@ -208,6 +230,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventario.ver', 'inventario.ajustar',
         ]);
 
+        // Crear rol VigilanteIA (acceso solo a sus APIs de solo lectura)
+        $vigilante = Role::firstOrCreate(['name' => 'vigilante', 'guard_name' => 'web']);
+        $vigilante->givePermissionTo([
+            'api.vigilante.ventas',
+            'api.vigilante.stock',
+        ]);
+
         // Crear usuario administrador por defecto si no existe
         if (User::count() === 0) {
             $user = User::create([
@@ -222,8 +251,14 @@ class RolesAndPermissionsSeeder extends Seeder
             $user->assignRole('super-admin');
         }
 
+        // Asignar rol VigilanteIA al usuario dedicado de la API si existe
+        $vigilanteUser = User::where('email', 'vigilante@sistema.local')->first();
+        if ($vigilanteUser && !$vigilanteUser->hasRole('vigilante')) {
+            $vigilanteUser->assignRole('vigilante');
+        }
+
         $this->command->info('✅ Roles y permisos creados correctamente');
         $this->command->info('   - ' . count($permissions) . ' permisos');
-        $this->command->info('   - 4 roles (super-admin, administrador, vendedor, almacenero)');
+        $this->command->info('   - 5 roles (super-admin, administrador, vendedor, almacenero, vigilante)');
     }
 }

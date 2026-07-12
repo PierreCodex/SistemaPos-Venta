@@ -405,8 +405,36 @@
                 {{-- =====================================================
                      CONFIGURACIÓN - Solo para administradores
                 ===================================================== --}}
-                @canany(['usuarios.ver', 'roles.ver', 'configuracion.ver'])
+                @canany(['usuarios.ver', 'roles.ver', 'configuracion.ver', 'apis.ver'])
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>CONFIGURACIÓN</span></li>
+
+                    {{-- APIs --}}
+                    @canany(['apis.ver', 'apis.tokens.gestionar'])
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('apis.*') ? 'active' : '' }}"
+                                href="#sidebarApis" data-bs-toggle="collapse" role="button"
+                                aria-expanded="{{ request()->routeIs('apis.*') ? 'true' : 'false' }}"
+                                aria-controls="sidebarApis">
+                                <i class="ri-plug-line"></i> <span>APIs</span>
+                            </a>
+                            <div class="collapse {{ request()->routeIs('apis.*') ? 'show' : '' }}" id="sidebarApis">
+                                <ul class="nav nav-sm flex-column">
+                                    @can('apis.ver')
+                                        <li class="nav-item">
+                                            <a href="{{ route('apis.index') }}"
+                                                class="nav-link {{ request()->routeIs('apis.index') ? 'active' : '' }}">Documentación</a>
+                                        </li>
+                                    @endcan
+                                    @can('apis.tokens.gestionar')
+                                        <li class="nav-item">
+                                            <a href="{{ route('apis.tokens.index') }}"
+                                                class="nav-link {{ request()->routeIs('apis.tokens.*') ? 'active' : '' }}">Tokens</a>
+                                        </li>
+                                    @endcan
+                                </ul>
+                            </div>
+                        </li>
+                    @endcanany
 
                     {{-- Usuarios --}}
                     @can('usuarios.ver')

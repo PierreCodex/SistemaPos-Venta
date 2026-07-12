@@ -330,6 +330,72 @@
                 .catch(err => console.error(err));
         }
 
+        function nombreModulo(modulo) {
+            const nombres = {
+                'api': 'APIs',
+                'dashboard': 'Dashboard',
+                'productos': 'Productos',
+                'categorias-globales': 'Categorías Globales',
+                'categorias': 'Categorías',
+                'marcas': 'Marcas',
+                'unidades': 'Unidades',
+                'clientes': 'Clientes',
+                'proveedores': 'Proveedores',
+                'ventas': 'Ventas',
+                'creditos': 'Créditos',
+                'usuarios': 'Usuarios',
+                'roles': 'Roles y Permisos',
+                'configuracion': 'Configuración',
+                'reportes': 'Reportes',
+                'compras': 'Compras',
+                'inventario': 'Inventario',
+                'kardex': 'Kardex',
+                'ajustes': 'Ajustes',
+                'caja': 'Caja',
+                'horarios': 'Horarios',
+                'asistencias': 'Asistencias',
+            };
+            return nombres[modulo] || modulo.charAt(0).toUpperCase() + modulo.slice(1);
+        }
+
+        function iconoModulo(modulo) {
+            const iconos = {
+                'api': 'ri-plug-line',
+                'dashboard': 'ri-dashboard-line',
+                'productos': 'ri-box-3-line',
+                'categorias-globales': 'ri-folders-line',
+                'categorias': 'ri-folder-3-line',
+                'marcas': 'ri-price-tag-3-line',
+                'unidades': 'ri-ruler-line',
+                'clientes': 'ri-user-3-line',
+                'proveedores': 'ri-truck-line',
+                'ventas': 'ri-shopping-cart-2-line',
+                'creditos': 'ri-bank-card-line',
+                'usuarios': 'ri-user-settings-line',
+                'roles': 'ri-shield-user-line',
+                'configuracion': 'ri-settings-3-line',
+                'reportes': 'ri-bar-chart-2-line',
+                'compras': 'ri-shopping-bag-3-line',
+                'inventario': 'ri-archive-line',
+                'kardex': 'ri-exchange-line',
+                'ajustes': 'ri-equalizer-line',
+                'caja': 'ri-coins-line',
+                'horarios': 'ri-time-line',
+                'asistencias': 'ri-calendar-check-line',
+            };
+            return iconos[modulo] || 'ri-folder-shield-2-line';
+        }
+
+        function nombrePermiso(nombre, modulo) {
+            if (modulo === 'api') {
+                const partes = nombre.split('.');
+                // api.productos.ver -> productos.ver
+                // api.vigilante.ventas -> vigilante.ventas
+                return partes.slice(1).join('.');
+            }
+            return nombre.split('.')[1] || nombre;
+        }
+
         function renderizarMatrizPermisos(rolePermissions) {
             const container = document.getElementById('permissionsMatrix');
 
@@ -353,8 +419,8 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="permission-group">
                             <div class="permission-group-header d-flex align-items-center">
-                                <i class="ri-folder-shield-2-line me-2"></i>
-                                ${modulo}
+                                <i class="${iconoModulo(modulo)} me-2"></i>
+                                ${nombreModulo(modulo)}
                                 <button class="btn btn-sm btn-soft-primary ms-auto" onclick="toggleModulo('${modulo}')">
                                     <i class="ri-checkbox-multiple-line"></i>
                                 </button>
@@ -367,12 +433,12 @@
                     html += `
                         <div class="permission-checkbox">
                             <div class="form-check">
-                                <input class="form-check-input permission-check" type="checkbox" 
-                                       id="perm_${permiso.id}" value="${permiso.name}" 
+                                <input class="form-check-input permission-check" type="checkbox"
+                                       id="perm_${permiso.id}" value="${permiso.name}"
                                        data-modulo="${modulo}"
                                        ${isChecked ? 'checked' : ''}>
                                 <label class="form-check-label" for="perm_${permiso.id}">
-                                    ${permiso.name.split('.')[1] || permiso.name}
+                                    ${nombrePermiso(permiso.name, modulo)}
                                 </label>
                             </div>
                         </div>

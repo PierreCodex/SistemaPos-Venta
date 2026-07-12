@@ -12,6 +12,8 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\VentaCreditoController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\ApiDocsController;
+use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\CompraController;
@@ -299,6 +301,20 @@ Route::middleware('auth')->group(function () {
     });
     Route::middleware('permission:roles.asignar')->group(function () {
         Route::post('roles/api/usuarios/{userId}/assign', [RolePermissionController::class, 'assignRole'])->name('roles.api.usuarios.assign');
+    });
+
+    // =========================================================================
+    // DOCUMENTACIÓN DE APIs (Swagger UI)
+    // =========================================================================
+    Route::middleware('permission:apis.ver')->group(function () {
+        Route::get('apis', [ApiDocsController::class, 'index'])->name('apis.index');
+        Route::get('apis/swagger.json', [ApiDocsController::class, 'swaggerJson'])->name('apis.swagger');
+    });
+
+    Route::middleware('permission:apis.tokens.gestionar')->group(function () {
+        Route::get('apis/tokens', [ApiTokenController::class, 'index'])->name('apis.tokens.index');
+        Route::post('apis/tokens', [ApiTokenController::class, 'store'])->name('apis.tokens.store');
+        Route::delete('apis/tokens/{id}', [ApiTokenController::class, 'destroy'])->name('apis.tokens.destroy');
     });
 
     // =========================================================================
