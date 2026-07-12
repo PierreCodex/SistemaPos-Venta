@@ -414,6 +414,24 @@
         </div>
     </div>
 
+    {{-- Alerta de caja cerrada --}}
+    @if (!$cajaAbierta)
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger border-2 d-flex align-items-center shadow-sm" role="alert">
+                    <i class="ri-alert-line fs-3 me-3"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading mb-1">Caja cerrada</h6>
+                        <p class="mb-0">Debes aperturar la caja antes de registrar cualquier venta.</p>
+                    </div>
+                    <a href="{{ route('caja.apertura') }}" class="btn btn-sm btn-danger ms-3">
+                        <i class="ri-safe-2-line me-1"></i> Abrir Caja
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="row text-uppercase">
         <!-- COLUMNA PRODUCTOS -->
         <div class="col-xl-8 col-lg-7 text-uppercase">
@@ -1047,6 +1065,7 @@
         };
 
         const CSRF_TOKEN = '{{ csrf_token() }}';
+        const CAJA_ABIERTA = {{ $cajaAbierta ? 'true' : 'false' }};
 
         // =====================================================
         // FUNCIONES DE VALIDACIÓN (Declinadas al inicio para evitar errores de ReferenceError)
@@ -1327,6 +1346,11 @@
         // =====================================================
 
         function goToCheckout(tipo) {
+            if (!CAJA_ABIERTA) {
+                mostrarToast('Debe abrir la caja antes de realizar ventas.', 'error');
+                return;
+            }
+
             const modalEl = document.getElementById('modalComprobante');
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
@@ -1396,6 +1420,11 @@
         async function confirmarVenta() {
             if (carrito.length === 0) {
                 mostrarToast('Agrega productos al carrito', 'warning');
+                return;
+            }
+
+            if (!CAJA_ABIERTA) {
+                mostrarToast('Debe abrir la caja antes de realizar ventas.', 'error');
                 return;
             }
 
@@ -2055,6 +2084,11 @@
         function goToCheckoutFromModal() {
             if (carrito.length === 0) {
                 mostrarToast('Agregue productos para continuar', 'warning');
+                return;
+            }
+
+            if (!CAJA_ABIERTA) {
+                mostrarToast('Debe abrir la caja antes de realizar ventas.', 'error');
                 return;
             }
 

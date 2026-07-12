@@ -125,12 +125,12 @@
                                             <strong>{{ $producto->nombre }}</strong>
                                         </div>
                                     </td>
-                                    <td>{{ $producto->categoria->nombre }}</td>
-                                    <td>{{ $producto->marca->nombre }}</td>
+                                    <td>{{ $producto->categoria?->nombre ?? 'Sin categoría' }}</td>
+                                    <td>{{ $producto->marca?->nombre ?? 'Sin marca' }}</td>
                                     <td>
                                         <span
                                             class="badge {{ $producto->stock <= $producto->stock_minimo ? 'bg-danger' : 'bg-success' }}">
-                                            {{ number_format($producto->stock, 2) }} {{ $producto->unidad->codigo }}
+                                            {{ number_format($producto->stock, 2) }} {{ $producto->unidad?->codigo ?? '' }}
                                         </span>
                                     </td>
                                     <td><strong>{{ $moneda ?? 'S/' }}

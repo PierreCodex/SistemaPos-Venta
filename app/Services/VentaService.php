@@ -49,6 +49,14 @@ class VentaService
     }
 
     /**
+     * Indica si existe una caja abierta para el usuario actual.
+     */
+    public function hayCajaAbierta(): bool
+    {
+        return $this->cajaService->existeCajaAbierta();
+    }
+
+    /**
      * Aplica filtro de usuario a una query si no es administrador
      */
     protected function aplicarFiltroUsuario($query)

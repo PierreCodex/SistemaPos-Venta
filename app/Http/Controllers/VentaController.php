@@ -61,8 +61,9 @@ class VentaController extends Controller
     {
         $productos = $this->ventaService->obtenerProductosParaPOS();
         $categorias = $this->ventaService->obtenerCategoriasActivas();
+        $cajaAbierta = $this->ventaService->hayCajaAbierta();
 
-        return view('ventas.create', compact('productos', 'categorias'));
+        return view('ventas.create', compact('productos', 'categorias', 'cajaAbierta'));
     }
 
     /**
