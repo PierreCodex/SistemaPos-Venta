@@ -4,6 +4,9 @@
 # sean accesibles por URL).
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # Lo que ya apunta a public/ pasa tal cual (evita public/public/...)
+    RewriteRule ^public/ - [L]
+    RewriteRule ^$ public/ [L]
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
