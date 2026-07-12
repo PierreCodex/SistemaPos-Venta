@@ -1,0 +1,13 @@
+# Red de seguridad para hostings que apuntan el dominio a la RAÍZ del proyecto
+# (lo correcto es apuntar a public/, pero si no se puede, esto reescribe todo
+# hacia public/ y evita que archivos del proyecto — .env, scripts, vendor/ —
+# sean accesibles por URL).
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Nunca servir dotfiles (.env, .git) directamente
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

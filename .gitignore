@@ -16,7 +16,12 @@ public_html/storage
 public_html/hot
 
 storage/*.key
+/storage/framework/
+/storage/logs/
 .env
+.env.production
+cookies.txt
+tmp_*
 Homestead.yaml
 Homestead.json
 /.vagrant
