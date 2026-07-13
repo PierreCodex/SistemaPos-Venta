@@ -92,19 +92,14 @@ Route::post('/update-password/{id}', [HomeController::class, 'updatePassword'])-
 // Estas rutas usan middleware 'auth' para requerir login
 
 Route::middleware('auth')->group(function () {
-    
-    // Documentación de la API
-    Route::get('/api-docs', function () {
-        return view('api.docs');
-    })->name('api.docs');
 
-    // Gestión de Tokens de API
-    Route::get('/api-tokens', [App\Http\Controllers\ApiTokenController::class, 'index'])->name('api-tokens.index');
-    Route::post('/api-tokens', [App\Http\Controllers\ApiTokenController::class, 'store'])->name('api-tokens.store');
-    Route::delete('/api-tokens/{id}', [App\Http\Controllers\ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+    // NOTA: la documentación de API (Swagger) y la gestión de tokens viven más abajo
+    // en el grupo protegido por 'permission:apis.ver' / 'permission:apis.tokens.gestionar'
+    // (rutas apis.* ). Las rutas antiguas /api-docs y /api-tokens se eliminaron porque
+    // estaban SOLO tras 'auth' (sin permiso) — cualquier usuario logueado podía crear
+    // tokens. Usar siempre las rutas apis.* del menú.
 
-    
-    // =========================================================================
+// =========================================================================
     // CATEGORÍAS GLOBALES - Con permisos granulares
     // =========================================================================
     Route::middleware('permission:categorias.ver')->group(function () {

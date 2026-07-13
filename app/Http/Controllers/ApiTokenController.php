@@ -53,8 +53,15 @@ class ApiTokenController extends Controller
             ->values()
             ->all();
 
-        // Si no se eligió ninguna, el token no tendrá restricciones de ability
-        // (pero los middleware de can: seguirán filtrando por permisos del usuario)
+        // Si no se eligió ninguna, el token queda con ability comodín ['*'] = acceso a
+        // todas las APIs del usuario. OJO: Sanctum interpreta un array VACÍO como "sin
+        // ninguna ability" (tokenCan() devuelve false para todo), lo que rompía los
+        // endpoints protegidos por el middleware api-ability (daban 403). Con ['*'] el
+        // token funciona y los middleware can: siguen filtrando por permisos del usuario.
+        if (empty($habilidades)) {
+            $habilidades = ['*'];
+        }
+
         $token = $user->createToken($request->get('name'), $habilidades);
 
         return redirect()
