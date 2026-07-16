@@ -45,6 +45,7 @@ class UnidadService
             'codigo' => strtoupper($datos['codigo']),
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'] ?? null,
+            'permite_decimales' => $datos['permite_decimales'] ?? false,
             'estado' => $datos['estado'] ?? true,
         ]);
     }
@@ -60,6 +61,7 @@ class UnidadService
             'codigo' => strtoupper($datos['codigo']),
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'] ?? $unidad->descripcion,
+            'permite_decimales' => $datos['permite_decimales'] ?? $unidad->permite_decimales,
         ]);
 
         return $unidad->fresh();
@@ -74,6 +76,13 @@ class UnidadService
 
         if ($unidad->productos()->withTrashed()->exists()) {
             throw new \Exception("No se puede eliminar la unidad porque tiene productos asociados. Intente desactivarla en su lugar.");
+        }
+
+        // Una unidad puede no estar en ningún producto pero sí ser la unidad de
+        // una presentación (ej: "Caja" en un producto cuya base es "Unidad").
+        // Sin esta guarda, la FK restrictOnDelete devolvería un error SQL crudo.
+        if ($unidad->presentaciones()->exists()) {
+            throw new \Exception("No se puede eliminar la unidad porque se usa en presentaciones de productos. Intente desactivarla en su lugar.");
         }
 
         return $unidad->delete();

@@ -30,6 +30,10 @@ class StoreUnidadRequest extends FormRequest
                 'unique:unidades,nombre',
             ],
             'descripcion' => 'nullable|string|max:255',
+            // Decide si la unidad admite cantidades fraccionadas (1.5 KG sí,
+            // 1.5 cajas no). Sin esta regla nunca llegaba al servicio y toda
+            // unidad nueva quedaba en false por el default de la migración.
+            'permite_decimales' => 'nullable|boolean',
         ];
     }
 

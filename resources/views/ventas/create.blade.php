@@ -480,9 +480,12 @@
                         data-nombre="{{ $prod->nombre }}" data-precio="{{ $prod->precio_venta }}"
                         data-stock="{{ $prod->stock }}" data-categoria="{{ $prod->categoria_id }}"
                         data-permite-decimales="{{ $prod->unidad->permite_decimales ?? 0 }}"
-                        data-unidad-codigo="{{ $prod->unidad->codigo ?? '' }}">
+                        data-unidad-codigo="{{ $prod->unidad->codigo ?? '' }}"
+                        {{-- El stock SIEMPRE está en unidad base; el POS convierte con el factor --}}
+                        data-stock-base="{{ $prod->stock }}"
+                        data-presentaciones="{{ json_encode($prod->presentacionesParaPos()) }}">
                         <div class="card product-item material-shadow h-100 border-0 overflow-hidden text-uppercase"
-                            onclick="validarAgregarProducto({{ $prod->id }}, '{{ addslashes($prod->nombre) }}', {{ $prod->precio_venta }}, {{ $prod->stock }}, {{ $prod->unidad->permite_decimales ?? 0 }}, '{{ $prod->unidad->codigo ?? '' }}')">
+                            onclick="abrirSelectorProducto({{ $prod->id }})">
                             <div class="card-body p-0">
                                 <div class="position-relative bg-light p-4 text-center">
                                     @if ($prod->imagen)
@@ -928,6 +931,24 @@
             </div>
         </div>
     </div>
+    <!-- MODAL SELECTOR DE PRESENTACIÓN -->
+    {{-- Solo aparece si el producto se vende en más de una unidad --}}
+    <div class="modal fade" id="modalPresentacion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary p-3">
+                    <h5 class="modal-title text-white fw-bold">📦 ¿EN QUÉ PRESENTACIÓN?</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="text-muted fs-13 mb-3 text-uppercase" id="presentacionProductoNombre"></p>
+                    <div class="list-group" id="listaPresentaciones"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL VENTA POR PESO / IMPORTE (KG) -->
     <div class="modal fade" id="modalVentaPeso" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -1070,12 +1091,127 @@
         // =====================================================
         // FUNCIONES DE VALIDACIÓN (Declinadas al inicio para evitar errores de ReferenceError)
         // =====================================================
-        function validarAgregarProducto(id, nombre, precio, stock, permiteDecimales, unidadCodigo) {
-            if (['KG', 'GR', 'LTR', 'ML'].includes(unidadCodigo)) {
-                abrirModalPeso(id, nombre, precio, stock, unidadCodigo);
-            } else {
-                agregarAlCarrito(id, nombre, precio, stock, 1, permiteDecimales, unidadCodigo);
+        // =====================================================
+        // PRESENTACIONES
+        // =====================================================
+        // Un producto puede venderse en varias unidades (suelto, caja x24)
+        // contra un único stock, que SIEMPRE está en unidad base. El factor
+        // de cada presentación dice cuántas unidades base contiene.
+        //
+        // Antes había una lista fija de códigos (['KG','GR','LTR','ML']) para
+        // decidir si se vendía por peso: cualquier unidad nueva que creara el
+        // cliente quedaba fuera. Ahora lo decide permite_decimales de la
+        // unidad, que es el dato real.
+        // =====================================================
+
+        /**
+         * Lee los datos de un producto desde su tarjeta del grid
+         */
+        function datosProducto(productoId) {
+            const card = document.querySelector(`.producto-card[data-id="${productoId}"]`);
+            if (!card) return null;
+
+            return {
+                id: productoId,
+                nombre: card.dataset.nombre,
+                stockBase: parseFloat(card.dataset.stockBase) || 0,
+                presentaciones: JSON.parse(card.dataset.presentaciones || '[]')
+            };
+        }
+
+        /**
+         * Punto de entrada al tocar un producto: si tiene una sola
+         * presentación va directo; si tiene varias, pregunta cuál.
+         */
+        function abrirSelectorProducto(productoId) {
+            const prod = datosProducto(productoId);
+            if (!prod) return;
+
+            if (prod.presentaciones.length === 0) {
+                mostrarToast('Este producto no tiene presentaciones configuradas', 'error');
+                return;
             }
+
+            if (prod.presentaciones.length === 1) {
+                elegirPresentacion(productoId, prod.presentaciones[0].id);
+                return;
+            }
+
+            abrirModalPresentacion(prod);
+        }
+
+        /**
+         * Aplica la presentación elegida: pide peso si la unidad admite
+         * decimales, o agrega una unidad directamente.
+         */
+        function aplicarPresentacion(prod, pres) {
+            const modalAbierto = bootstrap.Modal.getInstance(document.getElementById('modalPresentacion'));
+            if (modalAbierto) modalAbierto.hide();
+
+            if (pres.decimales) {
+                abrirModalPeso(prod, pres);
+            } else {
+                agregarAlCarrito(prod, pres, 1);
+            }
+        }
+
+        /**
+         * Elige una presentación de un producto del grid
+         */
+        function elegirPresentacion(productoId, presentacionId) {
+            const prod = datosProducto(productoId);
+            if (!prod) return;
+
+            const pres = prod.presentaciones.find(p => p.id === presentacionId);
+            if (pres) aplicarPresentacion(prod, pres);
+        }
+
+        /**
+         * Elige una presentación desde el modal.
+         *
+         * Usa el producto guardado en productoEnSeleccion en vez de releerlo
+         * del grid: un producto escaneado puede no estar en pantalla.
+         */
+        function elegirPresentacionDeModal(presentacionId) {
+            const prod = productoEnSeleccion;
+            if (!prod) return;
+
+            const pres = prod.presentaciones.find(p => p.id === presentacionId);
+            if (pres) aplicarPresentacion(prod, pres);
+        }
+
+        /**
+         * Muestra las presentaciones disponibles con el stock que queda
+         * de cada una, expresado en su propia unidad.
+         */
+        function abrirModalPresentacion(prod) {
+            productoEnSeleccion = prod;
+            document.getElementById('presentacionProductoNombre').textContent = prod.nombre;
+
+            const disponibleBase = prod.stockBase - stockBaseComprometido(prod.id);
+
+            document.getElementById('listaPresentaciones').innerHTML = prod.presentaciones.map(p => {
+                const cabe = p.factor <= disponibleBase + TOLERANCIA;
+                const equivale = p.factor === 1 ? 'Unidad base' : `Contiene ${p.factor} und. base`;
+                const posibles = p.factor > 0 ? Math.floor(disponibleBase / p.factor) : 0;
+
+                return `
+                    <button type="button"
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center ${cabe ? '' : 'disabled opacity-50'}"
+                        ${cabe ? `onclick="elegirPresentacionDeModal(${p.id})"` : ''}>
+                        <div class="text-start">
+                            <h6 class="mb-0 text-uppercase">${p.nombre || p.unidad}</h6>
+                            <small class="text-muted">${equivale}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold text-primary d-block">S/ ${p.precio.toFixed(2)}</span>
+                            <small class="text-muted">${cabe ? `Alcanza para ${posibles}` : 'Sin stock'}</small>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            new bootstrap.Modal(document.getElementById('modalPresentacion')).show();
         }
 
         // Estado del carrito
@@ -1083,6 +1219,43 @@
         let totalCarrito = 0;
         let clienteSeleccionado = null;
         let productoEnEdicionPeso = null; // Para el modal de peso
+        let productoEnSeleccion = null; // Para el modal de presentación
+
+        // Margen para comparaciones de punto flotante (0.001 es la precisión
+        // de stock en la base de datos)
+        const TOLERANCIA = 0.0005;
+
+        /**
+         * Clave de una línea del carrito.
+         *
+         * El mismo producto en dos presentaciones son DOS líneas: 1 caja y
+         * 3 unidades sueltas no se pueden sumar entre sí.
+         */
+        function claveCarrito(productoId, presentacionId) {
+            return `${productoId}::${presentacionId}`;
+        }
+
+        /**
+         * Stock base ya comprometido por el carrito para un producto.
+         *
+         * Todas las líneas del mismo producto comen del MISMO stock, sin
+         * importar en qué presentación estén: 1 caja x24 + 90 unidades son
+         * 114 unidades base y no caben en un stock de 100.
+         */
+        function stockBaseComprometido(productoId, exceptoClave = null) {
+            return carrito
+                .filter(i => i.productoId === productoId && i.clave !== exceptoClave)
+                .reduce((suma, i) => suma + (i.cantidad * i.factor), 0);
+        }
+
+        /**
+         * Verifica si una cantidad cabe en el stock disponible del producto,
+         * contando lo que ya tienen las demás líneas.
+         */
+        function cabeEnStock(prod, factor, cantidad, exceptoClave = null) {
+            const requerido = stockBaseComprometido(prod.id, exceptoClave) + (cantidad * factor);
+            return requerido <= prod.stockBase + TOLERANCIA;
+        }
 
         // =====================================================
         // FUNCIONES DE VALIDACIÓN Y MODAL DE PESO
@@ -1092,18 +1265,15 @@
         /**
          * Configura y abre el modal de peso
          */
-        function abrirModalPeso(id, nombre, precio, stock, unidadCodigo) {
+        function abrirModalPeso(prod, pres) {
             productoEnEdicionPeso = {
-                id,
-                nombre,
-                precio,
-                stock,
-                unidadCodigo
+                prod,
+                pres
             };
 
-            document.getElementById('pesoProductoNombre').textContent = nombre;
-            document.getElementById('pesoProductoPrecio').textContent = precio.toFixed(2);
-            document.getElementById('modalVentaPesoTitle').textContent = `⚖️ VENTA POR ${unidadCodigo}`;
+            document.getElementById('pesoProductoNombre').textContent = prod.nombre;
+            document.getElementById('pesoProductoPrecio').textContent = pres.precio.toFixed(2);
+            document.getElementById('modalVentaPesoTitle').textContent = `⚖️ VENTA POR ${pres.unidad}`;
 
             // Limpiar inputs
             const inputImporte = document.getElementById('inputVentaImporte');
@@ -1112,7 +1282,7 @@
             inputPeso.value = '';
 
             // Ajustar label de unidad
-            inputPeso.nextElementSibling.textContent = unidadCodigo;
+            inputPeso.nextElementSibling.textContent = pres.unidad;
 
             const modal = new bootstrap.Modal(document.getElementById('modalVentaPeso'));
             modal.show();
@@ -1124,7 +1294,7 @@
         document.getElementById('inputVentaImporte').addEventListener('input', function() {
             if (!productoEnEdicionPeso) return;
             const importe = parseFloat(this.value) || 0;
-            const precio = productoEnEdicionPeso.precio;
+            const precio = productoEnEdicionPeso.pres.precio;
 
             if (importe > 0 && precio > 0) {
                 const pesoCalculado = (importe / precio).toFixed(3);
@@ -1137,7 +1307,7 @@
         document.getElementById('inputVentaPeso').addEventListener('input', function() {
             if (!productoEnEdicionPeso) return;
             const peso = parseFloat(this.value) || 0;
-            const precio = productoEnEdicionPeso.precio;
+            const precio = productoEnEdicionPeso.pres.precio;
 
             if (peso > 0 && precio > 0) {
                 const importeCalculado = (peso * precio).toFixed(2);
@@ -1154,26 +1324,27 @@
             if (!productoEnEdicionPeso) return;
 
             const cantidad = parseFloat(document.getElementById('inputVentaPeso').value) || 0;
+            const {
+                prod,
+                pres
+            } = productoEnEdicionPeso;
 
             if (cantidad <= 0) {
                 mostrarToast('Ingrese una cantidad válida', 'warning');
                 return;
             }
 
-            if (cantidad > productoEnEdicionPeso.stock) {
+            // El stock se valida en unidad base, contando lo que ya hay en el carrito
+            const clave = claveCarrito(prod.id, pres.id);
+            const yaEnCarrito = carrito.find(i => i.clave === clave);
+            const cantidadTotal = (yaEnCarrito ? yaEnCarrito.cantidad : 0) + cantidad;
+
+            if (!cabeEnStock(prod, pres.factor, cantidadTotal, clave)) {
                 mostrarToast('Stock insuficiente', 'warning');
                 return;
             }
 
-            agregarAlCarrito(
-                productoEnEdicionPeso.id,
-                productoEnEdicionPeso.nombre,
-                productoEnEdicionPeso.precio,
-                productoEnEdicionPeso.stock,
-                cantidad,
-                1, // permiteDecimales
-                productoEnEdicionPeso.unidadCodigo
-            );
+            agregarAlCarrito(prod, pres, cantidad);
 
             bootstrap.Modal.getInstance(document.getElementById('modalVentaPeso')).hide();
         });
@@ -1185,29 +1356,32 @@
         /**
          * Agrega un producto al carrito o incrementa cantidad si ya existe
          */
-        function agregarAlCarrito(id, nombre, precio, stockDisponible, cantidad = 1, permiteDecimales = 0, unidadCodigo =
-            'UND') {
-            const existente = carrito.find(item => item.id === id);
+        function agregarAlCarrito(prod, pres, cantidad = 1) {
+            const clave = claveCarrito(prod.id, pres.id);
+            const existente = carrito.find(item => item.clave === clave);
+            const cantidadFinal = (existente ? existente.cantidad : 0) + cantidad;
+
+            if (!cabeEnStock(prod, pres.factor, cantidadFinal, clave)) {
+                mostrarToast('Stock insuficiente', 'warning');
+                return;
+            }
 
             if (existente) {
-                const nuevaCantidad = existente.cantidad + cantidad;
-                if (nuevaCantidad <= stockDisponible) {
-                    existente.cantidad = nuevaCantidad;
-                    existente.subtotal = existente.cantidad * existente.precio;
-                } else {
-                    mostrarToast('Stock insuficiente', 'warning');
-                    return;
-                }
+                existente.cantidad = cantidadFinal;
+                existente.subtotal = existente.cantidad * existente.precio;
             } else {
                 carrito.push({
-                    id: id,
-                    nombre: nombre,
-                    precio: precio,
+                    clave: clave,
+                    productoId: prod.id,
+                    presentacionId: pres.id,
+                    nombre: prod.nombre,
+                    precio: pres.precio,
+                    factor: pres.factor,
                     cantidad: cantidad,
-                    subtotal: cantidad * precio,
-                    stockDisponible: stockDisponible,
-                    permiteDecimales: permiteDecimales,
-                    unidadCodigo: unidadCodigo
+                    subtotal: cantidad * pres.precio,
+                    stockBase: prod.stockBase,
+                    permiteDecimales: pres.decimales,
+                    unidadCodigo: pres.unidad
                 });
             }
 
@@ -1216,22 +1390,26 @@
         }
 
         /**
-         * Actualiza la cantidad de un item en el carrito
+         * Actualiza la cantidad de una línea del carrito
          */
-        function actualizarCantidad(id, cambio) {
-            const item = carrito.find(i => i.id === id);
+        function actualizarCantidad(clave, cambio) {
+            const item = carrito.find(i => i.clave === clave);
             if (!item) return;
 
-            // Si no permite decimales, el cambio siempre es entero
-            // Si permite decimales, el cambio es +1 o -1, pero podemos permitir ingreso manual si quisiéramos
-            const nuevaCantidad = item.cantidad + cambio;
+            const nuevaCantidad = redondearCantidad(item.cantidad + cambio, item.permiteDecimales);
 
             if (nuevaCantidad <= 0) {
-                eliminarDelCarrito(id);
+                eliminarDelCarrito(clave);
                 return;
             }
 
-            if (nuevaCantidad > item.stockDisponible) {
+            // El stock lo comparten todas las líneas del mismo producto
+            const prod = {
+                id: item.productoId,
+                stockBase: item.stockBase
+            };
+
+            if (!cabeEnStock(prod, item.factor, nuevaCantidad, clave)) {
                 mostrarToast('Stock insuficiente', 'warning');
                 return;
             }
@@ -1242,10 +1420,18 @@
         }
 
         /**
-         * Elimina un item del carrito
+         * Evita que sumar 0.1 repetidas veces arrastre error binario
+         * (0.1 + 0.2 = 0.30000000000000004)
          */
-        function eliminarDelCarrito(id) {
-            carrito = carrito.filter(item => item.id !== id);
+        function redondearCantidad(valor, permiteDecimales) {
+            return permiteDecimales ? Math.round(valor * 1000) / 1000 : Math.round(valor);
+        }
+
+        /**
+         * Elimina una línea del carrito
+         */
+        function eliminarDelCarrito(clave) {
+            carrito = carrito.filter(item => item.clave !== clave);
             actualizarVistaCarrito();
         }
 
@@ -1286,22 +1472,22 @@
                 <tr>
                     <td class="ps-3">
                         <h6 class="fs-13 mb-0 text-uppercase text-truncate" style="max-width: 150px;">${item.nombre}</h6>
-                        <small class="text-muted text-nowrap">S/ ${item.precio.toFixed(2)} / ${item.unidadCodigo}</small>
+                        <small class="text-muted text-nowrap">S/ ${item.precio.toFixed(2)} / ${item.unidadCodigo}${item.factor > 1 ? ` (x${item.factor})` : ''}</small>
                     </td>
                     <td style="width: 120px;">
                         <div class="d-flex align-items-center justify-content-center bg-light rounded p-1 text-uppercase">
-                            <button class="btn btn-link btn-sm p-0 text-muted" onclick="actualizarCantidad(${item.id}, ${item.permiteDecimales ? -0.1 : -1})">
+                            <button class="btn btn-link btn-sm p-0 text-muted" onclick="actualizarCantidad('${item.clave}', ${item.permiteDecimales ? -0.1 : -1})">
                                 <i class="ri-subtract-line"></i>
                             </button>
                             <span class="mx-2 fw-medium">${item.permiteDecimales ? item.cantidad.toFixed(3) : item.cantidad}</span>
-                            <button class="btn btn-link btn-sm p-0 text-muted" onclick="actualizarCantidad(${item.id}, ${item.permiteDecimales ? 0.1 : 1})">
+                            <button class="btn btn-link btn-sm p-0 text-muted" onclick="actualizarCantidad('${item.clave}', ${item.permiteDecimales ? 0.1 : 1})">
                                 <i class="ri-add-line"></i>
                             </button>
                         </div>
                     </td>
                     <td class="text-end pe-2 text-uppercase">
                         <span class="fw-bold text-primary">S/ ${item.subtotal.toFixed(2)}</span>
-                        <button class="btn btn-link btn-sm p-0 text-danger ms-1" onclick="eliminarDelCarrito(${item.id})">
+                        <button class="btn btn-link btn-sm p-0 text-danger ms-1" onclick="eliminarDelCarrito('${item.clave}')">
                             <i class="ri-close-line"></i>
                         </button>
                     </td>
@@ -1465,8 +1651,11 @@
             }
 
             // Preparar detalles
+            // presentacion_id le dice al servidor con qué factor convertir la
+            // cantidad a unidad base antes de descontar el stock.
             const detalles = carrito.map(item => ({
-                producto_id: item.id,
+                producto_id: item.productoId,
+                presentacion_id: item.presentacionId,
                 cantidad: item.cantidad,
                 precio_unitario: item.precio,
                 descuento: 0
@@ -1892,15 +2081,36 @@
 
                 if (result.success && result.producto) {
                     const p = result.producto;
-                    validarAgregarProducto(
-                        p.id,
-                        p.nombre,
-                        parseFloat(p.precio_venta),
-                        parseFloat(p.stock),
-                        p.unidad.permite_decimales,
-                        p.unidad.codigo
-                    );
-                    // mostrarToast(`✅ ${p.nombre} procesado`, 'success');
+                    const presentaciones = result.presentaciones || [];
+
+                    if (presentaciones.length === 0) {
+                        mostrarToast('Este producto no tiene presentaciones configuradas', 'error');
+                        return;
+                    }
+
+                    const prod = {
+                        id: p.id,
+                        nombre: p.nombre,
+                        stockBase: parseFloat(p.stock),
+                        presentaciones: presentaciones
+                    };
+
+                    // Si se escaneó el código de una caja, el servidor ya dice
+                    // cuál es: se vende esa presentación sin preguntar.
+                    const pres = result.presentacion_id ?
+                        presentaciones.find(x => x.id === result.presentacion_id) :
+                        (presentaciones.length === 1 ? presentaciones[0] : null);
+
+                    if (!pres) {
+                        abrirModalPresentacion(prod);
+                        return;
+                    }
+
+                    if (pres.decimales) {
+                        abrirModalPeso(prod, pres);
+                    } else {
+                        agregarAlCarrito(prod, pres, 1);
+                    }
                 } else {
                     mostrarToast('Producto no encontrado', 'warning');
                 }

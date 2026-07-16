@@ -225,18 +225,25 @@ class VentaController extends Controller
     {
         $codigo = $request->input('codigo', '');
 
-        $producto = $this->ventaService->buscarPorCodigoBarras($codigo);
+        $resultado = $this->ventaService->buscarPorCodigoBarras($codigo);
 
-        if (!$producto) {
+        if (!$resultado) {
             return response()->json([
                 'success' => false,
                 'message' => 'Producto no encontrado'
             ], 404);
         }
 
+        $producto = $resultado['producto'];
+
         return response()->json([
             'success' => true,
-            'producto' => $producto
+            'producto' => $producto,
+            // Presentaciones para que el POS pueda convertir sin otra consulta
+            'presentaciones' => $producto->presentacionesParaPos(),
+            // Viene con valor si se escaneó el código de una caja: se vende esa
+            // presentación directamente, sin preguntar.
+            'presentacion_id' => $resultado['presentacionId'],
         ]);
     }
 

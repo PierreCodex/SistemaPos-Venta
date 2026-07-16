@@ -43,6 +43,10 @@ class StoreVentaRequest extends FormRequest
             // Detalles (productos)
             'detalles' => 'required|array|min:1',
             'detalles.*.producto_id' => 'required|exists:productos,id',
+            // Opcional: sin él se vende en la presentación base (factor 1).
+            // Que la presentación pertenezca al producto lo verifica
+            // Producto::resolverPresentacion(), no basta con que exista.
+            'detalles.*.presentacion_id' => 'nullable|integer|exists:producto_presentaciones,id',
             'detalles.*.cantidad' => 'required|numeric|min:0.001',
             'detalles.*.precio_unitario' => 'required|numeric|min:0',
             'detalles.*.descuento' => 'nullable|numeric|min:0',

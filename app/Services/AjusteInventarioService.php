@@ -106,12 +106,17 @@ class AjusteInventarioService
                 $tipoMovimiento = $diferencia >= 0 ? 'AJUSTE_POSITIVO' : 'AJUSTE_NEGATIVO';
 
                 // Registrar en Kardex
+                // Un conteo físico se hace directamente sobre el stock base,
+                // así que no interviene ningún factor: la presentación se
+                // etiqueta solo para que el reporte de kardex sea uniforme.
                 Kardex::create([
                     'producto_id' => $detalle->producto_id,
+                    'presentacion_id' => $producto->presentacionBase()->value('id'),
                     'tipo_movimiento' => $tipoMovimiento,
                     'referencia_tipo' => 'ajustes_inventario',
                     'referencia_id' => $ajuste->id,
                     'cantidad' => $diferencia,
+                    'cantidad_presentacion' => $diferencia,
                     'stock_anterior' => $stockAnterior,
                     'stock_resultante' => $stockNuevo,
                     'user_id' => auth()->id(),
@@ -152,10 +157,12 @@ class AjusteInventarioService
 
                 Kardex::create([
                     'producto_id' => $detalle->producto_id,
+                    'presentacion_id' => $producto->presentacionBase()->value('id'),
                     'tipo_movimiento' => $tipoMovimiento,
                     'referencia_tipo' => 'ajustes_inventario',
                     'referencia_id' => $ajuste->id,
                     'cantidad' => $diferenciaReversion,
+                    'cantidad_presentacion' => $diferenciaReversion,
                     'stock_anterior' => $stockActual,
                     'stock_resultante' => $stockRevertido,
                     'user_id' => auth()->id(),

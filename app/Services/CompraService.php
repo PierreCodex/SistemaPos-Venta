@@ -61,36 +61,63 @@ class CompraService
 
             // 2. Crear los detalles y actualizar stock
             foreach ($datos['productos'] as $item) {
-                // Crear detalle
+                $producto = Producto::findOrFail($item['producto_id']);
+
+                // Al proveedor se le compra por caja, no por unidad: es aquí
+                // donde la presentación se usa más. Sin presentacion_id se
+                // asume la base (factor 1) y todo se comporta como antes.
+                $presentacion = $producto->resolverPresentacion($item['presentacion_id'] ?? null);
+
+                $cantidad = (float) $item['cantidad'];
+
+                if (!$presentacion->permiteDecimales() && floor($cantidad) != $cantidad) {
+                    throw new \Exception("El producto '{$producto->nombre}' no admite cantidades decimales en {$presentacion->unidad->codigo}.");
+                }
+
+                $cantidadBase = $presentacion->aBase($cantidad);
+                $factor = (float) $presentacion->factor;
+
+                // El costo ingresado es POR PRESENTACIÓN (S/ 90 la caja).
+                // precio_compra y la valorización del kardex se llevan por
+                // unidad base, así que hay que dividirlo entre el factor;
+                // guardarlo tal cual haría creer que cada unidad cuesta 90.
+                $costoPresentacion = (float) $item['costo_unitario'];
+                $costoBase = $factor > 0 ? round($costoPresentacion / $factor, 2) : $costoPresentacion;
+
+                // Crear detalle (con el snapshot del factor)
                 DetalleCompra::create([
                     'compra_id' => $compra->id,
                     'producto_id' => $item['producto_id'],
-                    'cantidad' => $item['cantidad'],
-                    'costo_unitario' => $item['costo_unitario'],
+                    'presentacion_id' => $presentacion->id,
+                    'cantidad' => $cantidad,
+                    'factor_aplicado' => $presentacion->factor,
+                    'cantidad_base' => $cantidadBase,
+                    'costo_unitario' => $costoPresentacion,
                     'descuento' => $item['descuento'] ?? 0,
                     'subtotal' => $item['subtotal'],
                     'fecha_vencimiento' => $item['fecha_vencimiento'] ?? null,
                     'lote' => $item['lote'] ?? null
                 ]);
 
-                // Actualizar stock del producto
-                $producto = Producto::findOrFail($item['producto_id']);
+                // Actualizar stock del producto (en unidad base)
                 $stockAnterior = $producto->stock;
-                $stockNuevo = $stockAnterior + $item['cantidad'];
-                
+                $stockNuevo = $stockAnterior + $cantidadBase;
+
                 $producto->update([
                     'stock' => $stockNuevo,
-                    'precio_compra' => $item['costo_unitario'] // Actualizar último costo
+                    'precio_compra' => $costoBase // Último costo, por unidad base
                 ]);
 
-                // Registrar en Kardex
+                // Registrar en Kardex (cantidad y costo SIEMPRE en unidad base)
                 Kardex::create([
                     'producto_id' => $item['producto_id'],
+                    'presentacion_id' => $presentacion->id,
                     'tipo_movimiento' => 'COMPRA',
                     'referencia_tipo' => 'compras',
                     'referencia_id' => $compra->id,
-                    'cantidad' => $item['cantidad'],
-                    'costo_unitario' => $item['costo_unitario'],
+                    'cantidad' => $cantidadBase,
+                    'cantidad_presentacion' => $cantidad,
+                    'costo_unitario' => $costoBase,
                     'stock_anterior' => $stockAnterior,
                     'stock_resultante' => $stockNuevo,
                     'user_id' => auth()->id(),
@@ -100,6 +127,26 @@ class CompraService
 
             return $compra->fresh(['proveedor', 'detalles.producto']);
         });
+    }
+
+    /**
+     * Cantidad en unidad base que ingresó una línea de compra.
+     *
+     * Usa el snapshot de la compra, nunca el factor vigente del catálogo.
+     * El cálculo con factor_aplicado es una red de seguridad para filas
+     * sin cantidad_base (el backfill la pobló en todas).
+     */
+    private function cantidadBaseDe(DetalleCompra $detalle): float
+    {
+        $cantidadBase = (float) $detalle->cantidad_base;
+
+        if ($cantidadBase > 0) {
+            return $cantidadBase;
+        }
+
+        $factor = (float) $detalle->factor_aplicado ?: 1.0;
+
+        return round((float) $detalle->cantidad * $factor, 3);
     }
 
     /**
@@ -117,18 +164,25 @@ class CompraService
             // Revertir stock de cada producto
             foreach ($compra->detalles as $detalle) {
                 $producto = Producto::findOrFail($detalle->producto_id);
+
+                // Se retira lo que esta línea ingresó, con el factor congelado
+                // en la compra, no con el vigente.
+                $cantidadBase = $this->cantidadBaseDe($detalle);
+
                 $stockAnterior = $producto->stock;
-                $stockNuevo = $stockAnterior - $detalle->cantidad;
+                $stockNuevo = $stockAnterior - $cantidadBase;
 
                 $producto->update(['stock' => max(0, $stockNuevo)]);
 
                 // Registrar en Kardex
                 Kardex::create([
                     'producto_id' => $detalle->producto_id,
+                    'presentacion_id' => $detalle->presentacion_id,
                     'tipo_movimiento' => 'DEVOLUCION_PROVEEDOR',
                     'referencia_tipo' => 'compras',
                     'referencia_id' => $compra->id,
-                    'cantidad' => -$detalle->cantidad,
+                    'cantidad' => -$cantidadBase,
+                    'cantidad_presentacion' => -$detalle->cantidad,
                     'costo_unitario' => $detalle->costo_unitario,
                     'stock_anterior' => $stockAnterior,
                     'stock_resultante' => max(0, $stockNuevo),

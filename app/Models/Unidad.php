@@ -23,4 +23,15 @@ class Unidad extends Model
     {
         return $this->hasMany(Producto::class);
     }
+
+    /**
+     * Relación: Una unidad se usa en muchas presentaciones
+     *
+     * Una unidad puede no estar en ningún producto y aun así estar en uso
+     * (ej: "Caja" como presentación de un producto cuya base es "Unidad").
+     */
+    public function presentaciones()
+    {
+        return $this->hasMany(ProductoPresentacion::class, 'unidad_id');
+    }
 }

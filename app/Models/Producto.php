@@ -81,4 +81,81 @@ class Producto extends Model
     {
         return $this->hasMany(DetalleVenta::class, 'producto_id');
     }
+
+    /**
+     * Formas en que se puede vender este producto (unidad, caja x24...)
+     */
+    public function presentaciones()
+    {
+        return $this->hasMany(ProductoPresentacion::class, 'producto_id');
+    }
+
+    /**
+     * La presentación en la que se lleva el stock (factor 1).
+     */
+    public function presentacionBase()
+    {
+        return $this->hasOne(ProductoPresentacion::class, 'producto_id')
+                    ->where('es_base', true);
+    }
+
+    /**
+     * Presentaciones en el formato que consume el POS.
+     *
+     * El POS necesita el factor para poder validar stock en unidad base
+     * sin volver al servidor en cada clic.
+     */
+    public function presentacionesParaPos(): array
+    {
+        return $this->presentaciones
+            ->map(fn (ProductoPresentacion $p) => [
+                'id'         => $p->id,
+                'unidad'     => $p->unidad->codigo ?? '',
+                'nombre'     => $p->unidad->nombre ?? '',
+                'factor'     => (float) $p->factor,
+                'precio'     => (float) $p->precio_venta,
+                'decimales'  => $p->permiteDecimales() ? 1 : 0,
+                'esBase'     => $p->es_base ? 1 : 0,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Resuelve la presentación a usar en una operación de stock.
+     *
+     * Sin presentacion_id devuelve la base (factor 1), que reproduce
+     * exactamente el comportamiento previo a las presentaciones: así el
+     * POS y la API que aún no envían el campo siguen funcionando igual.
+     *
+     * Verifica que la presentación PERTENEZCA a este producto: sin esta
+     * comprobación, un cliente podría enviar el id de la presentación
+     * "Caja x24" de otro producto y descontar stock a un factor ajeno.
+     *
+     * @throws \Exception si la presentación no existe, no es de este producto o está inactiva
+     */
+    public function resolverPresentacion(?int $presentacionId = null): ProductoPresentacion
+    {
+        if ($presentacionId === null) {
+            $base = $this->presentacionBase()->with('unidad')->first();
+
+            if (!$base) {
+                throw new \Exception("El producto '{$this->nombre}' no tiene una presentación base configurada. No se puede operar su stock.");
+            }
+
+            return $base;
+        }
+
+        $presentacion = $this->presentaciones()->with('unidad')->find($presentacionId);
+
+        if (!$presentacion) {
+            throw new \Exception("La presentación seleccionada no pertenece al producto '{$this->nombre}'.");
+        }
+
+        if (!$presentacion->estado) {
+            throw new \Exception("La presentación '{$presentacion->unidad?->nombre}' de '{$this->nombre}' está desactivada.");
+        }
+
+        return $presentacion;
+    }
 }

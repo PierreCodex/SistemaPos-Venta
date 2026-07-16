@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Venta;
 use App\Models\DetalleVenta;
 use App\Models\Producto;
+use App\Models\ProductoPresentacion;
 use App\Models\Cliente;
 use App\Models\Kardex;
 use App\Services\CajaService;
@@ -201,43 +202,55 @@ class VentaService
      */
     private function agregarDetalle(Venta $venta, array $detalle): DetalleVenta
     {
-        $producto = Producto::with('unidad')->findOrFail($detalle['producto_id']);
+        $producto = Producto::findOrFail($detalle['producto_id']);
 
-        // Validación de decimales según unidad de medida
-        $permiteDecimales = $producto->unidad->permite_decimales ?? false;
-        $cantidad = $detalle['cantidad'];
+        // La presentación decide el factor. Sin presentacion_id se usa la base
+        // (factor 1) y el comportamiento es idéntico al de antes.
+        $presentacion = $producto->resolverPresentacion($detalle['presentacion_id'] ?? null);
 
-        if (!$permiteDecimales && floor($cantidad) != $cantidad) {
-            throw new \Exception("El producto '{$producto->nombre}' solo permite cantidades enteras.");
+        // Los decimales se validan contra la unidad de la PRESENTACIÓN, no la
+        // del producto: se pueden vender 0.5 Kg pero no 0.5 Cajas.
+        $cantidad = (float) $detalle['cantidad'];
+
+        if (!$presentacion->permiteDecimales() && floor($cantidad) != $cantidad) {
+            throw new \Exception("El producto '{$producto->nombre}' no admite cantidades decimales en {$presentacion->unidad->codigo}.");
         }
 
-        // Calcular subtotal del item
-        $precioUnitario = $detalle['precio_unitario'] ?? $producto->precio_venta;
-        $cantidad = $detalle['cantidad'];
+        // Lo que se descuenta del inventario, siempre en unidad base
+        $cantidadBase = $presentacion->aBase($cantidad);
+
+        // El precio de referencia es el de la presentación: una caja no cuesta
+        // 24x el precio unitario.
+        $precioUnitario = $detalle['precio_unitario'] ?? $presentacion->precio_venta;
         $descuento = $detalle['descuento'] ?? 0;
         $subtotal = ($cantidad * $precioUnitario) - $descuento;
 
-        // Crear detalle
+        // Crear detalle (con el snapshot del factor: la anulación dependerá de él)
         $detalleVenta = DetalleVenta::create([
             'venta_id' => $venta->id,
             'producto_id' => $producto->id,
+            'presentacion_id' => $presentacion->id,
             'cantidad' => $cantidad,
+            'factor_aplicado' => $presentacion->factor,
+            'cantidad_base' => $cantidadBase,
             'precio_unitario' => $precioUnitario,
-            'precio_original' => $producto->precio_venta,
+            'precio_original' => $presentacion->precio_venta,
             'descuento' => $descuento,
             'subtotal' => $subtotal
         ]);
 
         // Descontar stock
         $stockAnterior = $producto->stock;
-        $producto->stock -= $cantidad;
+        $producto->stock -= $cantidadBase;
         $producto->save();
 
-        // Registrar en Kardex
+        // Registrar en Kardex (cantidad SIEMPRE en unidad base)
         Kardex::create([
             'producto_id' => $producto->id,
+            'presentacion_id' => $presentacion->id,
             'tipo_movimiento' => 'VENTA',
-            'cantidad' => -$cantidad, // Negativo porque es salida
+            'cantidad' => -$cantidadBase, // Negativo porque es salida
+            'cantidad_presentacion' => -$cantidad,
             'stock_anterior' => $stockAnterior,
             'stock_resultante' => $producto->stock,
             'user_id' => Auth::id(),
@@ -247,6 +260,29 @@ class VentaService
         ]);
 
         return $detalleVenta;
+    }
+
+    /**
+     * Cantidad en unidad base que descontó una línea de venta.
+     *
+     * Usa el snapshot guardado en la venta, nunca el factor vigente del
+     * catálogo: anular una venta de hace meses debe devolver exactamente
+     * lo que se descontó entonces.
+     *
+     * El cálculo con factor_aplicado es una red de seguridad para filas
+     * que pudieran no tener cantidad_base (el backfill la pobló en todas).
+     */
+    private function cantidadBaseDe(DetalleVenta $detalle): float
+    {
+        $cantidadBase = (float) $detalle->cantidad_base;
+
+        if ($cantidadBase > 0) {
+            return $cantidadBase;
+        }
+
+        $factor = (float) $detalle->factor_aplicado ?: 1.0;
+
+        return round((float) $detalle->cantidad * $factor, 3);
     }
 
     /**
@@ -308,15 +344,23 @@ class VentaService
             // Revertir stock de cada producto
             foreach ($venta->detalles as $detalle) {
                 $producto = $detalle->producto;
+
+                // Se devuelve lo que esta línea descontó, usando el factor
+                // CONGELADO en la venta. Si el catálogo cambió desde entonces,
+                // la reversión sigue siendo exacta.
+                $cantidadBase = $this->cantidadBaseDe($detalle);
+
                 $stockAnterior = $producto->stock;
-                $producto->stock += $detalle->cantidad;
+                $producto->stock += $cantidadBase;
                 $producto->save();
 
                 // Registrar devolución en Kardex
                 Kardex::create([
                     'producto_id' => $producto->id,
+                    'presentacion_id' => $detalle->presentacion_id,
                     'tipo_movimiento' => 'ANULACION_VENTA',
-                    'cantidad' => $detalle->cantidad, // Positivo porque vuelve al stock
+                    'cantidad' => $cantidadBase, // Positivo porque vuelve al stock
+                    'cantidad_presentacion' => $detalle->cantidad,
                     'stock_anterior' => $stockAnterior,
                     'stock_resultante' => $producto->stock,
                     'user_id' => Auth::id(),
@@ -372,10 +416,15 @@ class VentaService
 
     /**
      * Obtiene productos activos para el POS
+     *
+     * Carga las presentaciones activas: el POS necesita saber en qué
+     * unidades se puede vender cada producto y con qué factor.
      */
     public function obtenerProductosParaPOS(): Collection
     {
-        return Producto::with(['categoria', 'unidad'])
+        return Producto::with(['categoria', 'unidad', 'presentaciones' => function ($q) {
+                $q->activas()->with('unidad')->orderByDesc('es_base');
+            }])
             ->where('estado', true)
             ->where('stock', '>', 0)
             ->orderBy('nombre')
@@ -411,15 +460,57 @@ class VentaService
     /**
      * Obtiene un producto por código de barras (para el escáner)
      */
-    public function buscarPorCodigoBarras(string $codigo): ?Producto
+    /**
+     * Busca un producto por código de barras, resolviendo también la
+     * presentación cuando el código escaneado es el de una caja.
+     *
+     * Una caja x24 trae su propio código de barras, distinto al de la unidad
+     * suelta. Si se escanea ese, hay que vender la caja directamente sin
+     * preguntar nada.
+     *
+     * @return array{producto: Producto, presentacionId: int|null}|null
+     */
+    public function buscarPorCodigoBarras(string $codigo): ?array
     {
-        return Producto::with(['categoria', 'unidad'])
-            ->where('estado', true)
+        // 1. ¿Es el código de barras de una presentación concreta?
+        $presentacion = ProductoPresentacion::with('producto')
+            ->where('codigo_barras', $codigo)
+            ->activas()
+            ->first();
+
+        if ($presentacion && $presentacion->producto && $presentacion->producto->estado) {
+            return [
+                'producto' => $this->cargarProductoParaPos($presentacion->producto),
+                'presentacionId' => $presentacion->id,
+            ];
+        }
+
+        // 2. Si no, es el código del producto: se resuelve su presentación después
+        $producto = Producto::where('estado', true)
             ->where(function ($query) use ($codigo) {
                 $query->where('codigo_barras', $codigo)
                     ->orWhere('codigo', $codigo);
             })
             ->first();
+
+        if (!$producto) {
+            return null;
+        }
+
+        return [
+            'producto' => $this->cargarProductoParaPos($producto),
+            'presentacionId' => null,
+        ];
+    }
+
+    /**
+     * Carga las relaciones que el POS necesita para operar un producto
+     */
+    private function cargarProductoParaPos(Producto $producto): Producto
+    {
+        return $producto->load(['categoria', 'unidad', 'presentaciones' => function ($q) {
+            $q->activas()->with('unidad')->orderByDesc('es_base');
+        }]);
     }
 
     /**

@@ -32,6 +32,7 @@ class UpdateUnidadRequest extends FormRequest
                 'unique:unidades,nombre,' . $id,
             ],
             'descripcion' => 'nullable|string|max:255',
+            'permite_decimales' => 'nullable|boolean',
         ];
     }
 
