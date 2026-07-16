@@ -202,7 +202,10 @@ class VentaService
      */
     private function agregarDetalle(Venta $venta, array $detalle): DetalleVenta
     {
-        $producto = Producto::findOrFail($detalle['producto_id']);
+        // lockForUpdate: sin el bloqueo, dos cajas vendiendo el último ítem a
+        // la vez leerían el mismo stock y ambas lo venderían. El bloqueo se
+        // libera al cerrar la transacción que abre crear().
+        $producto = Producto::lockForUpdate()->findOrFail($detalle['producto_id']);
 
         // La presentación decide el factor. Sin presentacion_id se usa la base
         // (factor 1) y el comportamiento es idéntico al de antes.
@@ -218,6 +221,8 @@ class VentaService
 
         // Lo que se descuenta del inventario, siempre en unidad base
         $cantidadBase = $presentacion->aBase($cantidad);
+
+        $this->validarStockDisponible($producto, $presentacion, $cantidad, $cantidadBase);
 
         // El precio de referencia es el de la presentación: una caja no cuesta
         // 24x el precio unitario.
@@ -238,6 +243,13 @@ class VentaService
             'descuento' => $descuento,
             'subtotal' => $subtotal
         ]);
+
+        // Un servicio no tiene inventario: no descuenta stock ni genera
+        // movimiento de kardex (es lo que declara es_servicio, aunque hasta
+        // ahora el descuento se hacía igual y dejaba el stock en negativo).
+        if ($producto->es_servicio) {
+            return $detalleVenta;
+        }
 
         // Descontar stock
         $stockAnterior = $producto->stock;
@@ -260,6 +272,46 @@ class VentaService
         ]);
 
         return $detalleVenta;
+    }
+
+    /**
+     * Impide vender más de lo que hay en stock.
+     *
+     * Hasta ahora permite_venta_negativa existía en la tabla pero no se
+     * consultaba en ningún punto: el stock podía irse a negativo sin aviso.
+     * Con factores el error se multiplica (vender 1 caja de más son 24
+     * unidades de más), así que la validación pasa a ser obligatoria.
+     *
+     * El POS ya valida en el navegador, pero eso no protege de un POST
+     * directo a la API ni de dos cajas vendiendo a la vez.
+     */
+    private function validarStockDisponible(
+        Producto $producto,
+        ProductoPresentacion $presentacion,
+        float $cantidad,
+        float $cantidadBase
+    ): void {
+        // Un servicio no tiene inventario que descontar
+        if ($producto->es_servicio) {
+            return;
+        }
+
+        if ($producto->permite_venta_negativa) {
+            return;
+        }
+
+        // Margen por la precisión de 3 decimales de la columna stock
+        if ($cantidadBase <= (float) $producto->stock + 0.0005) {
+            return;
+        }
+
+        $disponible = $presentacion->desdeBase((float) $producto->stock);
+        $unidad = $presentacion->unidad->codigo ?? '';
+
+        throw new \Exception(
+            "Stock insuficiente de '{$producto->nombre}': se intentan vender {$cantidad} {$unidad} " .
+            "y solo hay {$disponible} {$unidad} disponibles."
+        );
     }
 
     /**
@@ -344,6 +396,11 @@ class VentaService
             // Revertir stock de cada producto
             foreach ($venta->detalles as $detalle) {
                 $producto = $detalle->producto;
+
+                // Un servicio no descontó stock, así que no hay nada que devolver
+                if ($producto->es_servicio) {
+                    continue;
+                }
 
                 // Se devuelve lo que esta línea descontó, usando el factor
                 // CONGELADO en la venta. Si el catálogo cambió desde entonces,

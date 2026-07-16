@@ -37,6 +37,100 @@ class ProductoPresentacion extends Model
     ];
 
     // =====================================================
+    // 🛡️ REGLAS DE INTEGRIDAD
+    // =====================================================
+
+    /**
+     * Se aplican en el modelo y no en un servicio a propósito: así valen
+     * para cualquier vía de entrada (controlador, seeder, tinker), no solo
+     * para quien pase por la capa de servicio.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (ProductoPresentacion $presentacion) {
+            $presentacion->validarFactorDeBase();
+            $presentacion->validarFactorInmutable();
+            $presentacion->validarBaseUnica();
+        });
+
+        static::deleting(function (ProductoPresentacion $presentacion) {
+            if ($presentacion->tieneMovimientos()) {
+                throw new \Exception(
+                    "No se puede eliminar esta presentación porque tiene ventas o compras registradas. Desactívela en su lugar."
+                );
+            }
+
+            if ($presentacion->es_base) {
+                throw new \Exception(
+                    "No se puede eliminar la presentación base: es la unidad en la que se lleva el stock del producto."
+                );
+            }
+        });
+    }
+
+    /**
+     * La presentación base define la unidad del stock, así que su factor
+     * es 1 por definición.
+     */
+    private function validarFactorDeBase(): void
+    {
+        if ($this->es_base && (float) $this->factor !== 1.0) {
+            throw new \Exception('La presentación base debe tener factor 1: es la unidad en la que se mide el stock.');
+        }
+    }
+
+    /**
+     * Cambiar el factor de una presentación ya usada reescribiría el
+     * significado del histórico: las ventas viejas guardan factor_aplicado,
+     * pero el stock actual se calculó con el factor anterior y no cuadraría.
+     *
+     * Lo correcto es desactivar esta presentación y crear una nueva.
+     */
+    private function validarFactorInmutable(): void
+    {
+        if (!$this->exists || !$this->isDirty('factor')) {
+            return;
+        }
+
+        if ($this->tieneMovimientos()) {
+            $anterior = $this->getOriginal('factor');
+
+            throw new \Exception(
+                "No se puede cambiar el factor de {$anterior} a {$this->factor}: esta presentación ya tiene ventas o compras registradas. Desactívela y cree una presentación nueva."
+            );
+        }
+    }
+
+    /**
+     * Un producto lleva su stock en UNA sola unidad base.
+     * MySQL no tiene índices únicos parciales, así que se valida aquí.
+     */
+    private function validarBaseUnica(): void
+    {
+        if (!$this->es_base) {
+            return;
+        }
+
+        $otraBase = static::where('producto_id', $this->producto_id)
+            ->where('es_base', true)
+            ->when($this->exists, fn ($q) => $q->where('id', '!=', $this->id))
+            ->exists();
+
+        if ($otraBase) {
+            throw new \Exception('El producto ya tiene una presentación base. Solo puede haber una.');
+        }
+    }
+
+    /**
+     * Si esta presentación ya fue usada en una venta o una compra
+     */
+    public function tieneMovimientos(): bool
+    {
+        return DetalleVenta::where('presentacion_id', $this->id)->exists()
+            || DetalleCompra::where('presentacion_id', $this->id)->exists();
+    }
+
+    // =====================================================
     // 🔗 RELACIONES
     // =====================================================
 

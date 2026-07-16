@@ -156,6 +156,12 @@ class Producto extends Model
             throw new \Exception("La presentación '{$presentacion->unidad?->nombre}' de '{$this->nombre}' está desactivada.");
         }
 
+        // Desactivar una unidad es la forma de retirarla de circulación
+        // (no se puede borrar si está en uso), así que debe dejar de venderse.
+        if ($presentacion->unidad && !$presentacion->unidad->estado) {
+            throw new \Exception("La unidad '{$presentacion->unidad->nombre}' está desactivada y no se puede usar para vender.");
+        }
+
         return $presentacion;
     }
 }
