@@ -224,11 +224,11 @@ class VentaService
 
         $this->validarStockDisponible($producto, $presentacion, $cantidad, $cantidadBase);
 
-        // El precio de referencia es el de la presentación: una caja no cuesta
-        // 24x el precio unitario.
-        $precioUnitario = $detalle['precio_unitario'] ?? $presentacion->precio_venta;
-        $descuento = $detalle['descuento'] ?? 0;
-        $subtotal = ($cantidad * $precioUnitario) - $descuento;
+        // Precio y descuento se calculan igual que en la cabecera, con el
+        // mismo helper, para que el total de la venta no pueda diferir de la
+        // suma de las líneas.
+        ['precio' => $precioUnitario, 'descuento' => $descuento, 'subtotal' => $subtotal] =
+            $this->calcularLinea($presentacion, $cantidad, $detalle['descuento'] ?? 0);
 
         // Crear detalle (con el snapshot del factor: la anulación dependerá de él)
         $detalleVenta = DetalleVenta::create([
@@ -338,6 +338,31 @@ class VentaService
     }
 
     /**
+     * Precio, descuento y subtotal de una línea.
+     *
+     * Fuente única de verdad del precio de venta, usada tanto al calcular el
+     * total de la cabecera como al crear cada detalle:
+     *  - El precio SIEMPRE sale del catálogo (la presentación), nunca del
+     *    navegador: aceptar precio_unitario del cliente dejaba vender a
+     *    S/ 0.01 desde el DevTools.
+     *  - El descuento sí es del cliente, pero acotado a [0, importe de la
+     *    línea]: si no, un descuento mayor al total sería otra forma de fijar
+     *    un precio arbitrario (o negativo).
+     */
+    private function calcularLinea(ProductoPresentacion $presentacion, float $cantidad, $descuentoPedido): array
+    {
+        $precio = (float) $presentacion->precio_venta;
+        $importeLinea = $cantidad * $precio;
+        $descuento = min(max((float) $descuentoPedido, 0), $importeLinea);
+
+        return [
+            'precio' => $precio,
+            'descuento' => $descuento,
+            'subtotal' => $importeLinea - $descuento,
+        ];
+    }
+
+    /**
      * Calcula los totales de la venta
      */
     private function calcularTotales(array $detalles, float $descuentoGeneral = 0): array
@@ -345,10 +370,14 @@ class VentaService
         $subtotalBruto = 0;
 
         foreach ($detalles as $detalle) {
-            $precio = $detalle['precio_unitario'];
-            $cantidad = $detalle['cantidad'];
-            $descuento = $detalle['descuento'] ?? 0;
-            $subtotalBruto += ($cantidad * $precio) - $descuento;
+            $producto = Producto::find($detalle['producto_id']);
+            if (!$producto) {
+                continue; // el detalle se rechazará luego en agregarDetalle
+            }
+
+            $presentacion = $producto->resolverPresentacion($detalle['presentacion_id'] ?? null);
+            $linea = $this->calcularLinea($presentacion, (float) $detalle['cantidad'], $detalle['descuento'] ?? 0);
+            $subtotalBruto += $linea['subtotal'];
         }
 
         // Aplicar descuento general

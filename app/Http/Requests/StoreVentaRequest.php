@@ -48,7 +48,9 @@ class StoreVentaRequest extends FormRequest
             // Producto::resolverPresentacion(), no basta con que exista.
             'detalles.*.presentacion_id' => 'nullable|integer|exists:producto_presentaciones,id',
             'detalles.*.cantidad' => 'required|numeric|min:0.001',
-            'detalles.*.precio_unitario' => 'required|numeric|min:0',
+            // Ignorado: el servidor toma el precio del catálogo. Se acepta por
+            // compatibilidad con el POS actual, pero no se usa.
+            'detalles.*.precio_unitario' => 'nullable|numeric|min:0',
             'detalles.*.descuento' => 'nullable|numeric|min:0',
         ];
     }
