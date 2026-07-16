@@ -9,6 +9,7 @@ use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProductoPresentacionController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\VentaCreditoController;
 use App\Http\Controllers\RolePermissionController;
@@ -226,6 +227,19 @@ Route::middleware('auth')->group(function () {
         Route::patch('productos/{producto}', [ProductoController::class, 'update']);
         Route::patch('productos/{id}/toggle-estado', [ProductoController::class, 'toggleEstado'])
             ->name('productos.toggle-estado');
+
+        // Presentaciones de un producto (venta multi-unidad).
+        // Se gestionan con el mismo permiso que editar el producto.
+        Route::get('productos/{producto}/presentaciones', [ProductoPresentacionController::class, 'index'])
+            ->name('productos.presentaciones.index');
+        Route::post('productos/{producto}/presentaciones', [ProductoPresentacionController::class, 'store'])
+            ->name('productos.presentaciones.store');
+        Route::put('productos/{producto}/presentaciones/{presentacion}', [ProductoPresentacionController::class, 'update'])
+            ->name('productos.presentaciones.update');
+        Route::patch('productos/{producto}/presentaciones/{presentacion}/toggle-estado', [ProductoPresentacionController::class, 'toggleEstado'])
+            ->name('productos.presentaciones.toggle-estado');
+        Route::delete('productos/{producto}/presentaciones/{presentacion}', [ProductoPresentacionController::class, 'destroy'])
+            ->name('productos.presentaciones.destroy');
     });
     Route::middleware('permission:productos.eliminar')->group(function () {
         Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])->name('productos.destroy');

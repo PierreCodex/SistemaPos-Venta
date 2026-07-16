@@ -154,6 +154,10 @@
                                                 onclick="editarProducto({{ $producto->id }})" title="Editar">
                                                 <i class="ri-pencil-line"></i>
                                             </button>
+                                            <a href="{{ route('productos.presentaciones.index', $producto->id) }}"
+                                                class="btn btn-sm btn-soft-primary" title="Presentaciones">
+                                                <i class="ri-stack-line"></i>
+                                            </a>
                                         @endcan
                                         @can('productos.eliminar')
                                             <button type="button" class="btn btn-sm btn-danger"
